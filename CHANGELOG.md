@@ -1,6 +1,18 @@
+## 2.0.0
+
+- Rebrand and re-release of Flutter Empire to Flutter Current.
+
+### Why?
+
+- The Founders at Third Version Technology Ltd are the original creators of [Flutter Empire](https://pub.dev/packages/empire) and are no longer affiliated with Strive Business Solutions. Flutter Empire is not being actively maintained and thus we have decided to fork, rebrand and re-release the package under a new name; Flutter Current.
+- The name 'Current' and the logo represents the idea of state flowing through your application as you see fit. It also represents the idea of being 'up to date' with the latest state in your application. 🤯
+- We decided to carry on the versioning from Flutter Empire to represent the maturity of the package and to show that this is a continuation of the same great package. This also allows us to include the lineage in the change log for transparency.
+- Please see the [announcement blog post](https://thirdversion.ca/blog/announcing-flutter-current-fork-and-rebrand-of-flutter-empire) for more details.
+
 ## 1.2.0
- - Verify during EmpireWidget initialization that the EmpireViewModel being used has not been associated with another EmpireWidget.
-    - This is a BREAKING CHANGE. Decided to do this to prevent users from introducing very difficult bugs to diagnose. See [Issue #95](https://github.com/strivesolutions/flutter_empire/issues/95)
+
+- Verify during EmpireWidget initialization that the EmpireViewModel being used has not been associated with another EmpireWidget.
+  - This is a BREAKING CHANGE. Decided to do this to prevent users from introducing very difficult bugs to diagnose. See [Issue #95](https://github.com/strivesolutions/flutter_empire/issues/95)
 
 ## 1.1.0
 
@@ -28,7 +40,6 @@ First official stable release! 🎉
   - `firstWhere` (function)
   - `firstWhereOrNull` (function)
 
-
 **BREAKING CHANGES**
 
 We found some issues with the arithmetic operator overrides in the `EmpireIntProperty` and `EmpireDoubleProperty` classes. For details on the issue, please see [GitHub Issue #83](https://github.com/strivesolutions/flutter_empire/issues/83). Ultimately, we had to scrap the operator overrides and implement the arithmetic operations as functions.
@@ -39,7 +50,6 @@ We found some issues with the arithmetic operator overrides in the `EmpireIntPro
 We have also made changes to the constructor signature for `EmpireNullableDateTimeProperty` and `EmpireNullableIntProperty`. This was to bring them in line with the other Empire Nullable properties.
 
 - Updated EmpireNullableDateTimeProperty and EmpireNullableIntProperty constructors so the value argument is optional instead of a required positional argument.
-
 
 ## 0.10.0
 
@@ -65,7 +75,7 @@ We have also made changes to the constructor signature for `EmpireNullableDateTi
 - This change also allows consumers to inject Empire Properties into the ViewModel.
 - Reorganized the library exports
 
-In general, we will avoid major breaking changes if at all possible. In this case, as we approach a stable 1.0.0 release, we felt it was an overall improvement to the library based on valuable user feedback. 
+In general, we will avoid major breaking changes if at all possible. In this case, as we approach a stable 1.0.0 release, we felt it was an overall improvement to the library based on valuable user feedback.
 
 ## 0.9.0-dev.3
 
@@ -95,20 +105,18 @@ In general, we will avoid major breaking changes if at all possible. In this cas
 
 ## 0.8.3
 
-* Update package description to make Pub analysis happy
+- Update package description to make Pub analysis happy
 
 ## 0.8.2
 
-* Various code formatting and file structure clean up
-* Updated example README
+- Various code formatting and file structure clean up
+- Updated example README
 
 ## 0.8.1
 
-* CI Workflow Updates
-* Documentation Generation Changes
+- CI Workflow Updates
+- Documentation Generation Changes
 
 ## 0.8.0
 
-* Initial library launch
-
-
+- Initial library launch
