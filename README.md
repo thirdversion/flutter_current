@@ -7,7 +7,7 @@
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="https://github.com/thirdversion/flutter_current/blob/main/images/CurrentLogoSM.png?raw=true">
       <img alt="Current" src="https://github.com/thirdversion/flutter_current/blob/main/images/CurrentLogoSM.png?raw=true">
-    </picture>    
+    </picture>
   </div>
 </a>
 
