@@ -6,8 +6,6 @@ on:
 
   workflow_dispatch:
 
-name: Publish to pub.dev
-
 jobs:
   publish:
     permissions:
