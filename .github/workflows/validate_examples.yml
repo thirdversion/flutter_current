@@ -1,4 +1,4 @@
-name: Validate Examples
+name: "CI: Examples"
 
 on:
   pull_request:

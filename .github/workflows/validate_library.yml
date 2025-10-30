@@ -1,4 +1,4 @@
-name: Validate Package
+name: "CI: Library"
 
 on:
   pull_request:

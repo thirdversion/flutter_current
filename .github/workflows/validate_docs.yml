@@ -1,4 +1,4 @@
-name: Validate Docs
+name: "CI: API Docs"
 
 on:
   pull_request:
