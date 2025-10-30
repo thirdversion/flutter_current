@@ -27,7 +27,7 @@ dependencies:
   current: ^2.0.1
 ```
 
-**Tip:** Consider installing the [Current Flutter Snippets](https://marketplace.visualstudio.com/items?itemName=ThirdVersionTechnology.current-flutter-snippets) extension in Visual Studio Code to make creating Current classes easier.
+**Tip:** Consider installing the [Current Flutter Snippets](https://marketplace.visualstudio.com/items?itemName=ThirdVersionTechnologyLtd.current-flutter-snippets) extension in Visual Studio Code to make creating Current classes easier.
 
 ## Usage
 
