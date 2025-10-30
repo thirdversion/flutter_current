@@ -1,7 +1,3 @@
-## 2.0.1
-
-- Updated branding images and README.
-
 ## 2.0.0
 
 - Rebrand and re-release of Flutter Empire to Flutter Current.
