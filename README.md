@@ -196,7 +196,7 @@ You can find the full API documentation [here](https://pub.dev/documentation/cur
 <a href="https://thirdversion.ca">
   <div align="center">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/thirdversion/flutter_current/blob/main/images/LogoBlackMD.png">
+      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/thirdversion/flutter_current/blob/main/images/LogoBlackMD.png?raw=true">
       <img alt="Current" src="https://github.com/thirdversion/flutter_current/blob/main/images/LogoBlackMD.png">
     </picture>  
     <br />
