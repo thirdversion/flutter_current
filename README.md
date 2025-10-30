@@ -21,7 +21,7 @@ In your flutter project, add the dependency to your `pubspec.yaml`
 
 ```yaml
 dependencies:
-  current: ^2.0.1
+  current: ^2.0.2
 ```
 
 **Tip:** Consider installing the [Current Flutter Snippets](https://marketplace.visualstudio.com/items?itemName=ThirdVersionTechnologyLtd.current-flutter-snippets) extension in Visual Studio Code to make creating Current classes easier.
