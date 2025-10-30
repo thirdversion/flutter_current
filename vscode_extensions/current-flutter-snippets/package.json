@@ -3,7 +3,7 @@
   "displayName": "Current Flutter Snippets",
   "description": "Helpful code snippets for the Flutter Current State Management package to quickly create Current Widgets and CurrentViewModels.",
   "publisher": "ThirdVersionTechnologyLtd",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/thirdversion/flutter_current"
