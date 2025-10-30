@@ -4,10 +4,7 @@
 
 <a href="https://pub.dev/packages/current">
   <div align="center">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/thirdversion/flutter_current/blob/main/images/CurrentLogoSM.png?raw=true">
-      <img alt="Current" src="https://github.com/thirdversion/flutter_current/blob/main/images/CurrentLogoSM.png?raw=true">
-    </picture>
+    <img src="https://github.com/thirdversion/flutter_current/blob/main/images/CurrentLogoSM.png?raw=true" alt="Current Logo" />
   </div>
 </a>
 
@@ -195,10 +192,7 @@ You can find the full API documentation [here](https://pub.dev/documentation/cur
 
 <a href="https://thirdversion.ca">
   <div align="center">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/thirdversion/flutter_current/blob/main/images/LogoBlackMD.png?raw=true">
-      <img alt="Current" src="https://github.com/thirdversion/flutter_current/blob/main/images/LogoBlackMD.png">
-    </picture>  
+    <img src="https://github.com/thirdversion/flutter_current/blob/main/images/LogoBlackMD.png?raw=true" alt="Third Version Technology Logo" />
     <br />
     © 2025 Third Version Technology Ltd
   </div>
