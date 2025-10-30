@@ -5,8 +5,8 @@
 <a href="https://pub.dev/packages/current">
   <div align="center">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/thirdversion/flutter_current/blob/CurrentImages/images/CurrentLogoSM.png?raw=true">
-      <img alt="Current" src="https://github.com/thirdversion/flutter_current/blob/CurrentImages/images/CurrentLogoSM.png?raw=true">
+      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/thirdversion/flutter_current/blob/main/images/CurrentLogoSM.png?raw=true">
+      <img alt="Current" src="https://github.com/thirdversion/flutter_current/blob/main/images/CurrentLogoSM.png?raw=true">
     </picture>    
   </div>
 </a>
@@ -191,12 +191,13 @@ This package has **ZERO** dependencies on any other packages.
 
 You can find the full API documentation [here](https://pub.dev/documentation/current/latest/)
 
-<a href="https://thirdversion.ca">
+<br />
 
+<a href="https://thirdversion.ca">
   <div align="center">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="./images/LogoBlackMD.png">
-      <img alt="Current" src="./images/LogoBlackMD.png">
+      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/thirdversion/flutter_current/blob/main/images/LogoBlackMD.png">
+      <img alt="Current" src="https://github.com/thirdversion/flutter_current/blob/main/images/LogoBlackMD.png">
     </picture>  
     <br />
     © 2025 Third Version Technology Ltd
