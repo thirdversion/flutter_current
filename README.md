@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://github.com/thirdversion/flutter_current/blob/main/images/CurrentLogoSM.png?raw=true" alt="Current Logo" style="max-width: 100%; height: 125px;"/>
+    <img src="https://github.com/thirdversion/flutter_current/blob/CurrentImages/images/CurrentLogoSM.png?raw=true" alt="Current Logo" />
 </p>
 
 <h1 align="center">Flutter Current</h1>
