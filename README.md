@@ -1,6 +1,15 @@
-<p align="center">
-    <img src="https://github.com/thirdversion/flutter_current/blob/main/images/CurrentLogo.png?raw=true" alt="Current Logo" style="max-width: 100%; height: 125px;"/>
-</p>
+[![CI: Library](https://github.com/thirdversion/flutter_current/actions/workflows/validate_library.yml/badge.svg)](https://github.com/thirdversion/flutter_current/actions/workflows/validate_library.yml)
+[![CI: Examples](https://github.com/thirdversion/flutter_current/actions/workflows/validate_examples.yml/badge.svg)](https://github.com/thirdversion/flutter_current/actions/workflows/validate_examples.yml)
+[![CI: API Docs](https://github.com/thirdversion/flutter_current/actions/workflows/validate_docs.yml/badge.svg)](https://github.com/thirdversion/flutter_current/actions/workflows/validate_docs.yml)
+
+<a href="https://pub.dev/packages/current">
+  <div align="center">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/thirdversion/flutter_current/blob/main/images/CurrentLogoSM.png?raw=true">
+      <img alt="Current" src="https://github.com/thirdversion/flutter_current/blob/main/images/CurrentLogoSM.png?raw=true">
+    </picture>
+  </div>
+</a>
 
 <h1 align="center">Flutter Current</h1>
 <h3 align="center">A simple, lightweight state management library for Flutter</h3>
@@ -182,6 +191,15 @@ This package has **ZERO** dependencies on any other packages.
 
 You can find the full API documentation [here](https://pub.dev/documentation/current/latest/)
 
-Developed by:
+<br />
 
-© 2025 [Third Version Technology Ltd](https://thirdversion.ca/)
+<a href="https://thirdversion.ca">
+  <div align="center">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/thirdversion/flutter_current/blob/main/images/LogoBlackMD.png?raw=true">
+      <img alt="Current" src="https://github.com/thirdversion/flutter_current/blob/main/images/LogoBlackMD.png">
+    </picture>  
+    <br />
+    © 2025 Third Version Technology Ltd
+  </div>
+</a>
