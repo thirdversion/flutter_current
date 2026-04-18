@@ -23,6 +23,16 @@ abstract class CurrentViewModel {
 
   final List<StreamSubscription> _subscriptions = [];
 
+  /// Whether any of the properties defined in [currentProps] have a value that is different from their original value.
+  ///
+  /// This can be used to determine if any changes have been made to the view model since it was last reset or since the [originalValue] of the properties were last updated to their current values.
+  bool get isDirty {
+    for (final prop in currentProps) {
+      if (prop.value != prop.originalValue) return true;
+    }
+    return false;
+  }
+
   bool _busy = false;
 
   /// Whether the view model is currently busy performing a long running task. Can be used by the UI to show a loading indicator or prevent user interaction.
