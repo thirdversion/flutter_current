@@ -113,9 +113,43 @@ abstract class CurrentViewModel {
   }
 
   ///Adds an event handler which gets executed each time [notifyError] is called.
-  StreamSubscription addOnErrorEventListener(
-      Function(ErrorEvent event) onError) {
-    final newSubscription = _errorController.stream.listen(onError);
+  ///
+  ///You can subscribe to specific error events by providing a type argument [T] that extends [ErrorEvent], or you can listen to all error events by subscribing with the base [ErrorEvent] type.
+  ///
+  ///You can also provide an optional [onInternalError] callback which will be executed if an error occurs within the event handler itself.
+  ///This is useful for preventing unhandled exceptions that occur within the event handler from crashing your application or bubbling the error up to the global Flutter.error handler.
+  ///
+  ///### Usage (Specific ErrorEvent):
+  ///
+  ///```dart
+  ///viewModel.addOnErrorEventListener<FailedToRecitePi>((error) {
+  ///  ScaffoldMessenger.of(context).showSnackBar(
+  ///    SnackBar(
+  ///      content: Text(error.error),
+  ///    ),
+  ///  );
+  ///});
+  ///```
+  ///
+  ///### Usage (All ErrorEvents):
+  ///```dart
+  ///viewModel.addOnErrorEventListener((ErrorEvent event) {
+  ///  ScaffoldMessenger.of(context).showSnackBar(
+  ///    SnackBar(
+  ///      content: Text(event.error.toString()),
+  ///    ),
+  ///  );
+  ///});
+  ///```
+  ///
+  StreamSubscription addOnErrorEventListener<T extends ErrorEvent>(
+      void Function(T event) onError,
+      {void Function(Object error, StackTrace stackTrace)? onInternalError}) {
+    final newSubscription = _errorController.stream
+        .where((event) => event is T)
+        .cast<T>()
+        .listen(onError, onError: onInternalError);
+
     _subscriptions.add(newSubscription);
     return newSubscription;
   }
