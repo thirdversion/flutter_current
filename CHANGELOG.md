@@ -1,3 +1,7 @@
+## 2.0.2
+
+- Updated branding images and README (again).
+
 ## 2.0.1
 
 - Updated branding images and README.
