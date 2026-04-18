@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:current/current.dart';
 import 'package:current_counter_example/answer_to_life_found_event.dart';
+import 'package:current_counter_example/failed_to_recite_pi.dart';
 import 'package:flutter/material.dart';
 import 'application_view_model.dart';
 import 'counter_view_model.dart';
@@ -67,15 +68,30 @@ class _CounterPageState extends CurrentState<CounterPage, CounterViewModel> {
         );
       }
     });
+
+    // Can also listen to error events. Error events are a separate stream from state changed events.
+    // You can listen to specific error events (like FailedToRecitePi) or listen to all error events by subscribing to [ErrorEvent].
+    viewModel.addOnErrorEventListener<FailedToRecitePi>((error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text(
+            error.error,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 96),
+          ),
+        ),
+      );
+    });
     super.initState();
   }
 
-  Future<void> subscribeToCountChanges() async {
+  Future<void> resumeCountChangeSubscription() async {
     countChangedSubscription?.resume();
     viewModel.changeBackgroundOnCountChange(true);
   }
 
-  Future<void> unsubscribeToCountChanges() async {
+  Future<void> pauseCountChangeSubscription() async {
     countChangedSubscription?.pause();
     viewModel.changeBackgroundOnCountChange(false);
   }
@@ -121,9 +137,9 @@ class _CounterPageState extends CurrentState<CounterPage, CounterViewModel> {
               TextButton(
                 onPressed: () async {
                   if (viewModel.changeBackgroundOnCountChange.isFalse) {
-                    await subscribeToCountChanges();
+                    await resumeCountChangeSubscription();
                   } else {
-                    await unsubscribeToCountChanges();
+                    await pauseCountChangeSubscription();
                   }
                 },
                 child: Text(viewModel.changeBackgroundOnCountChange.isFalse
@@ -174,6 +190,11 @@ class _CounterPageState extends CurrentState<CounterPage, CounterViewModel> {
                         : const Icon(Icons.work_off),
                   ),
                 ],
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: viewModel.recitePi,
+                child: const Text('Try To Recite PI'),
               ),
               TextButton(
                 onPressed: () {
