@@ -43,8 +43,19 @@ class CurrentViewModelAlreadyAssignedException extends CurrentException {
   CurrentViewModelAlreadyAssignedException(super.stack, super.type);
 
   @override
-  String toString() =>
-      '''CurrentViewModelAlreadyAssignedException: The View Model of type $type has already been assigned to a different CurrentState.
-      \nThis is generally due to the attached CurrentWidget being rebuilt. If you expect the parent widget to rebuild the CurrentWidget,
-      you can use the Flutter AutomaticKeepAliveClientMixin on the CurrentState $type is associated with.\n\nStack Trace:\n$stack''';
+  String toString() {
+    final buffer = StringBuffer()
+      ..writeln(
+        'CurrentViewModelAlreadyAssignedException: The View Model of type $type has already been assigned to a different CurrentState.',
+      )
+      ..write(
+        'This is generally due to the attached CurrentWidget being rebuilt. If you expect the parent widget to rebuild the CurrentWidget',
+      )
+      ..writeln(
+        'you can use the Flutter AutomaticKeepAliveClientMixin on the CurrentState $type is associated with.',
+      )
+      ..writeln('Stack Trace:\n$stack');
+
+    return buffer.toString();
+  }
 }
