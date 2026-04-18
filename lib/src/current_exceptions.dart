@@ -49,7 +49,7 @@ class CurrentViewModelAlreadyAssignedException extends CurrentException {
         'CurrentViewModelAlreadyAssignedException: The View Model of type $type has already been assigned to a different CurrentState.',
       )
       ..write(
-        'This is generally due to the attached CurrentWidget being rebuilt. If you expect the parent widget to rebuild the CurrentWidget',
+        'This is generally due to the attached CurrentWidget being rebuilt. If you expect the parent widget to rebuild the CurrentWidget ',
       )
       ..writeln(
         'you can use the Flutter AutomaticKeepAliveClientMixin on the CurrentState $type is associated with.',

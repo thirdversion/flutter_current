@@ -87,6 +87,26 @@ abstract class CurrentWidget<T extends CurrentViewModel>
 ///  }
 ///}
 ///```
+///**IMPORTANT**
+///If you expect the parent widget of [T] to cause [T] to rebuild, you should use the Flutter [AutomaticKeepAliveClientMixin]
+///on the [CurrentState] implementation to prevent the state from being disposed and recreated, which will cause the view model to be reassigned and throw a [CurrentViewModelAlreadyAssignedException].
+///
+///For example:
+///```dart
+///class _CounterPageState extends CurrentState<CounterPage, CounterViewModel> with AutomaticKeepAliveClientMixin {
+///  _CounterPageState(super.viewModel);
+///
+///  @override
+///  bool get wantKeepAlive => true;
+///
+///  @override
+///  Widget build(BuildContext context) {
+///    super.build(context);
+///    return Scaffold(
+///     body: Text('Counter: ${viewModel.count}'),
+///    );
+///  }
+///}
 abstract class CurrentState<T extends CurrentWidget, E extends CurrentViewModel>
     extends State<T> {
   final E viewModel;
