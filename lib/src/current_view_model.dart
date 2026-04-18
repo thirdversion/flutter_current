@@ -15,14 +15,21 @@ import 'current_property.dart';
 ///The [CurrentState] the ViewModel is bound to will update itself each time an [CurrentProperty] value
 ///is changed and call the states build function, updating the UI.
 abstract class CurrentViewModel {
-  final StreamController<List<CurrentStateChanged>> _stateController =
+  final StreamController<CurrentStateChanged> _stateController =
       StreamController.broadcast();
+
   final StreamController<ErrorEvent> _errorController =
       StreamController.broadcast();
 
   final List<StreamSubscription> _subscriptions = [];
 
   bool _busy = false;
+
+  /// Whether the view model is currently busy performing a long running task. Can be used by the UI to show a loading indicator or prevent user interaction.
+  ///
+  /// You can use the [setBusy] and [setNotBusy] functions to update this status, or the [doAsync] function to automatically update the busy status while performing a long running task.
+  ///
+  /// You can also subscribe to changes in the busy status by registering an event handler using the [addBusyStatusChangedListener] function.
   bool get busy => _busy;
 
   final List<dynamic> _busyTaskKeys = [];
@@ -64,14 +71,38 @@ abstract class CurrentViewModel {
     _assignedTo = widgetHash;
   }
 
-  ///Adds an event handler which gets executed each time an [CurrentProperty] value is changed.
+  /// Adds an event handler which gets executed each time an event of type [T] is added to the state stream.
   ///
-  ///If your listener references a [BuildContext] inside of a [Widget],
-  ///you should override the [Widget] dispose method and cancel the subscription.
-  StreamSubscription addOnStateChangedListener(
-      Function(List<CurrentStateChanged> events) onStateChanged) {
-    final newSubscription = _stateController.stream.listen(onStateChanged);
+  /// If the optional [filter] function is provided, the event handler will only be executed for events where the [filter] function returns true.
+  /// If the optional [propertyName] argument is provided, the event handler will only be executed for events where the [CurrentStateChanged.propertyName] matches the provided [propertyName].
+  ///
+  /// Note if you provide both a [filter] and [propertyName], the event handler will only be executed for events that satisfy both conditions.
+  ///
+  /// If an error occurs in the event handler, any event handlers registered with the [addOnErrorEventListener] function will be executed with an [ErrorEvent] containing the error.
+  StreamSubscription addStateChangedListener<T extends CurrentStateChanged>(
+      void Function(T event) onStateChanged,
+      {bool Function(T event)? filter,
+      String? propertyName}) {
+    final newSubscription = _stateController.stream
+        .where((event) => event is T)
+        .cast<T>()
+        .where((event) {
+      if (filter != null && !filter(event)) {
+        return false;
+      }
+      if (propertyName != null && (event).propertyName != propertyName) {
+        return false;
+      }
+      return true;
+    }).listen(
+      onStateChanged,
+      onError: (error) {
+        notifyError(ErrorEvent(error));
+      },
+    );
+
     _subscriptions.add(newSubscription);
+
     return newSubscription;
   }
 
@@ -98,7 +129,18 @@ abstract class CurrentViewModel {
       return;
     }
 
-    _stateController.add(events);
+    for (final event in events) {
+      _stateController.add(event);
+    }
+  }
+
+  /// Inform the bound [CurrentState] that the state of the UI needs to be updated with a single event.
+  ///
+  /// This is a convenience method that allows you to avoid having to create a list when you only have one event to notify.
+  /// **NOTE**: Although you CAN call this method manually, it's usually not required. Updating the value of an [CurrentProperty] will automatically notify the UI to update itself.
+  /// But if you have a custom event that you'd like to notify the UI of, you can use this method to do so.
+  void notifyChange(CurrentStateChanged event) {
+    notifyChanges([event]);
   }
 
   ///Set multiple [CurrentProperty] values, but only trigger a single state change
@@ -164,7 +206,9 @@ abstract class CurrentViewModel {
         _removeBusyTaskKey(busyTaskKey);
       }
       _busy = _busyTaskKeys.isNotEmpty || isBusy;
-      notifyChanges([CurrentStateChanged(isBusy, !isBusy)]);
+      notifyChange(
+        BusyStatusChanged(isBusy: _busy, busyTaskKey: busyTaskKey),
+      );
     }
   }
 
@@ -217,6 +261,22 @@ abstract class CurrentViewModel {
   bool isTaskInProgress(dynamic busyTaskKey) =>
       _busyTaskKeys.contains(busyTaskKey);
 
+  /// Subscribes to changes in the busy status of the view model.
+  ///
+  /// The [onChanged] callback will be executed each time the busy status changes. If a [busyTaskKey] is provided, the callback will only be executed for changes related to that specific task key.
+  ///
+  /// **NOTE** Any change to the busy status will trigger a UI update in the bound [CurrentState], regardless of whether you use this function to subscribe to busy status changes or not.
+  /// This function is only necessary if you want to perform additional side effects in response to busy status changes.
+  StreamSubscription addBusyStatusChangedListener(
+      void Function(BusyStatusChanged event) onChanged,
+      {dynamic busyTaskKey}) {
+    return addStateChangedListener<BusyStatusChanged>(
+      onChanged,
+      filter: (event) =>
+          busyTaskKey == null || event.busyTaskKey == busyTaskKey,
+    );
+  }
+
   void _addBusyTaskKey(dynamic busyTaskKey) {
     if (busyTaskKey != null && !_busyTaskKeys.contains(busyTaskKey)) {
       _busyTaskKeys.add(busyTaskKey);
@@ -256,7 +316,7 @@ abstract class CurrentViewModel {
 ///The event that is added to the State stream.
 ///
 ///Any event handlers registered with the
-///[CurrentViewModel.addOnStateChangedListener] function will receive these types of events
+///[CurrentViewModel.addStateChangedListener] function will receive these types of events
 class CurrentStateChanged<T> {
   final T? previousValue;
   final T? nextValue;
@@ -366,6 +426,14 @@ class CurrentStateChanged<T> {
   String toString() {
     return 'Previous: $previousValue, Next: $nextValue, Property Name: $propertyName, Description: $description';
   }
+}
+
+class BusyStatusChanged extends CurrentStateChanged<bool> {
+  final dynamic busyTaskKey;
+  final bool isBusy;
+
+  BusyStatusChanged({required this.isBusy, super.description, this.busyTaskKey})
+      : super(isBusy, !isBusy, propertyName: 'busy');
 }
 
 extension CurrentStateChangedExtensions<T> on List<CurrentStateChanged<T>> {

@@ -120,10 +120,10 @@ abstract class CurrentState<T extends CurrentWidget, E extends CurrentViewModel>
       (_) => viewModel.assignTo(hashCode),
     );
 
-    viewModel.addOnStateChangedListener((events) {
+    viewModel.addStateChangedListener<CurrentStateChanged>((event) {
       if (widget.debugPrintStateChanges && kDebugMode) {
         // ignore: avoid_print
-        events.forEach(print);
+        print(event);
       }
       if (mounted) {
         setState(() {});

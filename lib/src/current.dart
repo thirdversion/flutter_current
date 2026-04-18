@@ -123,10 +123,10 @@ class _CurrentState<T extends CurrentViewModel> extends State<Current> {
 
   @override
   void initState() {
-    widget.viewModel.addOnStateChangedListener((events) {
+    widget.viewModel.addStateChangedListener<CurrentStateChanged>((event) {
       if (widget.debugPrintStateChanges && kDebugMode) {
         // ignore: avoid_print
-        events.forEach(print);
+        print(event);
       }
       if (mounted) {
         setState(() {
