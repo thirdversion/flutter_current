@@ -59,8 +59,20 @@ class CurrentProperty<T> implements CurrentValue<T> {
 
   T _value;
 
+  /// Returns the current value of this [CurrentProperty].
+  /// Setting the [value] will update the value of this [CurrentProperty] and trigger a UI update if the new value is different from the current value.
+  /// If [T] is a reference type, setting the [value] to a new instance of [T] with the same properties as the current value will still trigger a UI update since the reference has changed.
+  ///
+  /// Setting the value here will not update the [originalValue]. To update the [originalValue] to the current value, use the [setOriginalValueToCurrent] function, or use the [set] function with the [setAsOriginal] argument set to true.
   @override
   T get value => _value;
+  set value(T newValue) {
+    if (_value == newValue) {
+      return;
+    }
+
+    set(newValue, notifyChange: true);
+  }
 
   /// Returns true if the value of this [CurrentProperty] is null.
   ///

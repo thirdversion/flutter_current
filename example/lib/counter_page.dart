@@ -16,6 +16,7 @@ class CounterPage extends CurrentWidget<CounterViewModel> {
 class _CounterPageState extends CurrentState<CounterPage, CounterViewModel> {
   _CounterPageState(super.viewModel);
 
+  final formKey = GlobalKey<FormState>();
   late ApplicationViewModel appViewModel;
 
   StreamSubscription? countChangedSubscription;
@@ -55,51 +56,67 @@ class _CounterPageState extends CurrentState<CounterPage, CounterViewModel> {
       appBar: AppBar(
         title: Text(appViewModel.title.value),
       ),
-      body: Center(
-        child: ifBusy(
-          const CircularProgressIndicator(),
-          otherwise: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              const Text(
-                'You have pushed the button this many times:',
-              ),
-              Text(
-                '${viewModel.count}',
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              TextButton(
-                onPressed: () =>
-                    Current.viewModelOf<ApplicationViewModel>(context)
-                        .changeBackgroundColor(Colors.red),
-                child: const Text('Red'),
-              ),
-              TextButton(
-                onPressed: () =>
-                    Current.viewModelOf<ApplicationViewModel>(context)
-                        .changeBackgroundColor(Colors.white),
-                child: const Text('White'),
-              ),
-              TextButton(
-                onPressed: () async {
-                  if (viewModel.changeBackgroundOnCountChange.isFalse) {
-                    await subscribeToCountChanges();
-                  } else {
-                    await unsubscribeToCountChanges();
-                  }
-                },
-                child: Text(viewModel.changeBackgroundOnCountChange.isFalse
-                    ? 'Randomize Background Color on Count Change'
-                    : 'Turn Off Random Backgrounds'),
-              ),
-              TextButton(
-                onPressed: () {
-                  viewModel.reset();
-                  appViewModel.reset();
-                },
-                child: const Text('Reset'),
-              ),
-            ],
+      body: Form(
+        key: formKey,
+        child: Center(
+          child: ifBusy(
+            const CircularProgressIndicator(),
+            otherwise: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                const Text(
+                  'You have pushed the button this many times:',
+                ),
+                Text(
+                  '${viewModel.count}',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                TextButton(
+                  onPressed: () =>
+                      Current.viewModelOf<ApplicationViewModel>(context)
+                          .changeBackgroundColor(Colors.red),
+                  child: const Text('Red'),
+                ),
+                TextButton(
+                  onPressed: () =>
+                      Current.viewModelOf<ApplicationViewModel>(context)
+                          .changeBackgroundColor(Colors.white),
+                  child: const Text('White'),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    if (viewModel.changeBackgroundOnCountChange.isFalse) {
+                      await subscribeToCountChanges();
+                    } else {
+                      await unsubscribeToCountChanges();
+                    }
+                  },
+                  child: Text(viewModel.changeBackgroundOnCountChange.isFalse
+                      ? 'Randomize Background Color on Count Change'
+                      : 'Turn Off Random Backgrounds'),
+                ),
+                SizedBox(
+                  width: 200,
+                  child: TextFormField(
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'Set Count'),
+                    onChanged: (value) {
+                      final intValue = int.tryParse(value);
+                      if (intValue != null) {
+                        viewModel.count.value = intValue;
+                      }
+                    },
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    viewModel.reset();
+                    appViewModel.reset();
+                  },
+                  child: const Text('Reset'),
+                ),
+              ],
+            ),
           ),
         ),
       ),
