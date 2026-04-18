@@ -13,6 +13,14 @@ class CounterViewModel extends CurrentViewModel {
     count.increment();
   }
 
+  void toggleProductivity() {
+    if (busy) {
+      setNotBusy();
+    } else {
+      setBusy();
+    }
+  }
+
   void reset() {
     count.reset();
     changeBackgroundOnCountChange.reset();
