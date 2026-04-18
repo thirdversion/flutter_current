@@ -15,15 +15,27 @@ class CounterPage extends CurrentWidget<CounterViewModel> {
       createCurrent() => _CounterPageState(viewModel);
 }
 
-class _CounterPageState extends CurrentState<CounterPage, CounterViewModel> {
+class _CounterPageState extends CurrentState<CounterPage, CounterViewModel>
+    with CurrentTextControllersLifecycleMixin {
   _CounterPageState(super.viewModel);
+
+  static const double _textFieldWidth = 200;
 
   final formKey = GlobalKey<FormState>();
   final countController = TextEditingController();
+  final nameController = CurrentTextController.string();
 
   late ApplicationViewModel appViewModel;
 
   StreamSubscription? countChangedSubscription;
+
+  @override
+  void bindCurrentControllers() {
+    nameController.bindString(
+      property: viewModel.name,
+      lifecycleProvider: this,
+    );
+  }
 
   @override
   void initState() {
@@ -115,8 +127,15 @@ class _CounterPageState extends CurrentState<CounterPage, CounterViewModel> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              const Text(
-                'You have pushed the button this many times:',
+              Text.rich(
+                TextSpan(text: 'Hey ', children: [
+                  TextSpan(
+                    text: viewModel.name.value,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const TextSpan(
+                      text: ', You have pushed the button this many times:'),
+                ]),
               ),
               Text(
                 '${viewModel.count}',
@@ -147,7 +166,7 @@ class _CounterPageState extends CurrentState<CounterPage, CounterViewModel> {
                     : 'Turn Off Random Backgrounds'),
               ),
               SizedBox(
-                width: 200,
+                width: _textFieldWidth,
                 child: TextFormField(
                   controller: countController,
                   keyboardType: TextInputType.number,
@@ -196,9 +215,41 @@ class _CounterPageState extends CurrentState<CounterPage, CounterViewModel> {
                 onPressed: viewModel.recitePi,
                 child: const Text('Try To Recite PI'),
               ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: _textFieldWidth,
+                child: TextFormField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: 'Name'),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 8.0, horizontal: 32),
+                child: Text.rich(
+                  textAlign: TextAlign.center,
+                  TextSpan(
+                    text:
+                        'Notice that the name TextFormField is using a CurrentTextController, and the count TextFormField is using a regular TextEditingController. ',
+                    children: [
+                      TextSpan(
+                        text:
+                            '\n\nThe CurrentTextController automatically keeps the value of the TextFormField in sync with the value of the associated CurrentProperty, so when the `name` resets to its original value, the TextFormField will automatically update to reflect that change',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextSpan(
+                        text: ' while the `count` TextFormField will not.',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
               TextButton(
                 onPressed: () {
-                  viewModel.reset();
+                  viewModel.resetAll();
                   appViewModel.reset();
                 },
                 child: const Text('Reset'),

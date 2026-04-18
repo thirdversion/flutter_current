@@ -2,13 +2,14 @@ import 'package:current/current.dart';
 import 'package:current_counter_example/failed_to_recite_pi.dart';
 
 class CounterViewModel extends CurrentViewModel {
+  final name = CurrentProperty.string(initialValue: 'You');
   final count = CurrentProperty.integer(propertyName: 'count');
 
   final changeBackgroundOnCountChange = CurrentBoolProperty(false);
 
   @override
   List<CurrentProperty> get currentProps {
-    return [count, changeBackgroundOnCountChange];
+    return [name, count, changeBackgroundOnCountChange];
   }
 
   Future<void> incrementCounter() async {
@@ -25,10 +26,5 @@ class CounterViewModel extends CurrentViewModel {
 
   void recitePi() {
     notifyError(FailedToRecitePi('🤯'));
-  }
-
-  void reset() {
-    count.reset();
-    changeBackgroundOnCountChange.reset();
   }
 }
