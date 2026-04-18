@@ -501,7 +501,12 @@ class CurrentProperty<T> implements CurrentValue<T> {
     _value = value;
     if (notifyChange && previousValue != value) {
       viewModel.notifyChanges([
-        CurrentStateChanged(value, previousValue, propertyName: propertyName)
+        CurrentStateChanged(
+          value,
+          previousValue,
+          propertyName: propertyName,
+          sourceHashCode: hashCode,
+        )
       ]);
     }
 
@@ -559,6 +564,7 @@ class CurrentProperty<T> implements CurrentValue<T> {
           _originalValue,
           currentValue,
           propertyName: propertyName,
+          sourceHashCode: hashCode,
         )
       ]);
     }

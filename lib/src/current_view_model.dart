@@ -343,6 +343,8 @@ abstract class CurrentViewModel {
     }
 
     setMultiple(resetActions);
+    _busyTaskKeys.clear();
+    setNotBusy();
   }
 
   ///Closes the state and error streams and removes any listeners associated with those streams
@@ -366,9 +368,10 @@ class CurrentStateChanged<T> {
   final T? nextValue;
   final String? propertyName;
   final String? description;
+  final int? sourceHashCode;
 
   CurrentStateChanged(this.nextValue, this.previousValue,
-      {this.propertyName, this.description});
+      {this.propertyName, this.description, this.sourceHashCode});
 
   ///A factory method which creates a single [CurrentStateChanged] object with a description
   ///describing what value was added to the list
