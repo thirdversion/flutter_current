@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:current/current.dart';
+import 'package:current_counter_example/answer_to_life_found_event.dart';
+import 'package:current_counter_example/failed_to_recite_pi.dart';
 import 'package:flutter/material.dart';
 import 'application_view_model.dart';
 import 'counter_view_model.dart';
@@ -17,28 +19,79 @@ class _CounterPageState extends CurrentState<CounterPage, CounterViewModel> {
   _CounterPageState(super.viewModel);
 
   final formKey = GlobalKey<FormState>();
+  final countController = TextEditingController();
+
   late ApplicationViewModel appViewModel;
 
   StreamSubscription? countChangedSubscription;
 
-  Future<void> subscribeToCountChanges() async {
-    if (countChangedSubscription == null) {
-      countChangedSubscription = viewModel.addOnStateChangedListener((events) {
-        for (var event in events) {
-          if (event.propertyName == "count" &&
-              viewModel.changeBackgroundOnCountChange.isTrue) {
-            appViewModel.randomizeBackgroundColor();
-          }
-        }
-      });
-    } else {
-      countChangedSubscription!.resume();
-    }
+  @override
+  void initState() {
+    // Can listen to specific events
+    viewModel.addStateChangedListener<AnswerToLifeFoundEvent>((event) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(event.description),
+        ),
+      );
+    }, filter: (event) => event.nextValue == 42);
 
+    // Can also listen to all events and filter by property name
+    countChangedSubscription =
+        viewModel.addStateChangedListener((CurrentStateChanged event) {
+      if (viewModel.changeBackgroundOnCountChange.isTrue) {
+        appViewModel.randomizeBackgroundColor();
+      }
+
+      // Can also publish additional events in response to other events.
+      // In this case, we're publishing an AnswerToLifeFoundEvent when the count reaches 42.
+      if (event.nextValue == 42) {
+        viewModel.notifyChange(AnswerToLifeFoundEvent(event.previousValue));
+      }
+    }, propertyName: "count");
+
+    // Can listen to changes in the busy status of the view model
+    // Setting the ViewModel to busy will always trigger a UI update, but this allows you to perform additional
+    // side effects in response to busy status changes.
+    viewModel.addBusyStatusChangedListener((event) {
+      if (event.isBusy) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Congratulations on being productive!'),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Good job on whatever you were doing!'),
+          ),
+        );
+      }
+    });
+
+    // Can also listen to error events. Error events are a separate stream from state changed events.
+    // You can listen to specific error events (like FailedToRecitePi) or listen to all error events by subscribing to [ErrorEvent].
+    viewModel.addOnErrorEventListener<FailedToRecitePi>((error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text(
+            error.error,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 96),
+          ),
+        ),
+      );
+    });
+    super.initState();
+  }
+
+  Future<void> resumeCountChangeSubscription() async {
+    countChangedSubscription?.resume();
     viewModel.changeBackgroundOnCountChange(true);
   }
 
-  Future<void> unsubscribeToCountChanges() async {
+  Future<void> pauseCountChangeSubscription() async {
     countChangedSubscription?.pause();
     viewModel.changeBackgroundOnCountChange(false);
   }
@@ -59,64 +112,98 @@ class _CounterPageState extends CurrentState<CounterPage, CounterViewModel> {
       body: Form(
         key: formKey,
         child: Center(
-          child: ifBusy(
-            const CircularProgressIndicator(),
-            otherwise: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                const Text(
-                  'You have pushed the button this many times:',
-                ),
-                Text(
-                  '${viewModel.count}',
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-                TextButton(
-                  onPressed: () =>
-                      Current.viewModelOf<ApplicationViewModel>(context)
-                          .changeBackgroundColor(Colors.red),
-                  child: const Text('Red'),
-                ),
-                TextButton(
-                  onPressed: () =>
-                      Current.viewModelOf<ApplicationViewModel>(context)
-                          .changeBackgroundColor(Colors.white),
-                  child: const Text('White'),
-                ),
-                TextButton(
-                  onPressed: () async {
-                    if (viewModel.changeBackgroundOnCountChange.isFalse) {
-                      await subscribeToCountChanges();
-                    } else {
-                      await unsubscribeToCountChanges();
-                    }
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              const Text(
+                'You have pushed the button this many times:',
+              ),
+              Text(
+                '${viewModel.count}',
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              TextButton(
+                onPressed: () =>
+                    Current.viewModelOf<ApplicationViewModel>(context)
+                        .changeBackgroundColor(Colors.red),
+                child: const Text('Red'),
+              ),
+              TextButton(
+                onPressed: () =>
+                    Current.viewModelOf<ApplicationViewModel>(context)
+                        .changeBackgroundColor(Colors.white),
+                child: const Text('White'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  if (viewModel.changeBackgroundOnCountChange.isFalse) {
+                    await resumeCountChangeSubscription();
+                  } else {
+                    await pauseCountChangeSubscription();
+                  }
+                },
+                child: Text(viewModel.changeBackgroundOnCountChange.isFalse
+                    ? 'Randomize Background Color on Count Change'
+                    : 'Turn Off Random Backgrounds'),
+              ),
+              SizedBox(
+                width: 200,
+                child: TextFormField(
+                  controller: countController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                      labelText: 'Set Count',
+                      suffix: IconButton(
+                          onPressed: () {
+                            // Can invoke the `set` function which will trigger the appropriate events and UI updates.
+                            // The set function can be useful as you can use it as a function tear-off.
+                            // For example, you could use it on this TextFormFieldss onFieldSubmitted callback:
+                            // onFieldSubmitted: viewModel.count.set
+                            viewModel.count.set(
+                              int.tryParse(countController.text) ?? 0,
+                            );
+                          },
+                          icon: Icon(Icons.save))),
+                  onFieldSubmitted: (value) {
+                    // Can directly set the value of the property, which will trigger the appropriate events and UI updates.
+                    // This is more concise and idiomatic. If you want the new value to be treated as the original value, you can use the `set` function with the `setAsOriginal` argument set to true.
+                    viewModel.count.value = int.tryParse(value) ?? 0;
                   },
-                  child: Text(viewModel.changeBackgroundOnCountChange.isFalse
-                      ? 'Randomize Background Color on Count Change'
-                      : 'Turn Off Random Backgrounds'),
                 ),
-                SizedBox(
-                  width: 200,
-                  child: TextFormField(
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: 'Set Count'),
-                    onChanged: (value) {
-                      final intValue = int.tryParse(value);
-                      if (intValue != null) {
-                        viewModel.count.value = intValue;
-                      }
-                    },
+              ),
+              const SizedBox(height: 20),
+              Row(
+                spacing: 20,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ElevatedButton(
+                    onPressed: viewModel.toggleProductivity,
+                    child: ifBusy(
+                      const Text('Stop Being Productive'),
+                      otherwise: const Text('Be Productive'),
+                    ),
                   ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    viewModel.reset();
-                    appViewModel.reset();
-                  },
-                  child: const Text('Reset'),
-                ),
-              ],
-            ),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: isBusy
+                        ? const CircularProgressIndicator()
+                        : const Icon(Icons.work_off),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: viewModel.recitePi,
+                child: const Text('Try To Recite PI'),
+              ),
+              TextButton(
+                onPressed: () {
+                  viewModel.reset();
+                  appViewModel.reset();
+                },
+                child: const Text('Reset'),
+              ),
+            ],
           ),
         ),
       ),
