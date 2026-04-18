@@ -30,13 +30,13 @@ abstract class CurrentViewModel {
 
   int? _assignedTo;
 
-  /// The [CurrentWidget] that the view model is currently assigned to
+  /// The [CurrentState] identifier that the view model is currently assigned to
   int? get assignedTo => _assignedTo;
 
-  /// Whether the view model has already been assigned to a widget
+  /// Whether the view model has already been assigned to a [CurrentState]
   ///
-  /// This is used to prevent the view model from being assigned to multiple widgets
-  bool get assignedToWidget => _assignedTo != null;
+  /// This is used to prevent the view model from being assigned to multiple state instances at once.
+  bool get assignedToState => _assignedTo != null;
 
   CurrentViewModel() {
     for (var element in currentProps) {
@@ -49,13 +49,13 @@ abstract class CurrentViewModel {
   ///Properties on the implementation must be added to this list in order to be reactive and update the UI on change.
   Iterable<CurrentProperty> get currentProps;
 
-  ///Creates associates the view model with a specific [CurrentWidget] via the widgets hash code.
+  ///Creates associates the view model with a specific [CurrentState] via the states hash code.
   ///
-  ///This method is called automatically by the [CurrentState] when the view model is assigned to a widget.
+  ///This method is called automatically by the [CurrentState] when the view model is assigned to a state.
   ///
   ///**This method should not be called manually.**
-  void assignTo(int widgetHash, {bool allowReassignment = false}) {
-    if (assignedToWidget && !allowReassignment) {
+  void assignTo(int widgetHash) {
+    if (assignedToState) {
       throw CurrentViewModelAlreadyAssignedException(
         StackTrace.current,
         runtimeType,
