@@ -472,6 +472,9 @@ class CurrentStateChanged<T> {
   }
 }
 
+/// Event that is added to the state stream when the busy status of the view model changes.
+///
+/// Any event handlers registered with the [CurrentViewModel.addBusyStatusChangedListener] function will receive these types of events.
 class BusyStatusChanged extends CurrentStateChanged<bool> {
   final dynamic busyTaskKey;
   final bool isBusy;
