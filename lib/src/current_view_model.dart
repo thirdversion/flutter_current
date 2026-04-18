@@ -54,8 +54,8 @@ abstract class CurrentViewModel {
   ///This method is called automatically by the [CurrentState] when the view model is assigned to a widget.
   ///
   ///**This method should not be called manually.**
-  void assignTo(int widgetHash) {
-    if (assignedToWidget) {
+  void assignTo(int widgetHash, {bool allowReassignment = false}) {
+    if (assignedToWidget && !allowReassignment) {
       throw CurrentViewModelAlreadyAssignedException(
         StackTrace.current,
         runtimeType,

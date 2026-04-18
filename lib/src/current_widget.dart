@@ -95,9 +95,20 @@ abstract class CurrentState<T extends CurrentWidget, E extends CurrentViewModel>
   ///a long running task
   bool get isBusy => viewModel.busy;
 
-  CurrentState(this.viewModel) {
+  /// Creates a [CurrentState] and assigns the [viewModel] to the widget.
+  ///
+  /// The [allowReassignment] parameter determines if the view model can be reassigned to a different widget. If set to true, the view model can be reassigned.
+  /// If set to false, an exception will be thrown if the view model is already assigned to a different widget.
+  ///
+  /// By default, [allowReassignment] is set to false, meaning that the view model cannot be reassigned to a different widget. This is to prevent accidental reassignment of the view model, which can lead to unexpected behavior in the UI.
+  /// However there are use cases where you may want to allow reassignment of the view model, such as when your [CurrentWidget] depends on the state of a parent widget and needs to be reassigned when the parent widget rebuilds.
+  /// In these cases, you can set [allowReassignment] to true to allow the view model to be reassigned to a different widget without throwing an exception.
+  CurrentState(this.viewModel, {bool allowReassignment = false}) {
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => viewModel.assignTo(widget.hashCode),
+      (_) => viewModel.assignTo(
+        widget.hashCode,
+        allowReassignment: allowReassignment,
+      ),
     );
 
     viewModel.addOnStateChangedListener((events) {
