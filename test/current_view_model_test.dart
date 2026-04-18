@@ -88,4 +88,37 @@ void main() {
     expect(isTaskKeyThreeBusy, isFalse);
     expect(viewModel.busy, isFalse);
   });
+
+  test('isDirty - change property values - isDirty is true', () {
+    expect(viewModel.isDirty, isFalse);
+
+    viewModel.name('Steve');
+
+    expect(viewModel.isDirty, isTrue);
+  });
+
+  test('isDirty - change property values and reset - isDirty is false', () {
+    viewModel.name('Steve');
+    viewModel.age(100);
+
+    expect(viewModel.isDirty, isTrue);
+
+    viewModel.resetAll();
+
+    expect(viewModel.isDirty, isFalse);
+  });
+
+  test(
+      'isDirty - change property values, update original value, reset - isDirty is true',
+      () {
+    viewModel.name('Steve');
+    viewModel.age(100);
+
+    expect(viewModel.isDirty, isTrue);
+
+    viewModel.name.setOriginalValueToCurrent();
+    viewModel.age.setOriginalValueToCurrent();
+
+    expect(viewModel.isDirty, isFalse);
+  });
 }
