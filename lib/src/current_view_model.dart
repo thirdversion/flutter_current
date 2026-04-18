@@ -55,7 +55,7 @@ abstract class CurrentViewModel {
   ///
   ///**This method should not be called manually.**
   void assignTo(int widgetHash) {
-    if (assignedToState) {
+    if (assignedToState && assignedTo != widgetHash) {
       throw CurrentViewModelAlreadyAssignedException(
         StackTrace.current,
         runtimeType,
