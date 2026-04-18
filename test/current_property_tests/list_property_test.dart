@@ -11,9 +11,9 @@ class ListViewModel extends CurrentViewModel {
 
 class ListTestWidget extends CurrentWidget<ListViewModel> {
   const ListTestWidget({
-    Key? key,
-    required ListViewModel viewModel,
-  }) : super(key: key, viewModel: viewModel);
+    super.key,
+    required super.viewModel,
+  });
 
   @override
   CurrentState<CurrentWidget<CurrentViewModel>, ListViewModel> createCurrent() {

@@ -11,9 +11,9 @@ class BoolViewModel extends CurrentViewModel {
 
 class BoolTestWidget extends CurrentWidget<BoolViewModel> {
   const BoolTestWidget({
-    Key? key,
-    required BoolViewModel viewModel,
-  }) : super(key: key, viewModel: viewModel);
+    super.key,
+    required super.viewModel,
+  });
 
   @override
   CurrentState<CurrentWidget<CurrentViewModel>, BoolViewModel> createCurrent() {

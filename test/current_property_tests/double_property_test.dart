@@ -11,9 +11,9 @@ class DoubleViewModel extends CurrentViewModel {
 
 class DoubleTestWidget extends CurrentWidget<DoubleViewModel> {
   const DoubleTestWidget({
-    Key? key,
-    required DoubleViewModel viewModel,
-  }) : super(key: key, viewModel: viewModel);
+    super.key,
+    required super.viewModel,
+  });
 
   @override
   CurrentState<CurrentWidget<CurrentViewModel>, DoubleViewModel>

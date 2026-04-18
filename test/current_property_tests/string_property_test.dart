@@ -11,9 +11,9 @@ class StringViewModel extends CurrentViewModel {
 
 class StringTestWidget extends CurrentWidget<StringViewModel> {
   const StringTestWidget({
-    Key? key,
-    required StringViewModel viewModel,
-  }) : super(key: key, viewModel: viewModel);
+    super.key,
+    required super.viewModel,
+  });
 
   @override
   CurrentState<CurrentWidget<CurrentViewModel>, StringViewModel>

@@ -11,9 +11,9 @@ class IntViewModel extends CurrentViewModel {
 
 class IntTestWidget extends CurrentWidget<IntViewModel> {
   const IntTestWidget({
-    Key? key,
-    required IntViewModel viewModel,
-  }) : super(key: key, viewModel: viewModel);
+    super.key,
+    required super.viewModel,
+  });
 
   @override
   CurrentState<CurrentWidget<CurrentViewModel>, IntViewModel> createCurrent() {

@@ -12,10 +12,10 @@ import 'package:flutter/widgets.dart';
 class CurrentApp<T extends CurrentViewModel> extends InheritedWidget {
   const CurrentApp(
     this._uuid, {
-    Key? key,
+    super.key,
     required super.child,
     required this.viewModel,
-  }) : super(key: key);
+  });
 
   final String? _uuid;
   final T Function() viewModel;
@@ -84,11 +84,11 @@ class Current<T extends CurrentViewModel> extends StatefulWidget {
 
   const Current(
     this.viewModel, {
-    Key? key,
+    super.key,
     required this.child,
     required this.onAppStateChanged,
     this.debugPrintStateChanges = false,
-  }) : super(key: key);
+  });
 
   @override
   State<Current> createState() => _CurrentState<T>();
