@@ -14,9 +14,8 @@ class _TestViewModel extends CurrentViewModel {
 
 class _MyWidget extends CurrentWidget<_TestViewModel> {
   const _MyWidget({
-    Key? key,
-    required _TestViewModel viewModel,
-  }) : super(key: key, viewModel: viewModel);
+    required super.viewModel,
+  });
 
   @override
   CurrentState<CurrentWidget<CurrentViewModel>, _TestViewModel>

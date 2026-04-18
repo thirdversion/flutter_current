@@ -11,9 +11,9 @@ class MapViewModel extends CurrentViewModel {
 
 class MapTestWidget extends CurrentWidget<MapViewModel> {
   const MapTestWidget({
-    Key? key,
-    required MapViewModel viewModel,
-  }) : super(key: key, viewModel: viewModel);
+    super.key,
+    required super.viewModel,
+  });
 
   @override
   CurrentState<CurrentWidget<CurrentViewModel>, MapViewModel> createCurrent() {
@@ -33,8 +33,8 @@ class _MapTestWidgetState extends CurrentState<MapTestWidget, MapViewModel> {
             return Center(
               child: Column(
                 children: [
-                  ...viewModel.data.value.keys.map((e) => Text(e)).toList(),
-                  ...viewModel.data.value.values.map((e) => Text(e)).toList()
+                  ...viewModel.data.value.keys.map((e) => Text(e)),
+                  ...viewModel.data.value.values.map((e) => Text(e))
                 ],
               ),
             );

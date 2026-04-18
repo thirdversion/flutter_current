@@ -33,11 +33,10 @@ class _MyWidget extends CurrentWidget<_TestViewModel> {
   final _ApplicationViewModel applicationViewModel;
   final _ApplicationSubViewModel appSubViewModel;
   const _MyWidget({
-    Key? key,
-    required _TestViewModel viewModel,
+    required super.viewModel,
     required this.applicationViewModel,
     required this.appSubViewModel,
-  }) : super(key: key, viewModel: viewModel);
+  });
 
   @override
   CurrentState<CurrentWidget<CurrentViewModel>, _TestViewModel>
@@ -93,11 +92,10 @@ class _TestPreventReassignViewModelWidget
   final _ApplicationViewModel applicationViewModel;
   final _ApplicationSubViewModel appSubViewModel;
   const _TestPreventReassignViewModelWidget({
-    Key? key,
-    required _TestViewModel viewModel,
+    required super.viewModel,
     required this.applicationViewModel,
     required this.appSubViewModel,
-  }) : super(key: key, viewModel: viewModel);
+  });
 
   @override
   CurrentState<CurrentWidget<CurrentViewModel>, _TestViewModel>

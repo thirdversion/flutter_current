@@ -25,10 +25,10 @@ abstract class CurrentWidget<T extends CurrentViewModel>
   final T viewModel;
   final bool debugPrintStateChanges;
   const CurrentWidget({
-    Key? key,
+    super.key,
     required this.viewModel,
     this.debugPrintStateChanges = false,
-  }) : super(key: key);
+  });
 
   ///Create an instance of [CurrentState] for this widget.
   ///
