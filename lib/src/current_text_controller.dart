@@ -318,9 +318,9 @@ final class CurrentTextController<T> extends TextEditingController {
       // This is done in a verbose way, duplicating the list (unfortunately) to ensure type check safety,
       // guarding against Darts reified generics. Simply checking via `validTypes.any((type) => property.runtimeType == type)`
       // is not guaranteed to behave correctly due to possible type erasure.
-      if (property is CurrentProperty<DateTime> ||
-          property is CurrentDateTimeProperty ||
-          property is CurrentNullableDateTimeProperty) {
+      if (property is! CurrentProperty<DateTime> &&
+          property is! CurrentDateTimeProperty &&
+          property is! CurrentNullableDateTimeProperty) {
         return (false, validTypes);
       }
       return (true, validTypes);
