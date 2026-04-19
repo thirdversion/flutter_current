@@ -1,5 +1,5 @@
 name: current_counter_example
-description: Flutter Counter App Using Current.
+description: Space-themed mission control showcase for Current.
 
 publish_to: "none"
 
@@ -24,3 +24,10 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/images/CurrentLogoFull.png
+    - assets/images/CurrentLogoMD.png
+    - assets/images/LogoBlackMD.png
+
+
