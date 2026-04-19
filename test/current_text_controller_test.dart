@@ -18,6 +18,64 @@ class _ControllerTestViewModel extends CurrentViewModel {
       ];
 }
 
+class _TestCustomObject {
+  final int id;
+  final String label;
+
+  const _TestCustomObject({required this.id, required this.label});
+
+  static _TestCustomObject parse(String text) {
+    final parts = text.split(':');
+
+    if (parts.length != 2) {
+      throw const FormatException('Expected format: <id>:<label>');
+    }
+
+    return _TestCustomObject(id: int.parse(parts[0]), label: parts[1]);
+  }
+
+  String serialize() => '$id:$label';
+
+  @override
+  bool operator ==(Object other) {
+    return other is _TestCustomObject && other.id == id && other.label == label;
+  }
+
+  @override
+  int get hashCode => Object.hash(id, label);
+}
+
+class _AdditionalTypesViewModel extends CurrentViewModel {
+  final title = CurrentStringProperty('Alpha', propertyName: 'title');
+
+  final nullableTitle = CurrentNullableStringProperty(
+      value: 'Bravo', propertyName: 'nullableTitle');
+
+  final eventDate = CurrentDateTimeProperty(
+    DateTime.utc(2024, 1, 2, 3, 4, 5),
+    propertyName: 'eventDate',
+  );
+
+  final nullableEventDate = CurrentNullableDateTimeProperty(
+    value: DateTime.utc(2024, 6, 7, 8, 9, 10),
+    propertyName: 'nullableEventDate',
+  );
+
+  final customObject = CurrentProperty<_TestCustomObject>(
+    const _TestCustomObject(id: 1, label: 'One'),
+    propertyName: 'customObject',
+  );
+
+  @override
+  Iterable<CurrentProperty> get currentProps => [
+        title,
+        nullableTitle,
+        eventDate,
+        nullableEventDate,
+        customObject,
+      ];
+}
+
 class _ControllerTestWidget extends CurrentWidget<_ControllerTestViewModel> {
   final CurrentTextController<String> nameController;
   final CurrentTextController<int> ageController;
@@ -81,6 +139,98 @@ class _ControllerTestState
             TextField(
               key: const Key('nullable-age-field'),
               controller: widget.nullableAgeController,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AdditionalTypesControllerTestWidget
+    extends CurrentWidget<_AdditionalTypesViewModel> {
+  final CurrentTextController<String> titleController;
+  final CurrentTextController<String?> nullableTitleController;
+  final CurrentTextController<DateTime> eventDateController;
+  final CurrentTextController<DateTime?> nullableEventDateController;
+  final CurrentTextController<_TestCustomObject> customObjectController;
+
+  const _AdditionalTypesControllerTestWidget({
+    required super.viewModel,
+    required this.titleController,
+    required this.nullableTitleController,
+    required this.eventDateController,
+    required this.nullableEventDateController,
+    required this.customObjectController,
+  });
+
+  @override
+  CurrentState<CurrentWidget<CurrentViewModel>, _AdditionalTypesViewModel>
+      createCurrent() => _AdditionalTypesControllerTestState(viewModel);
+}
+
+class _AdditionalTypesControllerTestState extends CurrentState<
+    _AdditionalTypesControllerTestWidget,
+    _AdditionalTypesViewModel> with CurrentTextControllersLifecycleMixin {
+  _AdditionalTypesControllerTestState(super.viewModel);
+
+  @override
+  void bindCurrentControllers() {
+    widget.titleController.bindString(
+      property: viewModel.title,
+      lifecycleProvider: this,
+    );
+
+    widget.nullableTitleController.bindString(
+      property: viewModel.nullableTitle,
+      lifecycleProvider: this,
+    );
+
+    widget.eventDateController.bindDateTime(
+      property: viewModel.eventDate,
+      lifecycleProvider: this,
+      fromString: DateTime.parse,
+    );
+
+    widget.nullableEventDateController.bindDateTime(
+      property: viewModel.nullableEventDate,
+      lifecycleProvider: this,
+      fromString: DateTime.parse,
+    );
+
+    widget.customObjectController.bind(
+      property: viewModel.customObject,
+      lifecycleProvider: this,
+      fromString: _TestCustomObject.parse,
+      asString: (propertyValue) => propertyValue?.serialize(),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Column(
+          children: [
+            TextField(
+              key: const Key('title-field'),
+              controller: widget.titleController,
+            ),
+            TextField(
+              key: const Key('nullable-title-field'),
+              controller: widget.nullableTitleController,
+            ),
+            TextField(
+              key: const Key('event-date-field'),
+              controller: widget.eventDateController,
+            ),
+            TextField(
+              key: const Key('nullable-event-date-field'),
+              controller: widget.nullableEventDateController,
+            ),
+            TextField(
+              key: const Key('custom-object-field'),
+              controller: widget.customObjectController,
             ),
           ],
         ),
@@ -277,6 +427,142 @@ void main() {
       viewModel.alternateAge(21);
       await tester.pump();
       expect(ageController.text, '21');
+    });
+  });
+
+  group('CurrentTextController remaining supported types', () {
+    late _AdditionalTypesViewModel viewModel;
+    late CurrentTextController<String> titleController;
+    late CurrentTextController<String?> nullableTitleController;
+    late CurrentTextController<DateTime> eventDateController;
+    late CurrentTextController<DateTime?> nullableEventDateController;
+    late CurrentTextController<_TestCustomObject> customObjectController;
+
+    setUp(() {
+      viewModel = _AdditionalTypesViewModel();
+      titleController = CurrentTextController.string();
+      nullableTitleController = CurrentTextController.nullableString();
+      eventDateController = CurrentTextController.date();
+      nullableEventDateController = CurrentTextController.nullableDate();
+      customObjectController = CurrentTextController.of<_TestCustomObject>();
+    });
+
+    tearDown(() {
+      titleController.dispose();
+      nullableTitleController.dispose();
+      eventDateController.dispose();
+      nullableEventDateController.dispose();
+      customObjectController.dispose();
+    });
+
+    Future<void> pumpHarness(WidgetTester tester) async {
+      await tester.pumpWidget(
+        _AdditionalTypesControllerTestWidget(
+          viewModel: viewModel,
+          titleController: titleController,
+          nullableTitleController: nullableTitleController,
+          eventDateController: eventDateController,
+          nullableEventDateController: nullableEventDateController,
+          customObjectController: customObjectController,
+        ),
+      );
+    }
+
+    testWidgets('string properties sync in both directions', (tester) async {
+      await pumpHarness(tester);
+
+      expect(titleController.text, 'Alpha');
+
+      await tester.enterText(find.byKey(const Key('title-field')), 'Delta');
+      await tester.pump();
+
+      expect(viewModel.title.value, 'Delta');
+      expect(titleController.text, 'Delta');
+
+      viewModel.title('Echo');
+      await tester.pump();
+
+      expect(titleController.text, 'Echo');
+    });
+
+    testWidgets('nullable string properties clear when the field is cleared',
+        (tester) async {
+      await pumpHarness(tester);
+
+      expect(nullableTitleController.text, 'Bravo');
+
+      await tester.enterText(
+        find.byKey(const Key('nullable-title-field')),
+        '',
+      );
+      await tester.pump();
+
+      expect(viewModel.nullableTitle.value, isNull);
+      expect(nullableTitleController.text, '');
+    });
+
+    testWidgets(
+        'date properties parse input and update when the property value changes',
+        (tester) async {
+      await pumpHarness(tester);
+
+      final enteredDate = DateTime.utc(2025, 2, 3, 4, 5, 6);
+      final updatedDate = DateTime.utc(2026, 7, 8, 9, 10, 11);
+
+      expect(eventDateController.text,
+          viewModel.eventDate.value.toIso8601String());
+
+      await tester.enterText(
+        find.byKey(const Key('event-date-field')),
+        enteredDate.toIso8601String(),
+      );
+      await tester.pump();
+
+      expect(viewModel.eventDate.value, enteredDate);
+
+      viewModel.eventDate(updatedDate);
+      await tester.pump();
+
+      expect(eventDateController.text, updatedDate.toIso8601String());
+    });
+
+    testWidgets('nullable date properties clear when the field is cleared',
+        (tester) async {
+      await pumpHarness(tester);
+
+      await tester.enterText(
+        find.byKey(const Key('nullable-event-date-field')),
+        '',
+      );
+      await tester.pump();
+
+      expect(viewModel.nullableEventDate.value, isNull);
+      expect(nullableEventDateController.text, '');
+    });
+
+    testWidgets(
+        'custom object bindings parse input and update when the property value changes',
+        (tester) async {
+      await pumpHarness(tester);
+
+      const enteredObject = _TestCustomObject(id: 7, label: 'Skye');
+      const updatedObject = _TestCustomObject(id: 8, label: 'Luna');
+
+      expect(customObjectController.text, '1:One');
+
+      await tester.enterText(
+        find.byKey(const Key('custom-object-field')),
+        enteredObject.serialize(),
+      );
+      await tester.pump();
+
+      expect(viewModel.customObject.value, enteredObject);
+      expect(customObjectController.text, enteredObject.serialize());
+
+      viewModel.customObject(updatedObject);
+      await tester.pump();
+
+      expect(customObjectController.text, updatedObject.serialize());
     });
   });
 }

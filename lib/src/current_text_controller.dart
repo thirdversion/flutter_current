@@ -379,8 +379,7 @@ final class CurrentTextController<T> extends TextEditingController {
       fromString: fromString,
       asString: asString ??
           (propertyValue) =>
-              (propertyValue as DateTime?)?.toIso8601String() ??
-              'Unparsable Date',
+              (propertyValue as DateTime?)?.toIso8601String() ?? '',
       defaultValue: defaultValue,
     );
   }
