@@ -88,6 +88,8 @@ class _MissionControlShellState
                           ],
                         ),
                 ),
+                const SizedBox(height: 14),
+                const MissionFooterAttribution(),
               ],
             ),
           ),

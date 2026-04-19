@@ -28,6 +28,6 @@ flutter:
   assets:
     - assets/images/CurrentLogoFull.png
     - assets/images/CurrentLogoMD.png
-    - assets/images/LogoBlackMD.png
+    - assets/images/ThirdVersionLogo.png
 
 

@@ -206,6 +206,48 @@ class CurrentBrandMark extends StatelessWidget {
   }
 }
 
+class MissionFooterAttribution extends StatelessWidget {
+  const MissionFooterAttribution({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.22),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: SpaceMissionTheme.border.withValues(alpha: 0.8),
+        ),
+      ),
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 12,
+        runSpacing: 10,
+        children: [
+          Image.asset(
+            'assets/images/ThirdVersionLogo.png',
+            height: 34,
+            fit: BoxFit.contain,
+          ),
+          Text(
+            'Built with Love by Third Version Technology Ltd.',
+            textAlign: TextAlign.center,
+            style: textTheme.bodyMedium?.copyWith(
+              color: SpaceMissionTheme.textMuted,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class StatusPill extends StatelessWidget {
   const StatusPill({
     super.key,
