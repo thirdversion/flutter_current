@@ -304,6 +304,54 @@ void main() {
       expect(ageController.text, '11');
     });
 
+    testWidgets('setMultiple and resetAll update bound controller text',
+        (tester) async {
+      await tester.pumpWidget(
+        _ControllerTestWidget(
+          viewModel: viewModel,
+          nameController: nameController,
+          ageController: ageController,
+          nullableAgeController: nullableAgeController,
+        ),
+      );
+
+      viewModel.setMultiple([
+        {viewModel.name: 'Zoe'},
+        {viewModel.age: 33},
+      ]);
+      await tester.pump();
+
+      expect(nameController.text, 'Zoe');
+      expect(ageController.text, '33');
+
+      viewModel.resetAll();
+      await tester.pump();
+
+      expect(nameController.text, 'Alice');
+      expect(ageController.text, '10');
+    });
+
+    testWidgets('property reset updates bound controller text',
+        (tester) async {
+      await tester.pumpWidget(
+        _ControllerTestWidget(
+          viewModel: viewModel,
+          nameController: nameController,
+          ageController: ageController,
+          nullableAgeController: nullableAgeController,
+        ),
+      );
+
+      viewModel.name('Mila');
+      await tester.pump();
+      expect(nameController.text, 'Mila');
+
+      viewModel.name.reset();
+      await tester.pump();
+
+      expect(nameController.text, 'Alice');
+    });
+
     testWidgets(
         'invalid text stays visible and unrelated property events do not nuke it',
         (tester) async {

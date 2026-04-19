@@ -214,7 +214,8 @@ abstract class CurrentViewModel {
       final nextValue = setter.values.first;
 
       changes.add(CurrentStateChanged(nextValue, previousValue,
-          propertyName: property.propertyName));
+          propertyName: property.propertyName,
+          sourceHashCode: property.sourceHashCode));
 
       property(nextValue, notifyChange: false);
     }
