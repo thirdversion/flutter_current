@@ -3,29 +3,29 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
 import 'application_view_model.dart';
-import 'counter_page.dart';
-import 'counter_view_model.dart';
+import 'mission_control_shell.dart';
+import 'mission_control_theme.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key, ApplicationViewModel? viewModel})
+      : viewModel = viewModel ?? ApplicationViewModel();
+
+  final ApplicationViewModel viewModel;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Current State Example',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: Current(
-        ApplicationViewModel(CurrentStringProperty('Current Counter Example')),
+      debugShowCheckedModeBanner: false,
+      title: 'Current Mission Control',
+      theme: SpaceMissionTheme.themeData,
+      home: Current<ApplicationViewModel>(
+        viewModel,
         onAppStateChanged: () => const Uuid().v1(),
-        child: CounterPage(
-          viewModel: CounterViewModel(),
-        ),
+        child: MissionControlShell(viewModel: viewModel),
       ),
     );
   }
