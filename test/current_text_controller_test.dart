@@ -331,8 +331,7 @@ void main() {
       expect(ageController.text, '10');
     });
 
-    testWidgets('property reset updates bound controller text',
-        (tester) async {
+    testWidgets('property reset updates bound controller text', (tester) async {
       await tester.pumpWidget(
         _ControllerTestWidget(
           viewModel: viewModel,

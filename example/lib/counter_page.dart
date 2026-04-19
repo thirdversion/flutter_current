@@ -127,6 +127,14 @@ class _CounterPageState extends CurrentState<CounterPage, CounterViewModel>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
+              SizedBox(
+                width: _textFieldWidth,
+                child: TextFormField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: 'Name'),
+                ),
+              ),
+              const SizedBox(height: 20),
               Text.rich(
                 TextSpan(text: 'Hey ', children: [
                   TextSpan(
@@ -214,14 +222,6 @@ class _CounterPageState extends CurrentState<CounterPage, CounterViewModel>
               ElevatedButton(
                 onPressed: viewModel.recitePi,
                 child: const Text('Try To Recite PI'),
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: _textFieldWidth,
-                child: TextFormField(
-                  controller: nameController,
-                  decoration: const InputDecoration(labelText: 'Name'),
-                ),
               ),
               const SizedBox(height: 20),
               Padding(
