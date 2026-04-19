@@ -400,6 +400,7 @@ final class CurrentTextController<T> extends TextEditingController {
     }
 
     _isSyncingText = true;
+
     try {
       value = TextEditingValue(
         text: nextText,
@@ -433,7 +434,7 @@ final class CurrentTextController<T> extends TextEditingController {
       return;
     }
 
-    boundProperty.set(parseResult.value);
+    boundProperty.value = parseResult.value;
   }
 
   ({bool shouldUpdate, T? value}) _tryParseText(String text) {
@@ -457,14 +458,12 @@ final class CurrentTextController<T> extends TextEditingController {
       return (shouldUpdate: false, value: null);
     }
 
-    final parser = _fromString;
-
-    if (parser == null) {
+    if (_fromString == null) {
       return (shouldUpdate: false, value: null);
     }
 
     try {
-      return (shouldUpdate: true, value: parser(text));
+      return (shouldUpdate: true, value: _fromString!(text));
     } catch (_) {
       return (shouldUpdate: false, value: null);
     }
