@@ -40,7 +40,16 @@ typedef CurrentValidationRule<T> = String? Function(T value);
 /// Use [CurrentValidationState.untouched] to represent the initial validation
 /// state before the field has been validated or touched.
 class CurrentValidationState {
-  static const Object _sentinel = Object();
+  /// Private marker used by [copyWith] to distinguish between
+  /// "parameter not provided" and an explicit `null` value.
+  ///
+  /// This is necessary for nullable fields like [errorText], where passing
+  /// `null` should clear the value, while omitting the argument should leave the
+  /// existing value unchanged.
+  ///
+  /// Since Dart treats an omitted argument and a passed null the same way if the parameter is T? value = null,
+  /// the _omitted is a unique object used to detect that nothing was passed at all.
+  static const Object _omitted = Object();
 
   /// The current validation error message for the field.
   ///
@@ -92,18 +101,18 @@ class CurrentValidationState {
   /// be used publicly so you can update specific validation metadata without affecting other fields.
   /// For example, you might want to mark a field as touched without changing the current error state, or update the error message without affecting the touched state.
   CurrentValidationState copyWith({
-    Object? errorText = _sentinel,
+    Object? errorText = _omitted,
     bool? isTouched,
     bool? hasValidated,
-    Object? lastValidatedValue = _sentinel,
+    Object? lastValidatedValue = _omitted,
   }) {
     return CurrentValidationState(
-      errorText: identical(errorText, _sentinel)
+      errorText: identical(errorText, _omitted)
           ? this.errorText
           : errorText as String?,
       isTouched: isTouched ?? this.isTouched,
       hasValidated: hasValidated ?? this.hasValidated,
-      lastValidatedValue: identical(lastValidatedValue, _sentinel)
+      lastValidatedValue: identical(lastValidatedValue, _omitted)
           ? this.lastValidatedValue
           : lastValidatedValue,
     );
