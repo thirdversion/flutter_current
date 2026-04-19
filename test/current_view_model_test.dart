@@ -20,13 +20,23 @@ class _CollectionViewModel extends CurrentViewModel {
   Iterable<CurrentProperty> get currentProps => [items];
 }
 
+class _CollectionResetViewModel extends CurrentViewModel {
+  final items = CurrentListProperty<String>(['Earth']);
+  final data = CurrentMapProperty<String, String>({'planet': 'Earth'});
+
+  @override
+  Iterable<CurrentProperty> get currentProps => [items, data];
+}
+
 void main() {
   late _TestViewModel viewModel;
   late _CollectionViewModel collectionViewModel;
+  late _CollectionResetViewModel collectionResetViewModel;
 
   setUp(() {
     viewModel = _TestViewModel();
     collectionViewModel = _CollectionViewModel();
+    collectionResetViewModel = _CollectionResetViewModel();
   });
 
   test(
@@ -146,6 +156,43 @@ void main() {
 
     expect(collectionViewModel.items.isDirty, isTrue);
     expect(collectionViewModel.isDirty, isTrue);
+  });
+
+  test('resetAll - collection properties restore original values', () {
+    collectionResetViewModel.items.add('Mars', notifyChanges: false);
+    collectionResetViewModel.data.add('moon', 'Luna', notifyChanges: false);
+
+    collectionResetViewModel.resetAll();
+
+    expect(collectionResetViewModel.items.value, equals(['Earth']));
+    expect(
+      collectionResetViewModel.data.value,
+      equals({'planet': 'Earth'}),
+    );
+  });
+
+  test('resetAll - collection properties do not alias original values', () {
+    collectionResetViewModel.items.add('Mars', notifyChanges: false);
+    collectionResetViewModel.data.add('moon', 'Luna', notifyChanges: false);
+
+    collectionResetViewModel.resetAll();
+
+    collectionResetViewModel.items.add('Venus', notifyChanges: false);
+    collectionResetViewModel.data.add('star', 'Sun', notifyChanges: false);
+
+    expect(collectionResetViewModel.items.originalValue, equals(['Earth']));
+    expect(
+      collectionResetViewModel.data.originalValue,
+      equals({'planet': 'Earth'}),
+    );
+
+    collectionResetViewModel.resetAll();
+
+    expect(collectionResetViewModel.items.value, equals(['Earth']));
+    expect(
+      collectionResetViewModel.data.value,
+      equals({'planet': 'Earth'}),
+    );
   });
 
   test('addAnyErrorEventListener receives general error events', () async {

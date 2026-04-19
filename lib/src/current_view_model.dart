@@ -366,12 +366,20 @@ abstract class CurrentViewModel {
   ///to their original value.
   ///
   void resetAll() {
-    final resetActions = <Map<CurrentProperty, dynamic>>[];
+    final resetEvents = <CurrentStateChanged>[];
     for (final prop in currentProps) {
-      resetActions.add({prop: prop.originalValue});
+      final previousValue = prop.value;
+      prop.reset(notifyChange: false);
+
+      resetEvents.add(CurrentStateChanged(
+        prop.value,
+        previousValue,
+        propertyName: prop.propertyName,
+        sourceHashCode: prop.sourceHashCode,
+      ));
     }
 
-    setMultiple(resetActions);
+    notifyChanges(resetEvents);
     _busyTaskKeys.clear();
     setNotBusy();
   }
