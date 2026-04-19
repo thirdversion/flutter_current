@@ -76,6 +76,57 @@ class _AdditionalTypesViewModel extends CurrentViewModel {
       ];
 }
 
+class _ControllerValidationViewModel extends CurrentViewModel {
+  final age = CurrentIntProperty(10, propertyName: 'age');
+  late final ageValidation = age.createValidation(
+    rules: [(value) => value < 0 ? 'Age cannot be negative' : null],
+  );
+
+  @override
+  Iterable<CurrentProperty> get currentProps => [age];
+}
+
+class _ControllerValidationWidget
+    extends CurrentWidget<_ControllerValidationViewModel> {
+  final CurrentTextController<int> ageController;
+
+  const _ControllerValidationWidget({
+    required super.viewModel,
+    required this.ageController,
+  });
+
+  @override
+  CurrentState<CurrentWidget<CurrentViewModel>, _ControllerValidationViewModel>
+      createCurrent() => _ControllerValidationState(viewModel);
+}
+
+class _ControllerValidationState extends CurrentState<
+    _ControllerValidationWidget,
+    _ControllerValidationViewModel> with CurrentTextControllersLifecycleMixin {
+  _ControllerValidationState(super.viewModel);
+
+  @override
+  void bindCurrentControllers() {
+    widget.ageController.bindInt(
+      property: viewModel.age,
+      lifecycleProvider: this,
+      validation: viewModel.ageValidation,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: TextField(
+          key: const Key('validated-age-field'),
+          controller: widget.ageController,
+        ),
+      ),
+    );
+  }
+}
+
 class _ControllerTestWidget extends CurrentWidget<_ControllerTestViewModel> {
   final CurrentTextController<String> nameController;
   final CurrentTextController<int> ageController;
@@ -610,6 +661,99 @@ void main() {
       await tester.pump();
 
       expect(customObjectController.text, updatedObject.serialize());
+    });
+  });
+
+  group('CurrentTextController validation integration', () {
+    late _ControllerValidationViewModel viewModel;
+    late CurrentTextController<int> ageController;
+
+    setUp(() {
+      viewModel = _ControllerValidationViewModel();
+      ageController = CurrentTextController.integer();
+    });
+
+    tearDown(() {
+      ageController.dispose();
+    });
+
+    Future<void> pumpHarness(WidgetTester tester) async {
+      await tester.pumpWidget(
+        _ControllerValidationWidget(
+          viewModel: viewModel,
+          ageController: ageController,
+        ),
+      );
+    }
+
+    testWidgets('invalid text sets validation metadata and keeps user text',
+        (tester) async {
+      await pumpHarness(tester);
+
+      await tester.enterText(
+          find.byKey(const Key('validated-age-field')), 'abc');
+      await tester.pump();
+
+      expect(viewModel.age.value, 10);
+      expect(ageController.text, 'abc');
+      expect(viewModel.ageValidation.isTouched, isTrue);
+      expect(viewModel.ageValidation.hasError, isTrue);
+      expect(viewModel.ageValidation.errorText, equals('Invalid value.'));
+    });
+
+    testWidgets('valid text clears controller validation errors',
+        (tester) async {
+      await pumpHarness(tester);
+
+      await tester.enterText(
+          find.byKey(const Key('validated-age-field')), 'abc');
+      await tester.pump();
+
+      expect(viewModel.ageValidation.errorText, equals('Invalid value.'));
+
+      await tester.enterText(
+          find.byKey(const Key('validated-age-field')), '42');
+      await tester.pump();
+
+      expect(viewModel.age.value, 42);
+      expect(viewModel.ageValidation.isTouched, isTrue);
+      expect(viewModel.ageValidation.hasError, isFalse);
+      expect(viewModel.ageValidation.errorText, isNull);
+    });
+
+    testWidgets(
+        'external property changes clear controller validation errors and resync text',
+        (tester) async {
+      await pumpHarness(tester);
+
+      await tester.enterText(
+          find.byKey(const Key('validated-age-field')), 'abc');
+      await tester.pump();
+
+      expect(viewModel.ageValidation.errorText, equals('Invalid value.'));
+      expect(ageController.text, 'abc');
+
+      viewModel.age(12);
+      await tester.pump();
+
+      expect(ageController.text, '12');
+      expect(viewModel.ageValidation.hasError, isFalse);
+      expect(viewModel.ageValidation.errorText, isNull);
+    });
+
+    testWidgets(
+        'clearing a non-nullable field without a default sets required validation metadata',
+        (tester) async {
+      await pumpHarness(tester);
+
+      await tester.enterText(find.byKey(const Key('validated-age-field')), '');
+      await tester.pump();
+
+      expect(viewModel.age.value, 10);
+      expect(ageController.text, '10');
+      expect(viewModel.ageValidation.isTouched, isTrue);
+      expect(viewModel.ageValidation.hasError, isTrue);
+      expect(viewModel.ageValidation.errorText, equals('A value is required.'));
     });
   });
 }

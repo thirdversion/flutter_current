@@ -106,6 +106,14 @@ final class CurrentTextController<T> extends TextEditingController {
   String? Function(T? propertyValue)? _asString;
   String? Function(T? propertyValue)? get asString => _asString;
 
+  /// Optional validation helper associated with the bound [CurrentProperty].
+  ///
+  /// When provided, this controller will mark the field as touched during user
+  /// edits, surface rejected text as validation metadata, and keep the
+  /// validation state synchronized with successful property updates.
+  CurrentFieldValidation<dynamic>? _validation;
+  CurrentFieldValidation<dynamic>? get validation => _validation;
+
   /// An optional default value to use when parsing the text if the [fromString] function fails to parse the text. This is only used for non-String properties. If the [CurrentProperty] is of type String, this can be omitted since parsing will not be performed.
   ///
   StreamSubscription? _subscription;
@@ -201,6 +209,7 @@ final class CurrentTextController<T> extends TextEditingController {
     T Function(String text)? fromString,
     String? Function(T? propertyValue)? asString,
     T? defaultValue,
+    CurrentFieldValidation<dynamic>? validation,
   }) {
     final treatTextAsStringValue = _isStringProperty(property);
 
@@ -212,6 +221,14 @@ final class CurrentTextController<T> extends TextEditingController {
       );
     }
 
+    if (validation != null && !identical(validation.property, property)) {
+      throw ArgumentError.value(
+        validation,
+        'validation',
+        'The provided CurrentFieldValidation must target the same CurrentProperty bound to this controller.',
+      );
+    }
+
     if (_matchesBinding(
       property: property,
       lifecycleProvider: lifecycleProvider,
@@ -219,6 +236,7 @@ final class CurrentTextController<T> extends TextEditingController {
       asString: asString,
       defaultValue: defaultValue,
       treatTextAsStringValue: treatTextAsStringValue,
+      validation: validation,
     )) {
       return;
     }
@@ -232,11 +250,17 @@ final class CurrentTextController<T> extends TextEditingController {
     _hasDefaultValue = !_isNullable && defaultValue != null;
     _treatTextAsStringValue = treatTextAsStringValue;
     _lifecycleProvider = lifecycleProvider;
+    _validation = validation;
 
     _subscription =
         property.viewModel.addStateChangedListener<CurrentStateChanged>(
-      (_) => _setText(),
-      filter: (event) => event.sourceHashCode == property.sourceHashCode,
+      (_) {
+        _setText();
+        _validation?.validate();
+      },
+      filter: (event) =>
+          event.sourceHashCode == property.sourceHashCode &&
+          event is! CurrentValidationChanged,
     );
 
     _setText();
@@ -249,6 +273,7 @@ final class CurrentTextController<T> extends TextEditingController {
     required CurrentProperty<T> property,
     required CurrentTextControllersLifecycleMixin lifecycleProvider,
     String? Function(T? propertyValue)? asString,
+    CurrentFieldValidation<T>? validation,
   }) {
     (bool isValidType, List<Type> validTypes) validateType(
         CurrentProperty property) {
@@ -283,6 +308,7 @@ final class CurrentTextController<T> extends TextEditingController {
       property: property,
       lifecycleProvider: lifecycleProvider,
       asString: asString,
+      validation: validation,
     );
   }
 
@@ -295,6 +321,7 @@ final class CurrentTextController<T> extends TextEditingController {
     T Function(String text)? fromString,
     String? Function(T? propertyValue)? asString,
     T? defaultValue,
+    CurrentFieldValidation<T>? validation,
   }) {
     (bool isValidType, List<Type> validTypes) validateType(
         CurrentProperty property) {
@@ -331,6 +358,7 @@ final class CurrentTextController<T> extends TextEditingController {
       fromString: fromString ?? (text) => int.parse(text) as T,
       asString: asString,
       defaultValue: defaultValue,
+      validation: validation,
     );
   }
 
@@ -343,6 +371,7 @@ final class CurrentTextController<T> extends TextEditingController {
     required T Function(String text) fromString,
     String? Function(T? propertyValue)? asString,
     T? defaultValue,
+    CurrentFieldValidation<T>? validation,
   }) {
     (bool isValidType, List<Type> validTypes) validateType(
         CurrentProperty property) {
@@ -381,6 +410,7 @@ final class CurrentTextController<T> extends TextEditingController {
           (propertyValue) =>
               (propertyValue as DateTime?)?.toIso8601String() ?? '',
       defaultValue: defaultValue,
+      validation: validation,
     );
   }
 
@@ -420,21 +450,31 @@ final class CurrentTextController<T> extends TextEditingController {
       return;
     }
 
+    _validation?.markTouched();
+
     final parseResult = _tryParseText(text);
 
     if (!parseResult.shouldUpdate &&
         text.isEmpty &&
         !_isNullable &&
         !_hasDefaultValue) {
+      _validation?.setError('A value is required.', markTouched: true);
       _setText(selectAll: true);
       return;
     }
 
-    if (!parseResult.shouldUpdate || parseResult.value == boundProperty.value) {
+    if (!parseResult.shouldUpdate) {
+      _validation?.setError('Invalid value.', markTouched: true);
+      return;
+    }
+
+    if (parseResult.value == boundProperty.value) {
+      _validation?.validate(markTouched: true);
       return;
     }
 
     boundProperty.value = parseResult.value;
+    _validation?.validate(markTouched: true);
   }
 
   ({bool shouldUpdate, T? value}) _tryParseText(String text) {
@@ -483,11 +523,13 @@ final class CurrentTextController<T> extends TextEditingController {
     required String? Function(T? propertyValue)? asString,
     required T? defaultValue,
     required bool treatTextAsStringValue,
+    required CurrentFieldValidation<dynamic>? validation,
   }) {
     return identical(_property, property) &&
         identical(_lifecycleProvider, lifecycleProvider) &&
         identical(_fromString, fromString) &&
         identical(_asString, asString) &&
+        identical(_validation, validation) &&
         _defaultValue == defaultValue &&
         _hasDefaultValue == (!_isNullable && defaultValue != null) &&
         _treatTextAsStringValue == treatTextAsStringValue;
@@ -497,6 +539,7 @@ final class CurrentTextController<T> extends TextEditingController {
   void dispose() {
     _subscription?.cancel();
     _subscription = null;
+    _validation = null;
     super.dispose();
   }
 }
