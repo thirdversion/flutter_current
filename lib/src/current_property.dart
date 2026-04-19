@@ -582,7 +582,10 @@ class CurrentProperty<T> implements CurrentValue<T> {
   @override
   String toString() => _value?.toString() ?? '';
 
-  ///Checks if [other] is equal to the [value] of this CurrentProperty
+  ///Checks if [other] is equal to the [value] of this CurrentProperty.
+  ///
+  /// This is a value-comparison convenience method and is intentionally
+  /// different from [operator ==], which uses property identity.
   ///
   ///### Usage
   ///
@@ -605,11 +608,10 @@ class CurrentProperty<T> implements CurrentValue<T> {
   }
 
   @override
-  // ignore: non_nullable_equals_parameter
-  bool operator ==(dynamic other) => equals(other);
+  bool operator ==(Object other) => identical(this, other);
 
   @override
-  int get hashCode => _value.hashCode;
+  int get hashCode => sourceHashCode;
 }
 
 ///Short hand helper function for initializing an [CurrentProperty].

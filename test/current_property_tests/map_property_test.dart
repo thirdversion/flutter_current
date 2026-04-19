@@ -361,7 +361,7 @@ void main() {
       expect(result, equals(value));
     });
 
-    test('[] operator - has no matching key - returns value', () {
+    test('[] operator - has no matching key - returns null', () {
       const String key = 'name';
       const String value = 'Bob';
       const String missingKey = 'lastName';

@@ -142,7 +142,7 @@ void main() {
       expect(result, isTrue);
     });
 
-    test('contains - does not contain item - returns true', () {
+    test('contains - does not contain item - returns false', () {
       String earth = 'Earth';
       String venus = 'Venus';
 
@@ -266,8 +266,7 @@ void main() {
       await subscription.cancel();
     });
 
-    test('insertAllAtEnd - emits original index where item was inserted',
-        () async {
+    test('insertAllAtEnd - emits original insertion index', () async {
       CurrentStateChanged? receivedEvent;
 
       final subscription = viewModel
@@ -333,7 +332,7 @@ void main() {
       expect(data.contains(listItem), isTrue);
     });
 
-    test('ellementAt - list is not empty - returns correct object', () {
+    test('elementAt - list is not empty - returns correct object', () {
       const String expected = 'Frank';
       const int index = 1;
       final list = CurrentListProperty<String>(['Bob', expected]);

@@ -132,7 +132,7 @@ void main() {
   });
 
   test(
-      'isDirty - change property values, update original value, reset - isDirty is true',
+      'isDirty - change property values and update original values - isDirty is false',
       () {
     viewModel.name('Steve');
     viewModel.age(100);
@@ -195,7 +195,7 @@ void main() {
     );
   });
 
-  test('setMultiple - unchanged values - emits no events', () async {
+  test('setMultiple - unchanged scalar values - emits no events', () async {
     var eventCount = 0;
 
     final subscription = viewModel.addAnyStateChangedListener((_) {
@@ -215,7 +215,7 @@ void main() {
     await subscription.cancel();
   });
 
-  test('setMultiple - changed and unchanged values - emits only changed events',
+  test('setMultiple - mixed scalar changes - emits only changed events',
       () async {
     final receivedEvents = <CurrentStateChanged>[];
 

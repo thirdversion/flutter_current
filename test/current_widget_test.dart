@@ -371,7 +371,7 @@ void main() {
     });
 
     testWidgets(
-        'EpireWidget Test - Attemp to share View Model Instance - Throws CurrentViewModelAlreadyAssignedException',
+        'CurrentWidget Test - Attempt to share ViewModel instance - throws CurrentViewModelAlreadyAssignedException',
         (tester) async {
       late FlutterErrorDetails errorDetails;
       FlutterError.onError = (details) {
