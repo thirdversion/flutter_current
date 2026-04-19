@@ -52,6 +52,8 @@ abstract class CurrentValue<T> {
 class CurrentProperty<T> implements CurrentValue<T> {
   String? propertyName;
 
+  final int sourceHashCode = identityHashCode(Object());
+
   final bool isPrimitiveType;
 
   late T _originalValue;
@@ -84,7 +86,14 @@ class CurrentProperty<T> implements CurrentValue<T> {
   /// Returns true if the value of this [CurrentProperty] is different from the [originalValue].
   ///
   /// This can be used to determine if the value has been changed since it was last reset or since the [originalValue] was last updated to the current value.
-  bool get isDirty => value != originalValue;
+  bool get isDirty => hasValueChanged(value, originalValue);
+
+  /// Determines whether the current value differs from the original value.
+  ///
+  /// Specialized property types can override this when their value semantics
+  /// differ from the default `==` comparison.
+  bool hasValueChanged(T currentValue, T originalValue) =>
+      currentValue != originalValue;
 
   CurrentViewModel? _viewModel;
 
@@ -501,7 +510,12 @@ class CurrentProperty<T> implements CurrentValue<T> {
     _value = value;
     if (notifyChange && previousValue != value) {
       viewModel.notifyChanges([
-        CurrentStateChanged(value, previousValue, propertyName: propertyName)
+        CurrentStateChanged(
+          value,
+          previousValue,
+          propertyName: propertyName,
+          sourceHashCode: sourceHashCode,
+        )
       ]);
     }
 
@@ -559,6 +573,7 @@ class CurrentProperty<T> implements CurrentValue<T> {
           _originalValue,
           currentValue,
           propertyName: propertyName,
+          sourceHashCode: sourceHashCode,
         )
       ]);
     }
@@ -567,7 +582,10 @@ class CurrentProperty<T> implements CurrentValue<T> {
   @override
   String toString() => _value?.toString() ?? '';
 
-  ///Checks if [other] is equal to the [value] of this CurrentProperty
+  ///Checks if [other] is equal to the [value] of this CurrentProperty.
+  ///
+  /// This is a value-comparison convenience method and is intentionally
+  /// different from [operator ==], which uses property identity.
   ///
   ///### Usage
   ///
@@ -590,11 +608,10 @@ class CurrentProperty<T> implements CurrentValue<T> {
   }
 
   @override
-  // ignore: non_nullable_equals_parameter
-  bool operator ==(dynamic other) => equals(other);
+  bool operator ==(Object other) => identical(this, other);
 
   @override
-  int get hashCode => _value.hashCode;
+  int get hashCode => sourceHashCode;
 }
 
 ///Short hand helper function for initializing an [CurrentProperty].

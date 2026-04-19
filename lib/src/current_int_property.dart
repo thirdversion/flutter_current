@@ -1,5 +1,23 @@
 part of 'current_property.dart';
 
+E _normalizeResult<E extends num>(
+  num result,
+  String? propertyName,
+  Type propertyType,
+) {
+  if (result is E) {
+    return result;
+  }
+
+  throw CurrentIntPropertyInvalidArithmaticException(
+    StackTrace.current,
+    propertyName,
+    propertyType,
+    attemptedType: E,
+    resultType: result.runtimeType,
+  );
+}
+
 /// An [CurrentProperty] with similar characteristics of dart [int] objects
 ///
 /// The underlying value cannot be null. For a nullable int current property,
@@ -56,6 +74,11 @@ class CurrentIntProperty extends CurrentProperty<int> {
   /// Returns the absolute value of this integer.
   int abs() => _value.abs();
 
+  /// Adds [other] to this number and returns the numeric result.
+  ///
+  /// This does not set the value for this [CurrentIntProperty].
+  num addNumber(num other) => _value + other;
+
   /// Adds [other] to this number.
   ///
   /// This does not set the value for this [CurrentIntProperty].
@@ -63,9 +86,19 @@ class CurrentIntProperty extends CurrentProperty<int> {
   /// The result is an [int], as described by [int.+],
   /// if both this number and [other] is an integer,
   /// otherwise the result is a [double].
+  @Deprecated('Use addNumber for a predictable numeric return type.')
   E add<E extends num>(E other) {
-    return (_value + other) as E;
+    return _normalizeResult<E>(
+      addNumber(other),
+      propertyName,
+      runtimeType,
+    );
   }
+
+  /// Subtracts [other] from this number and returns the numeric result.
+  ///
+  /// This does not set the value for this [CurrentIntProperty].
+  num subtractNumber(num other) => _value - other;
 
   /// Subtracts [other] from this number.
   ///
@@ -74,8 +107,13 @@ class CurrentIntProperty extends CurrentProperty<int> {
   /// The result is an [int], as described by [int.-],
   /// if both this number and [other] is an integer,
   /// otherwise the result is a [double].
+  @Deprecated('Use subtractNumber for a predictable numeric return type.')
   E subtract<E extends num>(E other) {
-    return (_value - other) as E;
+    return _normalizeResult<E>(
+      subtractNumber(other),
+      propertyName,
+      runtimeType,
+    );
   }
 
   /// Divides this number by [other].
@@ -84,6 +122,11 @@ class CurrentIntProperty extends CurrentProperty<int> {
   double divide<E extends num>(E other) {
     return _value / other;
   }
+
+  /// Returns the modulo of this number by [other] as a numeric result.
+  ///
+  /// This does not set the value for this [CurrentIntProperty].
+  num modNumber(num other) => _value % other;
 
   /// Euclidean modulo of this number by [other].
   ///
@@ -110,9 +153,19 @@ class CurrentIntProperty extends CurrentProperty<int> {
   /// final number = CurrentIntProperty(5);
   /// print(number % 3); // 2
   /// ```
+  @Deprecated('Use modNumber for a predictable numeric return type.')
   E mod<E extends num>(E other) {
-    return (_value % other) as E;
+    return _normalizeResult<E>(
+      modNumber(other),
+      propertyName,
+      runtimeType,
+    );
   }
+
+  /// Multiplies this number by [other] and returns the numeric result.
+  ///
+  /// This does not set the value for this [CurrentIntProperty].
+  num multiplyNumber(num other) => _value * other;
 
   /// Multiplies this number by [other].
   ///
@@ -121,8 +174,13 @@ class CurrentIntProperty extends CurrentProperty<int> {
   /// The result is an [int], as described by [int.*],
   /// if both this number and [other] are integers,
   /// otherwise the result is a [double].
+  @Deprecated('Use multiplyNumber for a predictable numeric return type.')
   E multiply<E extends num>(E other) {
-    return (_value * other) as E;
+    return _normalizeResult<E>(
+      multiplyNumber(other),
+      propertyName,
+      runtimeType,
+    );
   }
 }
 
@@ -203,6 +261,17 @@ class CurrentNullableIntProperty extends CurrentProperty<int?> {
   /// Returns null if the int value is null
   int? abs() => _value?.abs();
 
+  /// Adds [other] to this number and returns the numeric result.
+  ///
+  /// This does not set the value for this [CurrentNullableIntProperty].
+  /// If the underlying value is `null` throws an [CurrentPropertyNullValueException].
+  num addNumber(num other) {
+    return isNotNull
+        ? _value! + other
+        : throw CurrentPropertyNullValueException(
+            StackTrace.current, propertyName, runtimeType);
+  }
+
   /// Adds [other] to this number.
   ///
   /// This does not set the value for this [CurrentNullableIntProperty].
@@ -212,9 +281,22 @@ class CurrentNullableIntProperty extends CurrentProperty<int?> {
   /// The result is an [int], as described by [int.+],
   /// if both this number and [other] is an integer,
   /// otherwise the result is a [double].
+  @Deprecated('Use addNumber for a predictable numeric return type.')
   E add<E extends num>(E other) {
+    return _normalizeResult<E>(
+      addNumber(other),
+      propertyName,
+      runtimeType,
+    );
+  }
+
+  /// Subtracts [other] from this number and returns the numeric result.
+  ///
+  /// This does not set the value for this [CurrentNullableIntProperty].
+  /// If the underlying value is `null` throws an [CurrentPropertyNullValueException].
+  num subtractNumber(num other) {
     return isNotNull
-        ? (_value! + other) as E
+        ? _value! - other
         : throw CurrentPropertyNullValueException(
             StackTrace.current, propertyName, runtimeType);
   }
@@ -228,11 +310,13 @@ class CurrentNullableIntProperty extends CurrentProperty<int?> {
   /// The result is an [int], as described by [int.-],
   /// if both this number and [other] is an integer,
   /// otherwise the result is a [double].
+  @Deprecated('Use subtractNumber for a predictable numeric return type.')
   E subtract<E extends num>(E other) {
-    return isNotNull
-        ? (_value! - other) as E
-        : throw CurrentPropertyNullValueException(
-            StackTrace.current, propertyName, runtimeType);
+    return _normalizeResult<E>(
+      subtractNumber(other),
+      propertyName,
+      runtimeType,
+    );
   }
 
   /// Divides this number by [other].
@@ -243,6 +327,17 @@ class CurrentNullableIntProperty extends CurrentProperty<int?> {
   double divide<E extends num>(E other) {
     return isNotNull
         ? _value! / other
+        : throw CurrentPropertyNullValueException(
+            StackTrace.current, propertyName, runtimeType);
+  }
+
+  /// Returns the modulo of this number by [other] as a numeric result.
+  ///
+  /// This does not set the value for this [CurrentNullableIntProperty].
+  /// If the underlying value is `null` throws an [CurrentPropertyNullValueException].
+  num modNumber(num other) {
+    return isNotNull
+        ? _value! % other
         : throw CurrentPropertyNullValueException(
             StackTrace.current, propertyName, runtimeType);
   }
@@ -274,9 +369,22 @@ class CurrentNullableIntProperty extends CurrentProperty<int?> {
   /// final number = CurrentNullableIntProperty(5);
   /// print(number % 3); // 2
   /// ```
+  @Deprecated('Use modNumber for a predictable numeric return type.')
   E mod<E extends num>(E other) {
+    return _normalizeResult<E>(
+      modNumber(other),
+      propertyName,
+      runtimeType,
+    );
+  }
+
+  /// Multiplies this number by [other] and returns the numeric result.
+  ///
+  /// This does not set the value for this [CurrentNullableIntProperty].
+  /// If the underlying value is `null` throws an [CurrentPropertyNullValueException].
+  num multiplyNumber(num other) {
     return isNotNull
-        ? (_value! % other) as E
+        ? _value! * other
         : throw CurrentPropertyNullValueException(
             StackTrace.current, propertyName, runtimeType);
   }
@@ -290,10 +398,12 @@ class CurrentNullableIntProperty extends CurrentProperty<int?> {
   /// otherwise the result is a [double].
   ///
   /// If the underlying value is `null` throws an [CurrentPropertyNullValueException].
+  @Deprecated('Use multiplyNumber for a predictable numeric return type.')
   E multiply<E extends num>(E other) {
-    return isNotNull
-        ? (_value! * other) as E
-        : throw CurrentPropertyNullValueException(
-            StackTrace.current, propertyName, runtimeType);
+    return _normalizeResult<E>(
+      multiplyNumber(other),
+      propertyName,
+      runtimeType,
+    );
   }
 }

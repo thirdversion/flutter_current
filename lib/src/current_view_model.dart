@@ -28,7 +28,7 @@ abstract class CurrentViewModel {
   /// This can be used to determine if any changes have been made to the view model since it was last reset or since the [originalValue] of the properties were last updated to their current values.
   bool get isDirty {
     for (final prop in currentProps) {
-      if (prop.value != prop.originalValue) return true;
+      if (prop.isDirty) return true;
     }
     return false;
   }
@@ -81,6 +81,14 @@ abstract class CurrentViewModel {
     _assignedTo = widgetHash;
   }
 
+  /// Releases the current [CurrentState] assignment when it matches the
+  /// provided state identifier.
+  void releaseFrom(int widgetHash) {
+    if (_assignedTo == widgetHash) {
+      _assignedTo = null;
+    }
+  }
+
   /// Adds an event handler which gets executed each time an event of type [T] is added to the state stream.
   ///
   /// If the optional [filter] function is provided, the event handler will only be executed for events where the [filter] function returns true.
@@ -89,7 +97,7 @@ abstract class CurrentViewModel {
   /// Note if you provide both a [filter] and [propertyName], the event handler will only be executed for events that satisfy both conditions.
   ///
   /// If an error occurs in the event handler, any event handlers registered with the [addOnErrorEventListener] function will be executed with an [ErrorEvent] containing the error.
-  StreamSubscription addStateChangedListener<T extends CurrentStateChanged>(
+  StreamSubscription<T> addStateChangedListener<T extends CurrentStateChanged>(
       void Function(T event) onStateChanged,
       {bool Function(T event)? filter,
       String? propertyName}) {
@@ -116,10 +124,25 @@ abstract class CurrentViewModel {
     return newSubscription;
   }
 
+  /// Adds an event handler for all [CurrentStateChanged] events.
+  ///
+  /// This is a convenience wrapper around [addStateChangedListener] for cases
+  /// where the caller does not care about listening to a specific subclass.
+  StreamSubscription<CurrentStateChanged> addAnyStateChangedListener(
+      void Function(CurrentStateChanged event) onStateChanged,
+      {bool Function(CurrentStateChanged event)? filter,
+      String? propertyName}) {
+    return addStateChangedListener<CurrentStateChanged>(
+      onStateChanged,
+      filter: filter,
+      propertyName: propertyName,
+    );
+  }
+
   ///Cancels the subscription. The subscriber will stop receiving events
   Future<void> cancelSubscription(StreamSubscription? subscription) async {
-    await subscription?.cancel();
     _subscriptions.remove(subscription);
+    await subscription?.cancel();
   }
 
   ///Adds an event handler which gets executed each time [notifyError] is called.
@@ -152,7 +175,7 @@ abstract class CurrentViewModel {
   ///});
   ///```
   ///
-  StreamSubscription addOnErrorEventListener<T extends ErrorEvent>(
+  StreamSubscription<T> addOnErrorEventListener<T extends ErrorEvent>(
       void Function(T event) onError,
       {void Function(Object error, StackTrace stackTrace)? onInternalError}) {
     final newSubscription = _errorController.stream
@@ -162,6 +185,19 @@ abstract class CurrentViewModel {
 
     _subscriptions.add(newSubscription);
     return newSubscription;
+  }
+
+  /// Adds an event handler for all [ErrorEvent] values
+  ///
+  /// This is a convenience wrapper around [addOnErrorEventListener] for cases
+  /// where the caller wants to observe any error event.
+  StreamSubscription<ErrorEvent> addAnyErrorEventListener(
+      void Function(ErrorEvent event) onError,
+      {void Function(Object error, StackTrace stackTrace)? onInternalError}) {
+    return addOnErrorEventListener<ErrorEvent>(
+      onError,
+      onInternalError: onInternalError,
+    );
   }
 
   ///Inform the bound [CurrentState] that the state of the UI needs to be updated.
@@ -213,12 +249,20 @@ abstract class CurrentViewModel {
       final previousValue = property.value;
       final nextValue = setter.values.first;
 
+      if (!property.hasValueChanged(nextValue, previousValue)) {
+        continue;
+      }
+
       changes.add(CurrentStateChanged(nextValue, previousValue,
-          propertyName: property.propertyName));
+          propertyName: property.propertyName,
+          sourceHashCode: property.sourceHashCode));
 
       property(nextValue, notifyChange: false);
     }
-    notifyChanges(changes);
+
+    if (changes.isNotEmpty) {
+      notifyChanges(changes);
+    }
   }
 
   ///Inform the bound [CurrentState] that an error has occurred.
@@ -337,12 +381,22 @@ abstract class CurrentViewModel {
   ///to their original value.
   ///
   void resetAll() {
-    final resetActions = <Map<CurrentProperty, dynamic>>[];
+    final resetEvents = <CurrentStateChanged>[];
     for (final prop in currentProps) {
-      resetActions.add({prop: prop.originalValue});
+      final previousValue = prop.value;
+      prop.reset(notifyChange: false);
+
+      resetEvents.add(CurrentStateChanged(
+        prop.value,
+        previousValue,
+        propertyName: prop.propertyName,
+        sourceHashCode: prop.sourceHashCode,
+      ));
     }
 
-    setMultiple(resetActions);
+    notifyChanges(resetEvents);
+    _busyTaskKeys.clear();
+    setNotBusy();
   }
 
   ///Closes the state and error streams and removes any listeners associated with those streams
@@ -366,104 +420,121 @@ class CurrentStateChanged<T> {
   final T? nextValue;
   final String? propertyName;
   final String? description;
+  final int? sourceHashCode;
 
   CurrentStateChanged(this.nextValue, this.previousValue,
-      {this.propertyName, this.description});
+      {this.propertyName, this.description, this.sourceHashCode});
 
   ///A factory method which creates a single [CurrentStateChanged] object with a description
   ///describing what value was added to the list
   static CurrentStateChanged addedToList<V>(V newValue,
-          {String? propertyName}) =>
+          {String? propertyName, int? sourceHashCode}) =>
       CurrentStateChanged(newValue, null,
-          propertyName: propertyName, description: 'Added To List: $newValue');
+          propertyName: propertyName,
+          description: 'Added To List: $newValue',
+          sourceHashCode: sourceHashCode);
 
   ///A factory method which creates a single [CurrentStateChanged] object with a description
   ///describing all the values that were added to the list
   static CurrentStateChanged addedAllToList<V>(Iterable<V> newValues,
-          {String? propertyName}) =>
+          {String? propertyName, int? sourceHashCode}) =>
       CurrentStateChanged(newValues, null,
           propertyName: propertyName,
-          description: 'Added All To List: $newValues');
+          description: 'Added All To List: $newValues',
+          sourceHashCode: sourceHashCode);
 
   ///A factory method which creates a single [CurrentStateChanged] object with a description
   ///describing the value inserted into to the list at the specified index
   static CurrentStateChanged insertIntoList<V>(int index, V value,
-          {String? propertyName}) =>
+          {String? propertyName, int? sourceHashCode}) =>
       CurrentStateChanged(
         value,
         null,
         propertyName: propertyName,
         description: 'Inserted $value into List as index $index',
+        sourceHashCode: sourceHashCode,
       );
 
   ///A factory method which creates a single [CurrentStateChanged] object with a description
   ///describing all the values that were inserted into the list at the specified index
   static CurrentStateChanged insertAllIntoList<V>(int index, Iterable<V> values,
-          {String? propertyName}) =>
+          {String? propertyName, int? sourceHashCode}) =>
       CurrentStateChanged(values, null,
           propertyName: propertyName,
-          description: 'Inserted All $values into List as index $index');
+          description: 'Inserted All $values into List as index $index',
+          sourceHashCode: sourceHashCode);
 
   ///A factory method which creates a single [CurrentStateChanged] object with a description
   ///describing what value was removed from the list
   static CurrentStateChanged removedFromList<V>(V removedValue,
-          {String? propertyName}) =>
+          {String? propertyName, int? sourceHashCode}) =>
       CurrentStateChanged(null, removedValue,
           propertyName: propertyName,
-          description: 'Removed From List: $removedValue');
+          description: 'Removed From List: $removedValue',
+          sourceHashCode: sourceHashCode);
 
   ///A factory method which creates a single [CurrentStateChanged] object with a description
   ///stating that the entire list was cleared
   static CurrentStateChanged<Iterable<V>> clearedList<V>(Iterable<V> iterable,
-          {String? propertyName}) =>
+          {String? propertyName, int? sourceHashCode}) =>
       CurrentStateChanged(<V>[], iterable,
-          propertyName: propertyName, description: 'Iterable Cleared');
+          propertyName: propertyName,
+          description: 'Iterable Cleared',
+          sourceHashCode: sourceHashCode);
 
   ///A factory method which creates a single [CurrentStateChanged] object with a description
   ///describing what new map values were added to another map
   static CurrentStateChanged addedMapToMap<K, V>(Map<K, V> addedMap,
-      {String? propertyName}) {
+      {String? propertyName, int? sourceHashCode}) {
     return CurrentStateChanged(addedMap, null,
-        propertyName: propertyName, description: 'Added Map To Map: $addedMap');
+        propertyName: propertyName,
+        description: 'Added Map To Map: $addedMap',
+        sourceHashCode: sourceHashCode);
   }
 
   ///A factory method which creates a single [CurrentStateChanged] object with a description
   ///describing what key/value was added to the map
   static CurrentStateChanged addedToMap<K, V>(K key, V newValue,
-      {String? propertyName}) {
+      {String? propertyName, int? sourceHashCode}) {
     final newEntry = MapEntry(key, newValue);
     return CurrentStateChanged(newEntry, null,
-        propertyName: propertyName, description: 'Added To Map: $newEntry');
+        propertyName: propertyName,
+        description: 'Added To Map: $newEntry',
+        sourceHashCode: sourceHashCode);
   }
 
   ///A factory method which creates a single [CurrentStateChanged] object with a description
   ///describing what [MapEntry] objects were added to the map
   static CurrentStateChanged addedEntriesToMap<K, V>(
       Iterable<MapEntry<K, V>> entries,
-      {String? propertyName}) {
+      {String? propertyName,
+      int? sourceHashCode}) {
     return CurrentStateChanged(entries, null,
         propertyName: propertyName,
-        description: 'Added Entries To Map: $entries');
+        description: 'Added Entries To Map: $entries',
+        sourceHashCode: sourceHashCode);
   }
 
   ///A factory method which creates a single [CurrentStateChanged] object with a description
   ///describing what changes were made to a map entry, including for which key
   static CurrentStateChanged<V> updateMapEntry<K, V>(
       K key, V? originalValue, V? nextValue,
-      {String? propertyName}) {
+      {String? propertyName, int? sourceHashCode}) {
     return CurrentStateChanged<V>(nextValue, originalValue,
         propertyName: propertyName,
-        description: 'Update Map Value For Key: $key');
+        description: 'Update Map Value For Key: $key',
+        sourceHashCode: sourceHashCode);
   }
 
   ///A factory method which creates a single [CurrentStateChanged] object with a description
   ///describing what key/value was removed from the map
-  static CurrentStateChanged<V> removedFromMap<K, V>(K key, V removedValue,
-      {String? propertyName}) {
+  static CurrentStateChanged<V> removedFromMap<K, V>(K key, V? removedValue,
+      {String? propertyName, int? sourceHashCode}) {
     final removedEntry = MapEntry(key, removedValue);
     return CurrentStateChanged<V>(null, removedValue,
         propertyName: propertyName,
-        description: 'Removed From Map: $removedEntry');
+        description: 'Removed From Map: $removedEntry',
+        sourceHashCode: sourceHashCode);
   }
 
   @override
