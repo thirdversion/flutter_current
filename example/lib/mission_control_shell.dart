@@ -8,6 +8,10 @@ import 'modules/launch_events_page.dart';
 import 'modules/mission_overview_page.dart';
 import 'modules/star_map_page.dart';
 import 'modules/telemetry_lab_page.dart';
+import 'view_models/flight_forms_view_model.dart';
+import 'view_models/launch_events_view_model.dart';
+import 'view_models/star_map_view_model.dart';
+import 'view_models/telemetry_lab_view_model.dart';
 
 class MissionControlShell extends CurrentWidget<ApplicationViewModel> {
   const MissionControlShell({super.key, required super.viewModel});
