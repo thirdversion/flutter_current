@@ -5,6 +5,18 @@ import 'package:flutter/foundation.dart';
 
 import 'current_property.dart';
 
+/// Contract for helper objects that need to attach themselves to a
+/// [CurrentViewModel] after all [CurrentProperty] values have been initialized.
+///
+/// Implementations should usually be exposed from [CurrentViewModel.currentBindings].
+abstract class CurrentViewModelBinding {
+  /// Attaches this helper to its owning [CurrentViewModel].
+  ///
+  /// This is called automatically from the [CurrentViewModel] constructor after
+  /// all [currentProps] have been associated with the view model.
+  void attachToViewModel();
+}
+
 ///A ViewModel is an abstraction of the view it is bound to and represents the current state of
 ///the data in your model.
 ///
@@ -59,12 +71,46 @@ abstract class CurrentViewModel {
     for (var element in currentProps) {
       element.setViewModel(this);
     }
+
+    for (final binding in currentBindings) {
+      binding.attachToViewModel();
+    }
   }
 
   ///Provides a list of [CurrentProperty] fields in the [CurrentViewModel].
   ///
   ///Properties on the implementation must be added to this list in order to be reactive and update the UI on change.
   Iterable<CurrentProperty> get currentProps;
+
+  /// Provides a list of helper bindings that should attach after the view model
+  /// has assigned itself to all [currentProps].
+  ///
+  /// This is useful for helper types that depend on [CurrentProperty.viewModel]
+  /// being available before they can subscribe to state changes or emit their
+  /// own metadata events.
+  ///
+  /// Implementations commonly return objects such as [CurrentFieldValidation]
+  /// that implement [CurrentViewModelBinding].
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// class ProfileViewModel extends CurrentViewModel {
+  ///   final email = CurrentStringProperty('', propertyName: 'email');
+  ///
+  ///   late final emailValidation = email.createValidation(
+  ///     rules: [(value) => value.isEmpty ? 'Email is required' : null],
+  ///     validateOnPropertyChange: true,
+  ///   );
+  ///
+  ///   @override
+  ///   Iterable<CurrentProperty> get currentProps => [email];
+  ///
+  ///   @override
+  ///   Iterable<CurrentViewModelBinding> get currentBindings => [emailValidation];
+  /// }
+  /// ```
+  Iterable<CurrentViewModelBinding> get currentBindings => const [];
 
   ///Creates associates the view model with a specific [CurrentState] via the states hash code.
   ///
@@ -326,8 +372,8 @@ abstract class CurrentViewModel {
   ///Example:
   ///```dart
   ///Future<void> loadUsers() async {
-  ///    final users = await doAsync<User>(
-  ///      () async => await userService.getAll(),
+  ///    final users = await doAsync(
+  ///      () => userService.getAll(),
   ///      busyTaskKey: 'loadingUsers'
   ///    );
   ///}
