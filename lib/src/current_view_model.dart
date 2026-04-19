@@ -89,7 +89,7 @@ abstract class CurrentViewModel {
   /// Note if you provide both a [filter] and [propertyName], the event handler will only be executed for events that satisfy both conditions.
   ///
   /// If an error occurs in the event handler, any event handlers registered with the [addOnErrorEventListener] function will be executed with an [ErrorEvent] containing the error.
-  StreamSubscription addStateChangedListener<T extends CurrentStateChanged>(
+  StreamSubscription<T> addStateChangedListener<T extends CurrentStateChanged>(
       void Function(T event) onStateChanged,
       {bool Function(T event)? filter,
       String? propertyName}) {
@@ -114,6 +114,22 @@ abstract class CurrentViewModel {
     _subscriptions.add(newSubscription);
 
     return newSubscription;
+  }
+
+  /// Adds an event handler for all [CurrentStateChanged] events without
+  /// requiring the caller to specify a concrete callback parameter type.
+  ///
+  /// This is a convenience wrapper around [addStateChangedListener] for cases
+  /// where the caller does not care about listening to a specific subclass.
+  StreamSubscription<CurrentStateChanged> addAnyStateChangedListener(
+      void Function(CurrentStateChanged event) onStateChanged,
+      {bool Function(CurrentStateChanged event)? filter,
+      String? propertyName}) {
+    return addStateChangedListener<CurrentStateChanged>(
+      onStateChanged,
+      filter: filter,
+      propertyName: propertyName,
+    );
   }
 
   ///Cancels the subscription. The subscriber will stop receiving events

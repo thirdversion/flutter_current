@@ -49,8 +49,7 @@ class _CounterPageState extends CurrentState<CounterPage, CounterViewModel>
     }, filter: (event) => event.nextValue == 42);
 
     // Can also listen to all events and filter by property name
-    countChangedSubscription =
-        viewModel.addStateChangedListener((CurrentStateChanged event) {
+    countChangedSubscription = viewModel.addAnyStateChangedListener((event) {
       if (viewModel.changeBackgroundOnCountChange.isTrue) {
         appViewModel.randomizeBackgroundColor();
       }
