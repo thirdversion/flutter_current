@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class ListViewModel extends CurrentViewModel {
-  final planets = CurrentListProperty<String>.empty();
+  final planets = CurrentListProperty<String>.empty(propertyName: 'planets');
 
   @override
   Iterable<CurrentProperty> get currentProps => [planets];
@@ -224,6 +224,85 @@ void main() {
       list.add('Frank', notifyChanges: false);
 
       expect(list.isDirty, isTrue);
+    });
+
+    test('add - emits event with property metadata', () async {
+      CurrentStateChanged? receivedEvent;
+
+      final subscription = viewModel
+          .addAnyStateChangedListener((event) => receivedEvent = event);
+
+      viewModel.planets.add('Earth');
+      await Future<void>.microtask(() {});
+
+      expect(receivedEvent, isNotNull);
+      expect(receivedEvent?.nextValue, equals('Earth'));
+      expect(receivedEvent?.previousValue, isNull);
+      expect(receivedEvent?.propertyName, equals('planets'));
+      expect(receivedEvent?.sourceHashCode,
+          equals(viewModel.planets.sourceHashCode));
+
+      await subscription.cancel();
+    });
+
+    test('insert - emits inserted value instead of entire list', () async {
+      CurrentStateChanged? receivedEvent;
+
+      final subscription = viewModel
+          .addAnyStateChangedListener((event) => receivedEvent = event);
+
+      viewModel.planets.addAll(['Mercury', 'Venus'], notifyChanges: false);
+      viewModel.planets.insert(1, 'Earth');
+      await Future<void>.microtask(() {});
+
+      expect(receivedEvent, isNotNull);
+      expect(receivedEvent?.nextValue, equals('Earth'));
+      expect(
+        receivedEvent?.description,
+        equals('Inserted Earth into List as index 1'),
+      );
+      expect(receivedEvent?.propertyName, equals('planets'));
+
+      await subscription.cancel();
+    });
+
+    test('insertAllAtEnd - emits original index where item was inserted',
+        () async {
+      CurrentStateChanged? receivedEvent;
+
+      final subscription = viewModel
+          .addAnyStateChangedListener((event) => receivedEvent = event);
+
+      viewModel.planets.addAll(['Mercury', 'Venus'], notifyChanges: false);
+      viewModel.planets.insertAllAtEnd(['Earth', 'Mars']);
+      await Future<void>.microtask(() {});
+
+      expect(receivedEvent, isNotNull);
+      expect(receivedEvent?.nextValue, equals(['Earth', 'Mars']));
+      expect(
+        receivedEvent?.description,
+        equals('Inserted All [Earth, Mars] into List as index 2'),
+      );
+
+      await subscription.cancel();
+    });
+
+    test('clear - emits a stable snapshot of previous items', () async {
+      CurrentStateChanged? receivedEvent;
+
+      final subscription = viewModel
+          .addAnyStateChangedListener((event) => receivedEvent = event);
+
+      viewModel.planets.addAll(['Earth', 'Mars'], notifyChanges: false);
+      viewModel.planets.clear();
+      await Future<void>.microtask(() {});
+
+      expect(receivedEvent, isNotNull);
+      expect(receivedEvent?.previousValue, equals(['Earth', 'Mars']));
+      expect(receivedEvent?.nextValue, equals(<String>[]));
+      expect(receivedEvent?.propertyName, equals('planets'));
+
+      await subscription.cancel();
     });
 
     test(

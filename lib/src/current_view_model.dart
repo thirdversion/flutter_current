@@ -413,97 +413,113 @@ class CurrentStateChanged<T> {
   ///A factory method which creates a single [CurrentStateChanged] object with a description
   ///describing what value was added to the list
   static CurrentStateChanged addedToList<V>(V newValue,
-          {String? propertyName}) =>
+          {String? propertyName, int? sourceHashCode}) =>
       CurrentStateChanged(newValue, null,
-          propertyName: propertyName, description: 'Added To List: $newValue');
+          propertyName: propertyName,
+          description: 'Added To List: $newValue',
+          sourceHashCode: sourceHashCode);
 
   ///A factory method which creates a single [CurrentStateChanged] object with a description
   ///describing all the values that were added to the list
   static CurrentStateChanged addedAllToList<V>(Iterable<V> newValues,
-          {String? propertyName}) =>
+          {String? propertyName, int? sourceHashCode}) =>
       CurrentStateChanged(newValues, null,
           propertyName: propertyName,
-          description: 'Added All To List: $newValues');
+          description: 'Added All To List: $newValues',
+          sourceHashCode: sourceHashCode);
 
   ///A factory method which creates a single [CurrentStateChanged] object with a description
   ///describing the value inserted into to the list at the specified index
   static CurrentStateChanged insertIntoList<V>(int index, V value,
-          {String? propertyName}) =>
+          {String? propertyName, int? sourceHashCode}) =>
       CurrentStateChanged(
         value,
         null,
         propertyName: propertyName,
         description: 'Inserted $value into List as index $index',
+        sourceHashCode: sourceHashCode,
       );
 
   ///A factory method which creates a single [CurrentStateChanged] object with a description
   ///describing all the values that were inserted into the list at the specified index
   static CurrentStateChanged insertAllIntoList<V>(int index, Iterable<V> values,
-          {String? propertyName}) =>
+          {String? propertyName, int? sourceHashCode}) =>
       CurrentStateChanged(values, null,
           propertyName: propertyName,
-          description: 'Inserted All $values into List as index $index');
+          description: 'Inserted All $values into List as index $index',
+          sourceHashCode: sourceHashCode);
 
   ///A factory method which creates a single [CurrentStateChanged] object with a description
   ///describing what value was removed from the list
   static CurrentStateChanged removedFromList<V>(V removedValue,
-          {String? propertyName}) =>
+          {String? propertyName, int? sourceHashCode}) =>
       CurrentStateChanged(null, removedValue,
           propertyName: propertyName,
-          description: 'Removed From List: $removedValue');
+          description: 'Removed From List: $removedValue',
+          sourceHashCode: sourceHashCode);
 
   ///A factory method which creates a single [CurrentStateChanged] object with a description
   ///stating that the entire list was cleared
   static CurrentStateChanged<Iterable<V>> clearedList<V>(Iterable<V> iterable,
-          {String? propertyName}) =>
+          {String? propertyName, int? sourceHashCode}) =>
       CurrentStateChanged(<V>[], iterable,
-          propertyName: propertyName, description: 'Iterable Cleared');
+          propertyName: propertyName,
+          description: 'Iterable Cleared',
+          sourceHashCode: sourceHashCode);
 
   ///A factory method which creates a single [CurrentStateChanged] object with a description
   ///describing what new map values were added to another map
   static CurrentStateChanged addedMapToMap<K, V>(Map<K, V> addedMap,
-      {String? propertyName}) {
+      {String? propertyName, int? sourceHashCode}) {
     return CurrentStateChanged(addedMap, null,
-        propertyName: propertyName, description: 'Added Map To Map: $addedMap');
+        propertyName: propertyName,
+        description: 'Added Map To Map: $addedMap',
+        sourceHashCode: sourceHashCode);
   }
 
   ///A factory method which creates a single [CurrentStateChanged] object with a description
   ///describing what key/value was added to the map
   static CurrentStateChanged addedToMap<K, V>(K key, V newValue,
-      {String? propertyName}) {
+      {String? propertyName, int? sourceHashCode}) {
     final newEntry = MapEntry(key, newValue);
     return CurrentStateChanged(newEntry, null,
-        propertyName: propertyName, description: 'Added To Map: $newEntry');
+        propertyName: propertyName,
+        description: 'Added To Map: $newEntry',
+        sourceHashCode: sourceHashCode);
   }
 
   ///A factory method which creates a single [CurrentStateChanged] object with a description
   ///describing what [MapEntry] objects were added to the map
   static CurrentStateChanged addedEntriesToMap<K, V>(
       Iterable<MapEntry<K, V>> entries,
-      {String? propertyName}) {
+      {String? propertyName,
+      int? sourceHashCode}) {
     return CurrentStateChanged(entries, null,
         propertyName: propertyName,
-        description: 'Added Entries To Map: $entries');
+        description: 'Added Entries To Map: $entries',
+        sourceHashCode: sourceHashCode);
   }
 
   ///A factory method which creates a single [CurrentStateChanged] object with a description
   ///describing what changes were made to a map entry, including for which key
   static CurrentStateChanged<V> updateMapEntry<K, V>(
       K key, V? originalValue, V? nextValue,
-      {String? propertyName}) {
+      {String? propertyName, int? sourceHashCode}) {
     return CurrentStateChanged<V>(nextValue, originalValue,
         propertyName: propertyName,
-        description: 'Update Map Value For Key: $key');
+        description: 'Update Map Value For Key: $key',
+        sourceHashCode: sourceHashCode);
   }
 
   ///A factory method which creates a single [CurrentStateChanged] object with a description
   ///describing what key/value was removed from the map
-  static CurrentStateChanged<V> removedFromMap<K, V>(K key, V removedValue,
-      {String? propertyName}) {
+  static CurrentStateChanged<V> removedFromMap<K, V>(K key, V? removedValue,
+      {String? propertyName, int? sourceHashCode}) {
     final removedEntry = MapEntry(key, removedValue);
     return CurrentStateChanged<V>(null, removedValue,
         propertyName: propertyName,
-        description: 'Removed From Map: $removedEntry');
+        description: 'Removed From Map: $removedEntry',
+        sourceHashCode: sourceHashCode);
   }
 
   @override

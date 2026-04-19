@@ -167,7 +167,13 @@ class CurrentListProperty<T> extends CurrentProperty<List<T>> {
     _value.add(value);
 
     if (notifyChanges) {
-      viewModel.notifyChanges([CurrentStateChanged.addedToList(value)]);
+      viewModel.notifyChanges([
+        CurrentStateChanged.addedToList(
+          value,
+          propertyName: propertyName,
+          sourceHashCode: sourceHashCode,
+        )
+      ]);
     }
   }
 
@@ -182,10 +188,17 @@ class CurrentListProperty<T> extends CurrentProperty<List<T>> {
   /// print(numbers); // [1, 2, 3, 4, 5, 6]
   /// ```
   void addAll(Iterable<T> values, {bool notifyChanges = true}) {
-    _value.addAll(values);
+    final addedValues = List<T>.from(values);
+    _value.addAll(addedValues);
 
     if (notifyChanges) {
-      viewModel.notifyChanges([CurrentStateChanged.addedAllToList(values)]);
+      viewModel.notifyChanges([
+        CurrentStateChanged.addedAllToList(
+          addedValues,
+          propertyName: propertyName,
+          sourceHashCode: sourceHashCode,
+        )
+      ]);
     }
   }
 
@@ -207,8 +220,14 @@ class CurrentListProperty<T> extends CurrentProperty<List<T>> {
     _value.insert(index, element);
 
     if (notifyChanges) {
-      viewModel
-          .notifyChanges([CurrentStateChanged.insertIntoList(index, value)]);
+      viewModel.notifyChanges([
+        CurrentStateChanged.insertIntoList(
+          index,
+          element,
+          propertyName: propertyName,
+          sourceHashCode: sourceHashCode,
+        )
+      ]);
     }
   }
 
@@ -224,11 +243,18 @@ class CurrentListProperty<T> extends CurrentProperty<List<T>> {
   /// print(numbers); // [1, 2, 10, 11, 12, 3, 4]
   /// ```
   void insertAll(int index, Iterable<T> values, {bool notifyChanges = true}) {
-    _value.insertAll(index, values);
+    final insertedValues = List<T>.from(values);
+    _value.insertAll(index, insertedValues);
 
     if (notifyChanges) {
-      viewModel.notifyChanges(
-          [CurrentStateChanged.insertAllIntoList(index, values)]);
+      viewModel.notifyChanges([
+        CurrentStateChanged.insertAllIntoList(
+          index,
+          insertedValues,
+          propertyName: propertyName,
+          sourceHashCode: sourceHashCode,
+        )
+      ]);
     }
   }
 
@@ -242,11 +268,19 @@ class CurrentListProperty<T> extends CurrentProperty<List<T>> {
   /// print(numbers); // [1, 2, 3, 4, 10, 11, 12]
   /// ```
   void insertAllAtEnd(Iterable<T> values, {bool notifyChanges = true}) {
-    _value.insertAll(_value.length, values);
+    final insertIndex = _value.length;
+    final insertedValues = List<T>.from(values);
+    _value.insertAll(insertIndex, insertedValues);
 
     if (notifyChanges) {
-      viewModel.notifyChanges(
-          [CurrentStateChanged.insertAllIntoList(_value.length, values)]);
+      viewModel.notifyChanges([
+        CurrentStateChanged.insertAllIntoList(
+          insertIndex,
+          insertedValues,
+          propertyName: propertyName,
+          sourceHashCode: sourceHashCode,
+        )
+      ]);
     }
   }
 
@@ -296,7 +330,13 @@ class CurrentListProperty<T> extends CurrentProperty<List<T>> {
     final wasRemoved = _value.remove(value);
 
     if (notifyChanges && wasRemoved) {
-      viewModel.notifyChanges([CurrentStateChanged.removedFromList(value)]);
+      viewModel.notifyChanges([
+        CurrentStateChanged.removedFromList(
+          value,
+          propertyName: propertyName,
+          sourceHashCode: sourceHashCode,
+        )
+      ]);
     }
 
     return wasRemoved;
@@ -320,8 +360,13 @@ class CurrentListProperty<T> extends CurrentProperty<List<T>> {
     final removedValue = _value.removeAt(index);
 
     if (notifyChanges) {
-      viewModel
-          .notifyChanges([CurrentStateChanged.removedFromList(removedValue)]);
+      viewModel.notifyChanges([
+        CurrentStateChanged.removedFromList(
+          removedValue,
+          propertyName: propertyName,
+          sourceHashCode: sourceHashCode,
+        )
+      ]);
     }
 
     return removedValue;
@@ -338,8 +383,12 @@ class CurrentListProperty<T> extends CurrentProperty<List<T>> {
   /// print(numbers); // []
   /// ```
   void clear({bool notifyChanges = true}) {
-    final stateChangedEvent =
-        CurrentStateChanged.clearedList(_value, propertyName: propertyName);
+    final previousItems = List<T>.from(_value);
+    final stateChangedEvent = CurrentStateChanged.clearedList(
+      previousItems,
+      propertyName: propertyName,
+      sourceHashCode: sourceHashCode,
+    );
     _value.clear();
 
     if (notifyChanges) {

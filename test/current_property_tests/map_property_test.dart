@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 
 class MapViewModel extends CurrentViewModel {
-  final data = CurrentMapProperty<String, String>.empty();
+  final data = CurrentMapProperty<String, String>.empty(propertyName: 'data');
 
   @override
   Iterable<CurrentProperty> get currentProps => [data];
@@ -377,6 +377,47 @@ void main() {
       final data = CurrentMapProperty<String, String>({'name': 'Bob'});
 
       expect(data.isDirty, isFalse);
+    });
+
+    test('add - emits event with property metadata', () async {
+      CurrentStateChanged? receivedEvent;
+
+      final subscription = viewModel
+          .addAnyStateChangedListener((event) => receivedEvent = event);
+
+      viewModel.data.add('name', 'Bob');
+      await Future<void>.microtask(() {});
+
+      expect(receivedEvent, isNotNull);
+      final nextValue = receivedEvent?.nextValue as MapEntry<String, String>?;
+      expect(nextValue?.key, equals('name'));
+      expect(nextValue?.value, equals('Bob'));
+      expect(receivedEvent?.previousValue, isNull);
+      expect(receivedEvent?.propertyName, equals('data'));
+      expect(
+          receivedEvent?.sourceHashCode, equals(viewModel.data.sourceHashCode));
+
+      await subscription.cancel();
+    });
+
+    test('clear - emits a concrete snapshot of previous items', () async {
+      CurrentStateChanged? receivedEvent;
+
+      final subscription = viewModel
+          .addAnyStateChangedListener((event) => receivedEvent = event);
+
+      viewModel.data
+          .addAll({'name': 'Bob', 'planet': 'Earth'}, notifyChanges: false);
+      viewModel.data.clear();
+      await Future<void>.microtask(() {});
+
+      expect(receivedEvent, isNotNull);
+      expect(receivedEvent?.previousValue,
+          equals({'name': 'Bob', 'planet': 'Earth'}));
+      expect(receivedEvent?.nextValue, equals(<String, String>{}));
+      expect(receivedEvent?.propertyName, equals('data'));
+
+      await subscription.cancel();
     });
 
     test('isDirty - map changes from original value - returns true', () {

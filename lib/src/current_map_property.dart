@@ -82,11 +82,16 @@ class CurrentMapProperty<K, V> extends CurrentProperty<Map<K, V>> {
   ///
   /// If a key of [other] is already in this map, its value is overwritten.
   void addAll(Map<K, V> other, {bool notifyChanges = true}) {
-    _value.addAll(other);
+    final addedMap = Map<K, V>.from(other);
+    _value.addAll(addedMap);
 
     if (notifyChanges) {
       viewModel.notifyChanges([
-        CurrentStateChanged.addedMapToMap(other, propertyName: propertyName)
+        CurrentStateChanged.addedMapToMap(
+          addedMap,
+          propertyName: propertyName,
+          sourceHashCode: sourceHashCode,
+        )
       ]);
     }
   }
@@ -101,7 +106,7 @@ class CurrentMapProperty<K, V> extends CurrentProperty<Map<K, V>> {
     if (notifyChanges) {
       viewModel.notifyChanges([
         CurrentStateChanged.addedToMap(entry.key, entry.value,
-            propertyName: propertyName)
+            propertyName: propertyName, sourceHashCode: sourceHashCode)
       ]);
     }
   }
@@ -126,12 +131,13 @@ class CurrentMapProperty<K, V> extends CurrentProperty<Map<K, V>> {
   /// ```
   void addEntries(Iterable<MapEntry<K, V>> entries,
       {bool notifyChanges = true}) {
-    _value.addEntries(entries);
+    final addedEntries = List<MapEntry<K, V>>.from(entries);
+    _value.addEntries(addedEntries);
 
     if (notifyChanges) {
       viewModel.notifyChanges([
-        CurrentStateChanged.addedEntriesToMap(entries,
-            propertyName: propertyName)
+        CurrentStateChanged.addedEntriesToMap(addedEntries,
+            propertyName: propertyName, sourceHashCode: sourceHashCode)
       ]);
     }
   }
@@ -145,7 +151,8 @@ class CurrentMapProperty<K, V> extends CurrentProperty<Map<K, V>> {
 
     if (notifyChanges) {
       viewModel.notifyChanges([
-        CurrentStateChanged.addedToMap(key, value, propertyName: propertyName)
+        CurrentStateChanged.addedToMap(key, value,
+            propertyName: propertyName, sourceHashCode: sourceHashCode)
       ]);
     }
   }
@@ -186,6 +193,7 @@ class CurrentMapProperty<K, V> extends CurrentProperty<Map<K, V>> {
           originalValue,
           updatedValue,
           propertyName: propertyName,
+          sourceHashCode: sourceHashCode,
         )
       ]);
     }
@@ -214,6 +222,7 @@ class CurrentMapProperty<K, V> extends CurrentProperty<Map<K, V>> {
         previousValue,
         updatedValue,
         propertyName: propertyName,
+        sourceHashCode: sourceHashCode,
       ));
       return updatedValue;
     });
@@ -244,6 +253,7 @@ class CurrentMapProperty<K, V> extends CurrentProperty<Map<K, V>> {
           key,
           removedValue,
           propertyName: propertyName,
+          sourceHashCode: sourceHashCode,
         )
       ]);
     }
@@ -269,6 +279,7 @@ class CurrentMapProperty<K, V> extends CurrentProperty<Map<K, V>> {
           key,
           value,
           propertyName: propertyName,
+          sourceHashCode: sourceHashCode,
         ));
       }
 
@@ -288,8 +299,13 @@ class CurrentMapProperty<K, V> extends CurrentProperty<Map<K, V>> {
   /// planets.clear(); // {}
   /// ```
   void clear({bool notifyChanges = true}) {
-    final stateChangedEvent =
-        CurrentStateChanged(<K, V>{}, _value, propertyName: propertyName);
+    final previousItems = Map<K, V>.from(_value);
+    final stateChangedEvent = CurrentStateChanged(
+      <K, V>{},
+      previousItems,
+      propertyName: propertyName,
+      sourceHashCode: sourceHashCode,
+    );
 
     _value.clear();
 
