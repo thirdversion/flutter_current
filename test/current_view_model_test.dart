@@ -1,6 +1,10 @@
 import 'package:current/current.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+class _TestFailureEvent extends ErrorEvent<String> {
+  _TestFailureEvent(super.error);
+}
+
 class _TestViewModel extends CurrentViewModel {
   final name = CurrentStringProperty('Bob');
   final age = CurrentIntProperty(20);
@@ -120,5 +124,22 @@ void main() {
     viewModel.age.setOriginalValueToCurrent();
 
     expect(viewModel.isDirty, isFalse);
+  });
+
+  test('addAnyErrorEventListener receives general error events', () async {
+    ErrorEvent? receivedEvent;
+
+    final subscription = viewModel.addAnyErrorEventListener((event) {
+      receivedEvent = event;
+    });
+
+    viewModel.notifyError(_TestFailureEvent('boom'));
+    await Future<void>.microtask(() {});
+
+    expect(receivedEvent, isNotNull);
+    expect(receivedEvent, isA<_TestFailureEvent>());
+    expect(receivedEvent?.error, 'boom');
+
+    await subscription.cancel();
   });
 }

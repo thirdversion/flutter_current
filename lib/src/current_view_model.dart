@@ -116,8 +116,7 @@ abstract class CurrentViewModel {
     return newSubscription;
   }
 
-  /// Adds an event handler for all [CurrentStateChanged] events without
-  /// requiring the caller to specify a concrete callback parameter type.
+  /// Adds an event handler for all [CurrentStateChanged] events.
   ///
   /// This is a convenience wrapper around [addStateChangedListener] for cases
   /// where the caller does not care about listening to a specific subclass.
@@ -168,7 +167,7 @@ abstract class CurrentViewModel {
   ///});
   ///```
   ///
-  StreamSubscription addOnErrorEventListener<T extends ErrorEvent>(
+  StreamSubscription<T> addOnErrorEventListener<T extends ErrorEvent>(
       void Function(T event) onError,
       {void Function(Object error, StackTrace stackTrace)? onInternalError}) {
     final newSubscription = _errorController.stream
@@ -178,6 +177,19 @@ abstract class CurrentViewModel {
 
     _subscriptions.add(newSubscription);
     return newSubscription;
+  }
+
+  /// Adds an event handler for all [ErrorEvent] values
+  ///
+  /// This is a convenience wrapper around [addOnErrorEventListener] for cases
+  /// where the caller wants to observe any error event.
+  StreamSubscription<ErrorEvent> addAnyErrorEventListener(
+      void Function(ErrorEvent event) onError,
+      {void Function(Object error, StackTrace stackTrace)? onInternalError}) {
+    return addOnErrorEventListener<ErrorEvent>(
+      onError,
+      onInternalError: onInternalError,
+    );
   }
 
   ///Inform the bound [CurrentState] that the state of the UI needs to be updated.
