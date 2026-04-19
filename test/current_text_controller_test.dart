@@ -89,10 +89,12 @@ class _ControllerValidationViewModel extends CurrentViewModel {
 class _ControllerValidationWidget
     extends CurrentWidget<_ControllerValidationViewModel> {
   final CurrentTextController<int> ageController;
+  final CurrentTextControllerValidationMessages? validationMessages;
 
   const _ControllerValidationWidget({
     required super.viewModel,
     required this.ageController,
+    this.validationMessages,
   });
 
   @override
@@ -111,6 +113,7 @@ class _ControllerValidationState extends CurrentState<
       property: viewModel.age,
       lifecycleProvider: this,
       validation: viewModel.ageValidation,
+      validationMessages: widget.validationMessages,
     );
   }
 
@@ -667,21 +670,30 @@ void main() {
   group('CurrentTextController validation integration', () {
     late _ControllerValidationViewModel viewModel;
     late CurrentTextController<int> ageController;
+    late CurrentTextControllerValidationMessages japaneseMessages;
 
     setUp(() {
       viewModel = _ControllerValidationViewModel();
       ageController = CurrentTextController.integer();
+      japaneseMessages = CurrentTextControllerValidationMessages(
+        requiredValueErrorBuilder: () => '値を入力してください',
+        invalidValueErrorBuilder: (_) => '無効な値です',
+      );
     });
 
     tearDown(() {
       ageController.dispose();
     });
 
-    Future<void> pumpHarness(WidgetTester tester) async {
+    Future<void> pumpHarness(
+      WidgetTester tester, {
+      CurrentTextControllerValidationMessages? validationMessages,
+    }) async {
       await tester.pumpWidget(
         _ControllerValidationWidget(
           viewModel: viewModel,
           ageController: ageController,
+          validationMessages: validationMessages,
         ),
       );
     }
@@ -754,6 +766,31 @@ void main() {
       expect(viewModel.ageValidation.isTouched, isTrue);
       expect(viewModel.ageValidation.hasError, isTrue);
       expect(viewModel.ageValidation.errorText, equals('A value is required.'));
+    });
+
+    testWidgets(
+        'controller-generated validation messages can be localized per binding',
+        (tester) async {
+      await pumpHarness(
+        tester,
+        validationMessages: japaneseMessages,
+      );
+
+      await tester.enterText(
+        find.byKey(const Key('validated-age-field')),
+        'abc',
+      );
+      await tester.pump();
+
+      expect(viewModel.ageValidation.errorText, equals('無効な値です'));
+
+      await tester.enterText(
+        find.byKey(const Key('validated-age-field')),
+        '',
+      );
+      await tester.pump();
+
+      expect(viewModel.ageValidation.errorText, equals('値を入力してください'));
     });
   });
 }

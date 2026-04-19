@@ -82,7 +82,80 @@ import 'package:flutter/material.dart';
 /// }
 /// ```
 ///
+typedef CurrentTextControllerRequiredValueErrorBuilder = String? Function();
+typedef CurrentTextControllerInvalidValueErrorBuilder = String? Function(
+  String text,
+);
+
+/// Supplies default controller-generated validation messages for [CurrentTextController].
+///
+/// These messages are only used when a [CurrentFieldValidation] is attached to a
+/// controller and the controller itself needs to surface a validation
+/// problem that did not come from the property's validator rules. Think 'This is required'
+/// 'This is not valid' generic messages.
+///
+/// Some examples include:
+/// - the user entering text that fails parsing for a non-String property
+/// - the user clearing a non-nullable field that does not have a default value
+///
+/// This type exists so you can localize those controller-level messages
+///
+/// You can either:
+/// - override [CurrentTextController.defaultValidationMessages] once for the app
+/// - pass a per-binding [validationMessages] value to [bind], [bindString],
+///   [bindInt], or [bindDateTime]
+///
+/// The builders are called the moment the validation problem occurs, which
+/// allows closures to read localized values dynamically.
+///
+/// ## Example
+///
+/// ```dart
+/// ageController.bindInt(
+///   property: viewModel.age,
+///   lifecycleProvider: this,
+///   validation: viewModel.ageValidation,
+///   validationMessages: CurrentTextControllerValidationMessages(
+///     requiredValueErrorBuilder: () => 'Entrez une valeur',
+///     invalidValueErrorBuilder: (_) => 'Valeur incorrecte',
+///   ),
+/// );
+/// ```
+final class CurrentTextControllerValidationMessages {
+  /// Builder used when a non-nullable field is cleared and no default value is
+  /// available.
+  final CurrentTextControllerRequiredValueErrorBuilder?
+      requiredValueErrorBuilder;
+
+  /// Builder used when text cannot be parsed into the target property type.
+  final CurrentTextControllerInvalidValueErrorBuilder? invalidValueErrorBuilder;
+
+  /// Creates a set of controller-generated validation message builders.
+  const CurrentTextControllerValidationMessages({
+    this.requiredValueErrorBuilder,
+    this.invalidValueErrorBuilder,
+  });
+
+  /// Returns the required-value message, if configured.
+  String? requiredValueErrorText() => requiredValueErrorBuilder?.call();
+
+  /// Returns the invalid-value message for the provided [text], if configured.
+  String? invalidValueErrorText(String text) =>
+      invalidValueErrorBuilder?.call(text);
+}
+
 final class CurrentTextController<T> extends TextEditingController {
+  /// Global default messages used when a binding does not provide
+  /// [CurrentTextControllerValidationMessages] explicitly.
+  ///
+  /// Can be replaced at startup to
+  /// provide localized controller-generated validation messages across the app.
+  static CurrentTextControllerValidationMessages defaultValidationMessages =
+      CurrentTextControllerValidationMessages(
+    requiredValueErrorBuilder: () => 'A value is required.',
+    invalidValueErrorBuilder: (_) => 'Invalid value.',
+  );
+
   /// The [CurrentProperty] that this controller is bound to. This will be set during initialization in the [bind] method.
   ///
   CurrentProperty<T?>? _property;
@@ -113,6 +186,13 @@ final class CurrentTextController<T> extends TextEditingController {
   /// validation state synchronized with successful property updates.
   CurrentFieldValidation<dynamic>? _validation;
   CurrentFieldValidation<dynamic>? get validation => _validation;
+
+  /// Optional per-binding controller-generated validation messages.
+  ///
+  /// When null, [defaultValidationMessages] is used.
+  CurrentTextControllerValidationMessages? _validationMessages;
+  CurrentTextControllerValidationMessages? get validationMessages =>
+      _validationMessages;
 
   /// An optional default value to use when parsing the text if the [fromString] function fails to parse the text. This is only used for non-String properties. If the [CurrentProperty] is of type String, this can be omitted since parsing will not be performed.
   ///
@@ -203,6 +283,10 @@ final class CurrentTextController<T> extends TextEditingController {
   ///
   /// The asString function is optional, but can be used to customize how the property's value is displayed in the text field. If not provided, it will default to using the property's value's toString() method, or an empty string if the property's value is null.
   ///
+  /// If [validation] is provided, [validationMessages] can be used to override
+  /// the controller-generated validation messages for this binding. This is the
+  /// preferred way to localize parse-failure and required-value messages.
+  ///
   void bind({
     required CurrentProperty<T?> property,
     required CurrentTextControllersLifecycleMixin lifecycleProvider,
@@ -210,6 +294,7 @@ final class CurrentTextController<T> extends TextEditingController {
     String? Function(T? propertyValue)? asString,
     T? defaultValue,
     CurrentFieldValidation<dynamic>? validation,
+    CurrentTextControllerValidationMessages? validationMessages,
   }) {
     final treatTextAsStringValue = _isStringProperty(property);
 
@@ -237,6 +322,7 @@ final class CurrentTextController<T> extends TextEditingController {
       defaultValue: defaultValue,
       treatTextAsStringValue: treatTextAsStringValue,
       validation: validation,
+      validationMessages: validationMessages,
     )) {
       return;
     }
@@ -251,6 +337,7 @@ final class CurrentTextController<T> extends TextEditingController {
     _treatTextAsStringValue = treatTextAsStringValue;
     _lifecycleProvider = lifecycleProvider;
     _validation = validation;
+    _validationMessages = validationMessages;
 
     _subscription =
         property.viewModel.addStateChangedListener<CurrentStateChanged>(
@@ -274,6 +361,7 @@ final class CurrentTextController<T> extends TextEditingController {
     required CurrentTextControllersLifecycleMixin lifecycleProvider,
     String? Function(T? propertyValue)? asString,
     CurrentFieldValidation<T>? validation,
+    CurrentTextControllerValidationMessages? validationMessages,
   }) {
     (bool isValidType, List<Type> validTypes) validateType(
         CurrentProperty property) {
@@ -309,6 +397,7 @@ final class CurrentTextController<T> extends TextEditingController {
       lifecycleProvider: lifecycleProvider,
       asString: asString,
       validation: validation,
+      validationMessages: validationMessages,
     );
   }
 
@@ -322,6 +411,7 @@ final class CurrentTextController<T> extends TextEditingController {
     String? Function(T? propertyValue)? asString,
     T? defaultValue,
     CurrentFieldValidation<T>? validation,
+    CurrentTextControllerValidationMessages? validationMessages,
   }) {
     (bool isValidType, List<Type> validTypes) validateType(
         CurrentProperty property) {
@@ -359,6 +449,7 @@ final class CurrentTextController<T> extends TextEditingController {
       asString: asString,
       defaultValue: defaultValue,
       validation: validation,
+      validationMessages: validationMessages,
     );
   }
 
@@ -372,6 +463,7 @@ final class CurrentTextController<T> extends TextEditingController {
     String? Function(T? propertyValue)? asString,
     T? defaultValue,
     CurrentFieldValidation<T>? validation,
+    CurrentTextControllerValidationMessages? validationMessages,
   }) {
     (bool isValidType, List<Type> validTypes) validateType(
         CurrentProperty property) {
@@ -411,6 +503,7 @@ final class CurrentTextController<T> extends TextEditingController {
               (propertyValue as DateTime?)?.toIso8601String() ?? '',
       defaultValue: defaultValue,
       validation: validation,
+      validationMessages: validationMessages,
     );
   }
 
@@ -458,13 +551,17 @@ final class CurrentTextController<T> extends TextEditingController {
         text.isEmpty &&
         !_isNullable &&
         !_hasDefaultValue) {
-      _validation?.setError('A value is required.', markTouched: true);
+      _setControllerValidationError(
+        _resolvedValidationMessages.requiredValueErrorText(),
+      );
       _setText(selectAll: true);
       return;
     }
 
     if (!parseResult.shouldUpdate) {
-      _validation?.setError('Invalid value.', markTouched: true);
+      _setControllerValidationError(
+        _resolvedValidationMessages.invalidValueErrorText(text),
+      );
       return;
     }
 
@@ -524,15 +621,33 @@ final class CurrentTextController<T> extends TextEditingController {
     required T? defaultValue,
     required bool treatTextAsStringValue,
     required CurrentFieldValidation<dynamic>? validation,
+    required CurrentTextControllerValidationMessages? validationMessages,
   }) {
     return identical(_property, property) &&
         identical(_lifecycleProvider, lifecycleProvider) &&
         identical(_fromString, fromString) &&
         identical(_asString, asString) &&
         identical(_validation, validation) &&
+        identical(_validationMessages, validationMessages) &&
         _defaultValue == defaultValue &&
         _hasDefaultValue == (!_isNullable && defaultValue != null) &&
         _treatTextAsStringValue == treatTextAsStringValue;
+  }
+
+  CurrentTextControllerValidationMessages get _resolvedValidationMessages =>
+      _validationMessages ?? defaultValidationMessages;
+
+  void _setControllerValidationError(String? errorText) {
+    if (_validation == null) {
+      return;
+    }
+
+    if (errorText == null) {
+      _validation!.markTouched();
+      return;
+    }
+
+    _validation!.setError(errorText, markTouched: true);
   }
 
   @override
@@ -540,6 +655,7 @@ final class CurrentTextController<T> extends TextEditingController {
     _subscription?.cancel();
     _subscription = null;
     _validation = null;
+    _validationMessages = null;
     super.dispose();
   }
 }
