@@ -9,6 +9,25 @@ class CurrentListProperty<T> extends CurrentProperty<List<T>> {
     _originalValue = List<T>.from(value);
   }
 
+  @override
+  bool hasValueChanged(List<T> currentValue, List<T> originalValue) {
+    if (identical(currentValue, originalValue)) {
+      return false;
+    }
+
+    if (currentValue.length != originalValue.length) {
+      return true;
+    }
+
+    for (var index = 0; index < currentValue.length; index++) {
+      if (currentValue[index] != originalValue[index]) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   ///Factory constructor for initializing an [CurrentListProperty] to an empty [List].
   ///
   ///See [CurrentProperty] for [propertyName] usages.

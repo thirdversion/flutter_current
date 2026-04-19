@@ -9,6 +9,26 @@ class CurrentMapProperty<K, V> extends CurrentProperty<Map<K, V>> {
     _originalValue = Map<K, V>.from(value);
   }
 
+  @override
+  bool hasValueChanged(Map<K, V> currentValue, Map<K, V> originalValue) {
+    if (identical(currentValue, originalValue)) {
+      return false;
+    }
+
+    if (currentValue.length != originalValue.length) {
+      return true;
+    }
+
+    for (final entry in currentValue.entries) {
+      if (!originalValue.containsKey(entry.key) ||
+          originalValue[entry.key] != entry.value) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   ///Factory constructor for initializing an [CurrentMapProperty] to an empty [Map].
   ///
   ///See [CurrentProperty] for [propertyName] usages.

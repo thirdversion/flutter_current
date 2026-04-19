@@ -211,6 +211,21 @@ void main() {
       expect(list.isNotEmpty, isTrue);
     });
 
+    test('isDirty - list is unchanged from original value - returns false', () {
+      final list = CurrentListProperty<String>(['Bob']);
+
+      expect(list.isDirty, isFalse);
+    });
+
+    test('isDirty - list changes from original value - returns true', () {
+      final list = CurrentListProperty<String>(['Bob']);
+      list.setViewModel(viewModel);
+
+      list.add('Frank', notifyChanges: false);
+
+      expect(list.isDirty, isTrue);
+    });
+
     test(
         'reset - starting list is empty - add item - should be empty after reset',
         () {

@@ -86,7 +86,14 @@ class CurrentProperty<T> implements CurrentValue<T> {
   /// Returns true if the value of this [CurrentProperty] is different from the [originalValue].
   ///
   /// This can be used to determine if the value has been changed since it was last reset or since the [originalValue] was last updated to the current value.
-  bool get isDirty => value != originalValue;
+  bool get isDirty => hasValueChanged(value, originalValue);
+
+  /// Determines whether the current value differs from the original value.
+  ///
+  /// Specialized property types can override this when their value semantics
+  /// differ from the default `==` comparison.
+  bool hasValueChanged(T currentValue, T originalValue) =>
+      currentValue != originalValue;
 
   CurrentViewModel? _viewModel;
 

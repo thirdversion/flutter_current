@@ -28,7 +28,7 @@ abstract class CurrentViewModel {
   /// This can be used to determine if any changes have been made to the view model since it was last reset or since the [originalValue] of the properties were last updated to their current values.
   bool get isDirty {
     for (final prop in currentProps) {
-      if (prop.value != prop.originalValue) return true;
+      if (prop.isDirty) return true;
     }
     return false;
   }

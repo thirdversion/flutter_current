@@ -13,11 +13,20 @@ class _TestViewModel extends CurrentViewModel {
   Iterable<CurrentProperty> get currentProps => [name, age];
 }
 
+class _CollectionViewModel extends CurrentViewModel {
+  final items = CurrentListProperty<String>.empty();
+
+  @override
+  Iterable<CurrentProperty> get currentProps => [items];
+}
+
 void main() {
   late _TestViewModel viewModel;
+  late _CollectionViewModel collectionViewModel;
 
   setUp(() {
     viewModel = _TestViewModel();
+    collectionViewModel = _CollectionViewModel();
   });
 
   test(
@@ -124,6 +133,19 @@ void main() {
     viewModel.age.setOriginalValueToCurrent();
 
     expect(viewModel.isDirty, isFalse);
+  });
+
+  test('isDirty - collection properties at original values - isDirty is false',
+      () {
+    expect(collectionViewModel.items.isDirty, isFalse);
+    expect(collectionViewModel.isDirty, isFalse);
+  });
+
+  test('isDirty - collection properties after mutation - isDirty is true', () {
+    collectionViewModel.items.add('Mars', notifyChanges: false);
+
+    expect(collectionViewModel.items.isDirty, isTrue);
+    expect(collectionViewModel.isDirty, isTrue);
   });
 
   test('addAnyErrorEventListener receives general error events', () async {

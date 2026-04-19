@@ -372,6 +372,22 @@ void main() {
 
       expect(result, isNull);
     });
+
+    test('isDirty - map is unchanged from original value - returns false', () {
+      final data = CurrentMapProperty<String, String>({'name': 'Bob'});
+
+      expect(data.isDirty, isFalse);
+    });
+
+    test('isDirty - map changes from original value - returns true', () {
+      final data = CurrentMapProperty<String, String>({'name': 'Bob'});
+      data.setViewModel(viewModel);
+
+      data.add('lastName', 'Smith', notifyChanges: false);
+
+      expect(data.isDirty, isTrue);
+    });
+
     test(
         'reset - starting map is empty - add item - should be empty after reset',
         () {
