@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -7,6 +9,9 @@ import 'current_view_model.dart';
 ///
 ///Requires a class that extends [CurrentViewModel] to be passed to the [viewModel] argument. The
 ///[CurrentViewModel] is responsible for notifying this widget when the UI needs to be updated.
+///By default, [CurrentWidget] also owns the lifecycle of the provided [viewModel] and disposes it
+///when the accompanying [CurrentState] is disposed. Set [disposeViewModel] to `false` when using
+///an externally managed or shared [CurrentViewModel] instance.
 ///
 ///### Usage
 ///
@@ -24,10 +29,21 @@ abstract class CurrentWidget<T extends CurrentViewModel>
     extends StatefulWidget {
   final T viewModel;
   final bool debugPrintStateChanges;
+
+  /// Whether this widget owns the lifecycle of the provided [viewModel].
+  ///
+  /// When true, disposing the [CurrentState] will also dispose the
+  /// [CurrentViewModel].
+  ///
+  /// Set this to false when the [viewModel] is managed externally and should
+  /// survive widget disposal so it can be rebound later.
+  final bool disposeViewModel;
+
   const CurrentWidget({
     super.key,
     required this.viewModel,
     this.debugPrintStateChanges = false,
+    this.disposeViewModel = true,
   });
 
   ///Create an instance of [CurrentState] for this widget.
@@ -88,8 +104,11 @@ abstract class CurrentWidget<T extends CurrentViewModel>
 ///}
 ///```
 ///**IMPORTANT**
-///If you expect the parent widget of [T] to cause [T] to rebuild, you should use the Flutter [AutomaticKeepAliveClientMixin]
-///on the [CurrentState] implementation to prevent the state from being disposed and recreated, which will cause the view model to be reassigned and throw a [CurrentViewModelAlreadyAssignedException].
+///If you expect the parent widget of [T] to cause [T] to rebuild while reusing the same
+///[CurrentViewModel] instance, you should either use the Flutter [AutomaticKeepAliveClientMixin]
+///on the [CurrentState] implementation or set [CurrentWidget.disposeViewModel] to `false` and manage
+///the view model lifecycle yourself. Otherwise, the default owned lifecycle will dispose the view
+///model with the state.
 ///
 ///For example:
 ///```dart
@@ -110,6 +129,7 @@ abstract class CurrentWidget<T extends CurrentViewModel>
 abstract class CurrentState<T extends CurrentWidget, E extends CurrentViewModel>
     extends State<T> {
   final E viewModel;
+  late final StreamSubscription<CurrentStateChanged> _stateChangedSubscription;
 
   ///Exposes the [viewModel] busy status. Used to determine if the [viewModel] is busy running
   ///a long running task
@@ -117,10 +137,15 @@ abstract class CurrentState<T extends CurrentWidget, E extends CurrentViewModel>
 
   CurrentState(this.viewModel) {
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => viewModel.assignTo(hashCode),
+      (_) {
+        if (mounted) {
+          viewModel.assignTo(hashCode);
+        }
+      },
     );
 
-    viewModel.addStateChangedListener<CurrentStateChanged>((event) {
+    _stateChangedSubscription =
+        viewModel.addStateChangedListener<CurrentStateChanged>((event) {
       if (widget.debugPrintStateChanges && kDebugMode) {
         // ignore: avoid_print
         print(event);
@@ -143,7 +168,12 @@ abstract class CurrentState<T extends CurrentWidget, E extends CurrentViewModel>
   @override
   @mustCallSuper
   void dispose() {
-    viewModel.dispose();
+    if (widget.disposeViewModel) {
+      viewModel.dispose();
+    } else {
+      viewModel.cancelSubscription(_stateChangedSubscription);
+      viewModel.releaseFrom(hashCode);
+    }
     super.dispose();
   }
 }

@@ -81,6 +81,14 @@ abstract class CurrentViewModel {
     _assignedTo = widgetHash;
   }
 
+  /// Releases the current [CurrentState] assignment when it matches the
+  /// provided state identifier.
+  void releaseFrom(int widgetHash) {
+    if (_assignedTo == widgetHash) {
+      _assignedTo = null;
+    }
+  }
+
   /// Adds an event handler which gets executed each time an event of type [T] is added to the state stream.
   ///
   /// If the optional [filter] function is provided, the event handler will only be executed for events where the [filter] function returns true.
@@ -133,8 +141,8 @@ abstract class CurrentViewModel {
 
   ///Cancels the subscription. The subscriber will stop receiving events
   Future<void> cancelSubscription(StreamSubscription? subscription) async {
-    await subscription?.cancel();
     _subscriptions.remove(subscription);
+    await subscription?.cancel();
   }
 
   ///Adds an event handler which gets executed each time [notifyError] is called.
