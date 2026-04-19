@@ -198,6 +198,33 @@ void main() {
       expect(ageController.text, '5');
     });
 
+    testWidgets(
+        'clearing a non-nullable property without a default re-syncs and selects the field',
+        (tester) async {
+      await tester.pumpWidget(
+        _ControllerTestWidget(
+          viewModel: viewModel,
+          nameController: nameController,
+          ageController: ageController,
+          nullableAgeController: nullableAgeController,
+        ),
+      );
+
+      await tester.enterText(find.byKey(const Key('age-field')), '3');
+      await tester.pump();
+
+      expect(viewModel.age.value, 3);
+      expect(ageController.text, '3');
+
+      await tester.enterText(find.byKey(const Key('age-field')), '');
+      await tester.pump();
+
+      expect(viewModel.age.value, 3);
+      expect(ageController.text, '3');
+      expect(ageController.selection.baseOffset, 0);
+      expect(ageController.selection.extentOffset, 1);
+    });
+
     testWidgets('empty text clears nullable integer properties',
         (tester) async {
       await tester.pumpWidget(

@@ -233,7 +233,8 @@ final class CurrentTextController<T> extends TextEditingController {
     _treatTextAsStringValue = treatTextAsStringValue;
     _lifecycleProvider = lifecycleProvider;
 
-    _subscription = property.viewModel.addStateChangedListener<CurrentStateChanged>(
+    _subscription =
+        property.viewModel.addStateChangedListener<CurrentStateChanged>(
       (_) => _setText(),
       filter: (event) => event.sourceHashCode == property.sourceHashCode,
     );
@@ -384,15 +385,16 @@ final class CurrentTextController<T> extends TextEditingController {
     );
   }
 
-  void _setText() {
+  void _setText({bool selectAll = false}) {
     final boundProperty = _property;
 
     if (boundProperty == null) {
       return;
     }
 
-    final nextText =
-        _asString?.call(boundProperty.value) ?? boundProperty.value?.toString() ?? '';
+    final nextText = _asString?.call(boundProperty.value) ??
+        boundProperty.value?.toString() ??
+        '';
 
     if (nextText == text) {
       return;
@@ -402,7 +404,9 @@ final class CurrentTextController<T> extends TextEditingController {
     try {
       value = TextEditingValue(
         text: nextText,
-        selection: TextSelection.collapsed(offset: nextText.length),
+        selection: selectAll && nextText.isNotEmpty
+            ? TextSelection(baseOffset: 0, extentOffset: nextText.length)
+            : TextSelection.collapsed(offset: nextText.length),
       );
     } finally {
       _isSyncingText = false;
@@ -417,6 +421,14 @@ final class CurrentTextController<T> extends TextEditingController {
     }
 
     final parseResult = _tryParseText(text);
+
+    if (!parseResult.shouldUpdate &&
+        text.isEmpty &&
+        !_isNullable &&
+        !_hasDefaultValue) {
+      _setText(selectAll: true);
+      return;
+    }
 
     if (!parseResult.shouldUpdate || parseResult.value == boundProperty.value) {
       return;
