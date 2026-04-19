@@ -28,6 +28,26 @@ class CurrentPropertyNullValueException extends CurrentPropertyException {
       'CurrentPropertyNullValueException: The underlying value for ${propertyName ?? type} is null.\nStack: $stack';
 }
 
+/// Thrown when a [CurrentIntProperty] arithmetic function cannot convert its numeric result
+/// into the explicitly requested generic type.
+class CurrentIntPropertyInvalidArithmaticException
+    extends CurrentPropertyException {
+  final Type attemptedType;
+  final Type resultType;
+
+  CurrentIntPropertyInvalidArithmaticException(
+    super.stack,
+    super.propertyName,
+    super.type, {
+    required this.attemptedType,
+    required this.resultType,
+  });
+
+  @override
+  String toString() =>
+      'CurrentIntPropertyInvalidArithmaticException: The arithmetic result for ${propertyName ?? type} was $resultType and could not be converted to $attemptedType. Use int, double, or num, or call the non-generic arithmetic helpers.\nStack: $stack';
+}
+
 ///Thrown when an CurrentProperty value is changed and attempts to update the UI, but has not been added to the
 ///currentProps property of the associated CurrentViewModel
 ///
