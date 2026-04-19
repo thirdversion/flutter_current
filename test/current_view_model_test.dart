@@ -195,6 +195,79 @@ void main() {
     );
   });
 
+  test('setMultiple - unchanged values - emits no events', () async {
+    var eventCount = 0;
+
+    final subscription = viewModel.addAnyStateChangedListener((_) {
+      eventCount++;
+    });
+
+    viewModel.setMultiple([
+      {viewModel.name: 'Bob'},
+      {viewModel.age: 20},
+    ]);
+    await Future<void>.microtask(() {});
+
+    expect(eventCount, equals(0));
+    expect(viewModel.name.value, equals('Bob'));
+    expect(viewModel.age.value, equals(20));
+
+    await subscription.cancel();
+  });
+
+  test('setMultiple - changed and unchanged values - emits only changed events',
+      () async {
+    final receivedEvents = <CurrentStateChanged>[];
+
+    final subscription = viewModel.addAnyStateChangedListener((event) {
+      receivedEvents.add(event);
+    });
+
+    viewModel.setMultiple([
+      {viewModel.name: 'Bob'},
+      {viewModel.age: 21},
+    ]);
+    await Future<void>.microtask(() {});
+
+    expect(receivedEvents.length, equals(1));
+    expect(
+      receivedEvents.single.propertyName,
+      equals(viewModel.age.propertyName),
+    );
+    expect(receivedEvents.single.previousValue, equals(20));
+    expect(receivedEvents.single.nextValue, equals(21));
+    expect(viewModel.name.value, equals('Bob'));
+    expect(viewModel.age.value, equals(21));
+
+    await subscription.cancel();
+  });
+
+  test('setMultiple - collection values with equal contents - emits no events',
+      () async {
+    var eventCount = 0;
+
+    final subscription =
+        collectionResetViewModel.addAnyStateChangedListener((_) {
+      eventCount++;
+    });
+
+    collectionResetViewModel.setMultiple([
+      {
+        collectionResetViewModel.items: <String>['Earth'],
+      },
+      {
+        collectionResetViewModel.data: <String, String>{'planet': 'Earth'},
+      },
+    ]);
+    await Future<void>.microtask(() {});
+
+    expect(eventCount, equals(0));
+    expect(collectionResetViewModel.items.value, equals(['Earth']));
+    expect(collectionResetViewModel.data.value, equals({'planet': 'Earth'}));
+
+    await subscription.cancel();
+  });
+
   test('addAnyErrorEventListener receives general error events', () async {
     ErrorEvent? receivedEvent;
 

@@ -249,13 +249,20 @@ abstract class CurrentViewModel {
       final previousValue = property.value;
       final nextValue = setter.values.first;
 
+      if (!property.hasValueChanged(nextValue, previousValue)) {
+        continue;
+      }
+
       changes.add(CurrentStateChanged(nextValue, previousValue,
           propertyName: property.propertyName,
           sourceHashCode: property.sourceHashCode));
 
       property(nextValue, notifyChange: false);
     }
-    notifyChanges(changes);
+
+    if (changes.isNotEmpty) {
+      notifyChanges(changes);
+    }
   }
 
   ///Inform the bound [CurrentState] that an error has occurred.
