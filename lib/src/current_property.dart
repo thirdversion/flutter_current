@@ -52,6 +52,8 @@ abstract class CurrentValue<T> {
 class CurrentProperty<T> implements CurrentValue<T> {
   String? propertyName;
 
+  final int sourceHashCode = identityHashCode(Object());
+
   final bool isPrimitiveType;
 
   late T _originalValue;
@@ -505,7 +507,7 @@ class CurrentProperty<T> implements CurrentValue<T> {
           value,
           previousValue,
           propertyName: propertyName,
-          sourceHashCode: hashCode,
+          sourceHashCode: sourceHashCode,
         )
       ]);
     }
@@ -564,7 +566,7 @@ class CurrentProperty<T> implements CurrentValue<T> {
           _originalValue,
           currentValue,
           propertyName: propertyName,
-          sourceHashCode: hashCode,
+          sourceHashCode: sourceHashCode,
         )
       ]);
     }

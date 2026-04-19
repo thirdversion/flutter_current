@@ -45,9 +45,20 @@ import 'package:flutter/material.dart';
 ///
 ///   @override
 ///   void bindCurrentControllers() {
-///     nameController.bindString(context: context, property: viewModel.name);
-///     ageController.bindInteger(context: context, property: viewModel.age, defaultValue: 0);
-///     departureDateController.bindDate(context: context, property: viewModel.departureDate);
+///     nameController.bindString(
+///       property: viewModel.name,
+///       lifecycleProvider: this,
+///     );
+///     ageController.bindInt(
+///       property: viewModel.age,
+///       lifecycleProvider: this,
+///       defaultValue: 0,
+///     );
+///     departureDateController.bindDateTime(
+///       property: viewModel.departureDate,
+///       lifecycleProvider: this,
+///       fromString: DateTime.parse,
+///     );
 ///   }
 ///
 ///   @override
@@ -74,32 +85,46 @@ import 'package:flutter/material.dart';
 final class CurrentTextController<T> extends TextEditingController {
   /// The [CurrentProperty] that this controller is bound to. This will be set during initialization in the [bind] method.
   ///
-  late final CurrentProperty<T?> property;
+  CurrentProperty<T?>? _property;
+  CurrentProperty<T?> get property {
+    final boundProperty = _property;
+
+    if (boundProperty == null) {
+      throw CurrentTextControllerNotInitializedException<T>();
+    }
+
+    return boundProperty;
+  }
 
   /// A function that parses a string into the type of the [CurrentProperty]. This is used to update the property's value when the text changes. This will be set during initialization in the [bind] method. If the [CurrentProperty] is of type String, this function can be omitted and the controller will simply use the text as the property's value.
   ///
-  late final T Function(String text)? fromString;
+  T Function(String text)? _fromString;
+  T Function(String text)? get fromString => _fromString;
 
   /// A function that converts the [CurrentProperty]'s value into a string for display in the text field. This will be set during initialization in the [bind] method. If not provided, it will default to using the property's value's toString() method, or an empty string if the property's value is null.
   ///
-  late final String? Function(T? propertyValue)? asString;
+  String? Function(T? propertyValue)? _asString;
+  String? Function(T? propertyValue)? get asString => _asString;
 
   /// An optional default value to use when parsing the text if the [fromString] function fails to parse the text. This is only used for non-String properties. If the [CurrentProperty] is of type String, this can be omitted since parsing will not be performed.
   ///
-  late final StreamSubscription _subscription;
+  StreamSubscription? _subscription;
 
   /// An optional default value to use when parsing the text if the [fromString] function fails to parse the text. This is only used for non-String properties. If the [CurrentProperty] is of type String, this can be omitted since parsing will not be performed.
   ///
-  T? defaultValue;
+  T? _defaultValue;
+  T? get defaultValue => _defaultValue;
+
+  bool get _isNullable => null is T;
+
+  bool _hasDefaultValue = false;
+  bool _isSyncingText = false;
+  bool _treatTextAsStringValue = false;
 
   CurrentTextControllersLifecycleMixin? _lifecycleProvider;
 
   CurrentTextController._() {
-    addListener(() {
-      if (_lifecycleProvider == null) {
-        throw CurrentTextControllerNotInitializedException<T>();
-      }
-    });
+    addListener(_handleTextChanged);
   }
 
   /// Factory constructor to create a CurrentTextController for a String property.
@@ -160,9 +185,11 @@ final class CurrentTextController<T> extends TextEditingController {
   ///
   /// If the CurrentProperty is not of type String, you must provide a fromString function to parse the text into the property's type.
   ///
-  /// If it is a Non-Nullable non-String type,
-  /// you should also provide a [defaultValue]. In the case that [fromString] fails to parse the text, the [defaultValue] will be used instead. If a [defaultValue] is not provided
-  /// and parsing fails, an exception will be thrown.
+  /// If it is a Non-Nullable non-String type, you can optionally provide a
+  /// [defaultValue]. When the user clears the text field, the controller will
+  /// use that explicit default value instead of leaving the property unchanged.
+  /// Invalid non-empty text does not throw and does not update the property
+  /// until parsing succeeds.
   ///
   /// If the CurrentProperty is of type String, you can omit the fromString function and the controller will simply use the text as the property's value. In this case, providing a defaultValue is not necessary since parsing will not be performed.
   ///
@@ -175,34 +202,40 @@ final class CurrentTextController<T> extends TextEditingController {
     String? Function(T? propertyValue)? asString,
     T? defaultValue,
   }) {
-    _lifecycleProvider = lifecycleProvider;
+    final treatTextAsStringValue = _isStringProperty(property);
 
-    if (_lifecycleProvider?.controllersInitialized ?? false) {
-      throw CurrentTextControllerAlreadyInitializedException(property);
+    if (!treatTextAsStringValue && fromString == null) {
+      throw ArgumentError.value(
+        fromString,
+        'fromString',
+        'A fromString function is required for non-String CurrentTextController bindings.',
+      );
     }
 
-    this.property = property;
-    this.fromString = fromString;
-    this.asString = asString;
+    if (_matchesBinding(
+      property: property,
+      lifecycleProvider: lifecycleProvider,
+      fromString: fromString,
+      asString: asString,
+      defaultValue: defaultValue,
+      treatTextAsStringValue: treatTextAsStringValue,
+    )) {
+      return;
+    }
 
-    addListener(() {
-      final value = _tryParseText(text);
+    _subscription?.cancel();
 
-      if (value == property.value) {
-        return;
-      }
+    _property = property;
+    _fromString = fromString;
+    _asString = asString;
+    _defaultValue = defaultValue;
+    _hasDefaultValue = !_isNullable && defaultValue != null;
+    _treatTextAsStringValue = treatTextAsStringValue;
+    _lifecycleProvider = lifecycleProvider;
 
-      property.set(value);
-    });
-
-    _subscription = property.viewModel.addStateChangedListener(
-      (event) {
-        if (event != null) {
-          _setText();
-        }
-      },
-      filter: (CurrentStateChanged? event) =>
-          event?.sourceHashCode == property.hashCode,
+    _subscription = property.viewModel.addStateChangedListener<CurrentStateChanged>(
+      (_) => _setText(),
+      filter: (event) => event.sourceHashCode == property.sourceHashCode,
     );
 
     _setText();
@@ -220,6 +253,7 @@ final class CurrentTextController<T> extends TextEditingController {
         CurrentProperty property) {
       final validTypes = [
         CurrentProperty<String>,
+        CurrentProperty<String?>,
         CurrentStringProperty,
         CurrentNullableStringProperty
       ];
@@ -228,6 +262,7 @@ final class CurrentTextController<T> extends TextEditingController {
       // guarding against Darts reified generics. Simply checking via `validTypes.any((type) => property.runtimeType == type)`
       // is not guaranteed to behave correctly due to possible type erasure.
       if (property is! CurrentProperty<String> &&
+          property is! CurrentProperty<String?> &&
           property is! CurrentStringProperty &&
           property is! CurrentNullableStringProperty) {
         return (false, validTypes);
@@ -264,6 +299,7 @@ final class CurrentTextController<T> extends TextEditingController {
         CurrentProperty property) {
       final validTypes = [
         CurrentProperty<int>,
+        CurrentProperty<int?>,
         CurrentIntProperty,
         CurrentNullableIntProperty
       ];
@@ -272,6 +308,7 @@ final class CurrentTextController<T> extends TextEditingController {
       // guarding against Darts reified generics. Simply checking via `validTypes.any((type) => property.runtimeType == type)`
       // is not guaranteed to behave correctly due to possible type erasure.
       if (property is! CurrentProperty<int> &&
+          property is! CurrentProperty<int?> &&
           property is! CurrentIntProperty &&
           property is! CurrentNullableIntProperty) {
         return (false, validTypes);
@@ -290,10 +327,9 @@ final class CurrentTextController<T> extends TextEditingController {
     bind(
       property: property,
       lifecycleProvider: lifecycleProvider,
-      fromString:
-          fromString ?? (text) => (int.tryParse(text) ?? defaultValue) as T,
+      fromString: fromString ?? (text) => int.parse(text) as T,
       asString: asString,
-      defaultValue: defaultValue as T,
+      defaultValue: defaultValue,
     );
   }
 
@@ -311,6 +347,7 @@ final class CurrentTextController<T> extends TextEditingController {
         CurrentProperty property) {
       final validTypes = [
         CurrentProperty<DateTime>,
+        CurrentProperty<DateTime?>,
         CurrentDateTimeProperty,
         CurrentNullableDateTimeProperty
       ];
@@ -319,6 +356,7 @@ final class CurrentTextController<T> extends TextEditingController {
       // guarding against Darts reified generics. Simply checking via `validTypes.any((type) => property.runtimeType == type)`
       // is not guaranteed to behave correctly due to possible type erasure.
       if (property is! CurrentProperty<DateTime> &&
+          property is! CurrentProperty<DateTime?> &&
           property is! CurrentDateTimeProperty &&
           property is! CurrentNullableDateTimeProperty) {
         return (false, validTypes);
@@ -342,38 +380,122 @@ final class CurrentTextController<T> extends TextEditingController {
           (propertyValue) =>
               (propertyValue as DateTime?)?.toIso8601String() ??
               'Unparsable Date',
-      defaultValue: defaultValue as T,
+      defaultValue: defaultValue,
     );
   }
 
   void _setText() {
-    final value =
-        asString?.call(property.value) ?? property.value?.toString() ?? '';
+    final boundProperty = _property;
 
-    if (value != text) {
-      text = value;
+    if (boundProperty == null) {
+      return;
+    }
+
+    final nextText =
+        _asString?.call(boundProperty.value) ?? boundProperty.value?.toString() ?? '';
+
+    if (nextText == text) {
+      return;
+    }
+
+    _isSyncingText = true;
+    try {
+      value = TextEditingValue(
+        text: nextText,
+        selection: TextSelection.collapsed(offset: nextText.length),
+      );
+    } finally {
+      _isSyncingText = false;
     }
   }
 
-  T? _tryParseText(String text) {
-    try {
-      return fromString?.call(text) ?? defaultValue ?? text as T;
-    } catch (_) {
-      throw Exception(
-        'Failed to parse and set CurrentProperty "${property.propertyName ?? property.runtimeType}" with value "$text". Did you provide a fromString function or provide a defaultValue?',
-      );
+  void _handleTextChanged() {
+    final boundProperty = _property;
+
+    if (_isSyncingText || boundProperty == null) {
+      return;
     }
+
+    final parseResult = _tryParseText(text);
+
+    if (!parseResult.shouldUpdate || parseResult.value == boundProperty.value) {
+      return;
+    }
+
+    boundProperty.set(parseResult.value);
+  }
+
+  ({bool shouldUpdate, T? value}) _tryParseText(String text) {
+    if (_treatTextAsStringValue) {
+      if (text.isEmpty && _isNullable) {
+        return (shouldUpdate: true, value: null);
+      }
+
+      return (shouldUpdate: true, value: text as T);
+    }
+
+    if (text.isEmpty) {
+      if (_isNullable) {
+        return (shouldUpdate: true, value: null);
+      }
+
+      if (_hasDefaultValue) {
+        return (shouldUpdate: true, value: _defaultValue);
+      }
+
+      return (shouldUpdate: false, value: null);
+    }
+
+    final parser = _fromString;
+
+    if (parser == null) {
+      return (shouldUpdate: false, value: null);
+    }
+
+    try {
+      return (shouldUpdate: true, value: parser(text));
+    } catch (_) {
+      return (shouldUpdate: false, value: null);
+    }
+  }
+
+  bool _isStringProperty(CurrentProperty property) {
+    return property is CurrentProperty<String> ||
+        property is CurrentProperty<String?> ||
+        property is CurrentStringProperty ||
+        property is CurrentNullableStringProperty;
+  }
+
+  bool _matchesBinding({
+    required CurrentProperty<T?> property,
+    required CurrentTextControllersLifecycleMixin lifecycleProvider,
+    required T Function(String text)? fromString,
+    required String? Function(T? propertyValue)? asString,
+    required T? defaultValue,
+    required bool treatTextAsStringValue,
+  }) {
+    return identical(_property, property) &&
+        identical(_lifecycleProvider, lifecycleProvider) &&
+        identical(_fromString, fromString) &&
+        identical(_asString, asString) &&
+        _defaultValue == defaultValue &&
+        _hasDefaultValue == (!_isNullable && defaultValue != null) &&
+        _treatTextAsStringValue == treatTextAsStringValue;
   }
 
   @override
   void dispose() {
-    _subscription.cancel();
+    _subscription?.cancel();
+    _subscription = null;
     super.dispose();
   }
 }
 
 /// A mixin for managing the lifecycle of [CurrentTextController]s in a [CurrentState].
-/// This mixin ensures that the controllers are only initialized once.
+///
+/// This mixin initializes controllers on the first dependency pass and re-runs
+/// [bindCurrentControllers] when the widget updates so controllers can rebind
+/// to new properties when needed.
 ///
 /// Must implement [bindCurrentControllers]. This is where you should initialize your [CurrentTextController]s.
 mixin CurrentTextControllersLifecycleMixin<TWidget extends CurrentWidget,
@@ -385,12 +507,23 @@ mixin CurrentTextControllersLifecycleMixin<TWidget extends CurrentWidget,
 
   void bindCurrentControllers();
 
+  void _bindOrRebindControllers() {
+    bindCurrentControllers();
+    _initializedControllers = true;
+  }
+
   @override
   void didChangeDependencies() {
-    if (!controllersInitialized) {
-      bindCurrentControllers();
-      _initializedControllers = true;
-    }
     super.didChangeDependencies();
+
+    if (!controllersInitialized) {
+      _bindOrRebindControllers();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant TWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _bindOrRebindControllers();
   }
 }
