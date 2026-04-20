@@ -293,39 +293,32 @@ class _MissionPageState extends CurrentState<MissionPage, MissionViewModel> {
         'CurrentTextController keeps text editing synchronized with a property. Pair it with issue-based validation and resolve those issues in the widget layer so the same rules work with any localization setup.',
     takeaways: [
       'Use memoized getters instead of late final for validators and validation groups.',
-      'Validation rules can live in the view model or in a separate plain-Dart helper file.',
-      'Expose validators through currentValidations by mixing in CurrentValidationMixin.',
+      'Validation rules can live in the widget, the view model, or in a separate plain-Dart helper file.',
+      'Create validation once through property.createValidation or validationBuilder, then read it back from the property.',
       'Use controller validation issues for parse and required-value feedback, then resolve display text in the page.',
+      'Use contextTextBuilder on CurrentValidationIssue when your localization API needs BuildContext.',
     ],
     icon: Icons.fact_check_outlined,
     color: SpaceMissionTheme.warning,
     liveSection: MissionSection.flightForms,
-    code: '''class FlightFormsViewModel extends CurrentViewModel
-    with CurrentValidationMixin {
-CurrentFieldValidation<String>? _missionCodeValidation;
-CurrentFieldValidation<String> get missionCodeValidation =>
-    _missionCodeValidation ??= missionCode.createValidation(
-      rules: missionCodeRules(),
-      validateOnPropertyChange: true,
-    );
-
-@override
-Iterable<CurrentFieldValidation<dynamic>> get currentValidations => [
-      missionCodeValidation,
-    ];
-}
-
+    code: '''
 @override
 void bindCurrentControllers() {
   missionCodeController.bindString(
     property: viewModel.missionCode,
     lifecycleProvider: this,
-    validation: viewModel.missionCodeValidation,
+    validationBuilder: (property, context) => property.createValidation(
+      rules: missionCodeRules(),
+      validateOnPropertyChange: true,
+    ),
   );
 }
 
-String? visibleError(CurrentFieldValidation<dynamic> validation) {
-  return validation.issue?.resolveText(_resolveValidationText);
+String? visibleError(CurrentProperty<String> property, BuildContext context) {
+  return property.validation.resolveIssueText(
+    context: context,
+    resolver: _resolveValidationText,
+  );
 }''',
   ),
   _SnippetSection(

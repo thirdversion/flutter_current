@@ -1,9 +1,6 @@
 import 'package:current/current.dart';
 
-import 'flight_forms_validation.dart';
-
-class FlightFormsViewModel extends CurrentViewModel
-    with CurrentValidationMixin {
+class FlightFormsViewModel extends CurrentViewModel {
   final missionCode = CurrentProperty.string();
   final crewCapacity = CurrentProperty.integer();
   final launchWindow = CurrentProperty.dateTime(
@@ -13,33 +10,12 @@ class FlightFormsViewModel extends CurrentViewModel
     initialValue: 'Awaiting launch authorization.',
   );
 
-  CurrentFieldValidation<String>? _missionCodeValidation;
-  CurrentFieldValidation<String> get missionCodeValidation =>
-      _missionCodeValidation ??= missionCode.createValidation(
-        rules: missionCodeRules(),
-        validateOnPropertyChange: true,
-      );
-
-  CurrentFieldValidation<int>? _crewCapacityValidation;
-  CurrentFieldValidation<int> get crewCapacityValidation =>
-      _crewCapacityValidation ??= crewCapacity.createValidation(
-        rules: crewCapacityRules(),
-        validateOnPropertyChange: true,
-      );
-
-  CurrentFieldValidation<DateTime>? _launchWindowValidation;
-  CurrentFieldValidation<DateTime> get launchWindowValidation =>
-      _launchWindowValidation ??= launchWindow.createValidation(
-        rules: launchWindowRules(),
-        validateOnPropertyChange: true,
-      );
-
   CurrentValidationGroup? _validationGroup;
   CurrentValidationGroup get validationGroup =>
-      _validationGroup ??= CurrentValidationGroup([
-        missionCodeValidation,
-        crewCapacityValidation,
-        launchWindowValidation,
+      _validationGroup ??= CurrentValidationGroup.forProperties([
+        missionCode,
+        crewCapacity,
+        launchWindow,
       ]);
 
   @override
@@ -48,13 +24,6 @@ class FlightFormsViewModel extends CurrentViewModel
         crewCapacity,
         launchWindow,
         submissionStatus,
-      ];
-
-  @override
-  Iterable<CurrentFieldValidation> get currentValidations => [
-        missionCodeValidation,
-        crewCapacityValidation,
-        launchWindowValidation,
       ];
 
   bool authorizeLaunch() {

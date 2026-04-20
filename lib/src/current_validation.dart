@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/widgets.dart';
+
 import 'current_property.dart';
 import 'current_view_model.dart';
 
@@ -43,6 +45,13 @@ typedef CurrentValidationIssueTextResolver = String? Function(
   CurrentValidationIssue issue,
 );
 
+/// Resolves a [CurrentValidationIssue] into display text using a
+/// [BuildContext].
+typedef CurrentValidationIssueContextTextBuilder = String? Function(
+  BuildContext context,
+  CurrentValidationIssue issue,
+);
+
 /// Describes a validation failure without tying it to a specific locale.
 ///
 /// Validation rules should return this object instead of already-localized
@@ -58,11 +67,15 @@ final class CurrentValidationIssue {
   /// Optional fallback text for environments that do not provide a resolver.
   final String? fallbackMessage;
 
+  /// Optional builder used when display text depends on a [BuildContext].
+  final CurrentValidationIssueContextTextBuilder? contextTextBuilder;
+
   /// Creates a validation issue with a stable [code].
   const CurrentValidationIssue(
     this.code, {
     this.arguments = const {},
     this.fallbackMessage,
+    this.contextTextBuilder,
   });
 
   /// Creates an issue backed only by a fallback message.
@@ -70,10 +83,36 @@ final class CurrentValidationIssue {
     String message, {
     String code = 'current.validation.message',
     Map<String, Object?> arguments = const {},
+    CurrentValidationIssueContextTextBuilder? contextTextBuilder,
   }) : this(
           code,
           arguments: arguments,
           fallbackMessage: message,
+          contextTextBuilder: contextTextBuilder,
+        );
+
+  /// Allows creation of an issue with a context-dependent message.
+  ///
+  /// This allows you to generate a localized error message that requires access to a BuildContext.
+  ///
+  /// [textBuilder] is a function that takes a BuildContext and the issue itself, and returns a localized string.
+  ///
+  /// [code] is optional, but can be used if your localization implementation is based on error codes
+  /// instead of full messages. If not provided, it defaults to 'current.validation.localize'.
+  ///
+  /// [arguments] can be used to pass structured data to the text builder, such as field names or validation parameters.
+  ///
+  /// [fallbackMessage] is optional text that can be used as a fallback when no resolver is available. This is useful for ensuring that some message is always available, even in non-localized environments or during development.
+  const CurrentValidationIssue.localize({
+    required CurrentValidationIssueContextTextBuilder? textBuilder,
+    String code = 'current.validation.localize',
+    Map<String, Object?> arguments = const {},
+    String? fallbackMessage,
+  }) : this(
+          code,
+          arguments: arguments,
+          fallbackMessage: fallbackMessage,
+          contextTextBuilder: textBuilder,
         );
 
   /// Creates an issue representing a required-value failure.
@@ -81,10 +120,12 @@ final class CurrentValidationIssue {
     String code = 'current.validation.requiredValue',
     Map<String, Object?> arguments = const {},
     String? fallbackMessage,
+    CurrentValidationIssueContextTextBuilder? contextTextBuilder,
   }) : this(
           code,
           arguments: arguments,
           fallbackMessage: fallbackMessage,
+          contextTextBuilder: contextTextBuilder,
         );
 
   /// Creates an issue representing a parse or invalid-value failure.
@@ -92,19 +133,29 @@ final class CurrentValidationIssue {
     String code = 'current.validation.invalidValue',
     Map<String, Object?> arguments = const {},
     String? fallbackMessage,
+    CurrentValidationIssueContextTextBuilder? contextTextBuilder,
   }) : this(
           code,
           arguments: arguments,
           fallbackMessage: fallbackMessage,
+          contextTextBuilder: contextTextBuilder,
         );
 
   /// Resolves this issue into display text.
   ///
-  /// If [resolver] is provided, it is asked first. Otherwise [fallbackMessage]
-  /// is returned. If neither is available, [code] is used as a last resort so
-  /// the failure still remains observable during development.
-  String resolveText([CurrentValidationIssueTextResolver? resolver]) {
-    return resolver?.call(this) ?? fallbackMessage ?? code;
+  /// Resolution order is:
+  /// 1. [contextTextBuilder], when [context] is provided
+  /// 2. [resolver], when provided
+  /// 3. [fallbackMessage], when available
+  /// 4. [code] as a final development fallback
+  String resolveText({
+    BuildContext? context,
+    CurrentValidationIssueTextResolver? resolver,
+  }) {
+    return (context != null ? contextTextBuilder?.call(context, this) : null) ??
+        resolver?.call(this) ??
+        fallbackMessage ??
+        code;
   }
 
   @override
@@ -112,6 +163,7 @@ final class CurrentValidationIssue {
     return other is CurrentValidationIssue &&
         other.code == code &&
         other.fallbackMessage == fallbackMessage &&
+        other.contextTextBuilder == contextTextBuilder &&
         _mapsEqual(other.arguments, arguments);
   }
 
@@ -119,6 +171,7 @@ final class CurrentValidationIssue {
   int get hashCode => Object.hash(
         code,
         fallbackMessage,
+        contextTextBuilder,
         Object.hashAllUnordered(
           arguments.entries.map((entry) => Object.hash(entry.key, entry.value)),
         ),
@@ -296,7 +349,7 @@ class CurrentValidationChanged
 /// ## Example
 ///
 /// ```dart
-/// class ProfileViewModel extends CurrentViewModel with CurrentValidationMixin {
+/// class ProfileViewModel extends CurrentViewModel {
 ///   final email = CurrentStringProperty('', propertyName: 'email');
 ///
 ///   CurrentFieldValidation<String>? _emailValidation;
@@ -321,11 +374,6 @@ class CurrentValidationChanged
 ///
 ///   @override
 ///   Iterable<CurrentProperty> get currentProps => [email];
-///
-///   @override
-///   Iterable<CurrentFieldValidation<dynamic>> get currentValidations => [
-///         emailValidation,
-///       ];
 /// }
 /// ```
 class CurrentFieldValidation<T> implements CurrentViewModelBinding {
@@ -353,12 +401,13 @@ class CurrentFieldValidation<T> implements CurrentViewModelBinding {
   ///
   /// The optional [rules] are evaluated in the order supplied.
   ///
-  /// If the owning view model uses [CurrentValidationMixin], expose this
-  /// validator from [CurrentValidationMixin.currentValidations] so it can
-  /// attach automatically after the view model has initialized its properties.
+  /// Validators created through
+  /// [CurrentPropertyValidationExtensions.createValidation] are registered
+  /// against the property automatically.
   ///
-  /// Advanced consumers can still return validators from
-  /// [CurrentViewModel.currentBindings] directly
+  /// If the property already belongs to a [CurrentViewModel], the validator
+  /// attaches immediately. Otherwise it attaches the next time the property is
+  /// assigned to a view model.
   CurrentFieldValidation(
     this.property, {
     Iterable<CurrentValidationRule<T>> rules = const [],
@@ -455,8 +504,11 @@ class CurrentFieldValidation<T> implements CurrentViewModelBinding {
   }
 
   /// Resolves the current issue into display text.
-  String? resolveIssueText([CurrentValidationIssueTextResolver? resolver]) {
-    return issue?.resolveText(resolver);
+  String? resolveIssueText({
+    BuildContext? context,
+    CurrentValidationIssueTextResolver? resolver,
+  }) {
+    return issue?.resolveText(context: context, resolver: resolver);
   }
 
   /// Resets the validation metadata back to the untouched state.
@@ -468,8 +520,9 @@ class CurrentFieldValidation<T> implements CurrentViewModelBinding {
 
   /// Attaches this validator to the owning [CurrentViewModel].
   ///
-  /// This is called automatically when the validator is surfaced through
-  /// [CurrentValidationMixin.currentValidations] or returned from
+  /// This is called automatically when the validator is registered against its
+  /// property, or when it is surfaced through legacy binding paths such as
+  /// [CurrentValidationMixin.currentValidations] or
   /// [CurrentViewModel.currentBindings].
   ///
   /// When [validateOnPropertyChange] is enabled, this subscribes to property
@@ -530,17 +583,14 @@ class CurrentFieldValidation<T> implements CurrentViewModelBinding {
   }
 }
 
-/// Opts a [CurrentViewModel] into validation-specific helper wiring.
+/// Compatibility mixin for validation-specific helper wiring.
 ///
-/// Validation is the primary use case for attachable helper bindings in the
-/// current package, but [CurrentViewModel.currentBindings] remains generic for
-/// advanced scenarios. Applying this mixin gives validation a more obvious home
-/// by requiring the view model to expose its validators through
-/// [currentValidations].
+/// Validation no longer requires this mixin in the common path because
+/// validators register themselves directly against the property they validate.
 ///
-/// The mixin then merges those validators into the existing binding pipeline by
-/// appending them to [CurrentViewModel.currentBindings]. This keeps validation
-/// opt-in and explicit without removing the lower-level binding mechanism.
+/// This mixin remains available as a compatibility layer for code that still
+/// wants to surface validators through [currentValidations]. It merges those
+/// validators into [CurrentViewModel.currentBindings].
 ///
 /// ## Example
 ///
@@ -625,6 +675,23 @@ class CurrentValidationGroup {
   CurrentValidationGroup(Iterable<CurrentFieldValidation<dynamic>> validations)
       : validations = List<CurrentFieldValidation<dynamic>>.from(validations);
 
+  /// Creates a group from properties that already have registered validators.
+  factory CurrentValidationGroup.forProperties(
+    Iterable<CurrentProperty<dynamic>> properties,
+  ) {
+    final validations = <CurrentFieldValidation<dynamic>>[];
+
+    for (final property in properties) {
+      final validation = property.tryGetValidation();
+
+      if (validation != null) {
+        validations.add(validation);
+      }
+    }
+
+    return CurrentValidationGroup(validations);
+  }
+
   /// Whether every validator in the group is currently valid.
   bool get isValid => validations.every((validation) => validation.isValid);
 
@@ -643,9 +710,11 @@ class CurrentValidationGroup {
   }
 
   /// Resolves the first issue currently reported by the group, if any.
-  String? resolveFirstIssueText(
-      [CurrentValidationIssueTextResolver? resolver]) {
-    return firstIssue?.resolveText(resolver);
+  String? resolveFirstIssueText({
+    BuildContext? context,
+    CurrentValidationIssueTextResolver? resolver,
+  }) {
+    return firstIssue?.resolveText(context: context, resolver: resolver);
   }
 
   /// Validates every field in the group.
@@ -671,19 +740,47 @@ class CurrentValidationGroup {
 
 /// Adds convenience validation helpers to [CurrentProperty].
 extension CurrentPropertyValidationExtensions<T> on CurrentProperty<T> {
+  /// The first validation registered for this property, if any.
+  CurrentFieldValidation<T>? tryGetValidation() {
+    for (final binding in registeredBindings) {
+      if (binding is CurrentFieldValidation &&
+          identical(binding.property, this)) {
+        return binding as CurrentFieldValidation<T>;
+      }
+    }
+
+    return null;
+  }
+
+  /// The first validation registered for this property.
+  ///
+  /// Throws a [StateError] when no validation has been registered.
+  CurrentFieldValidation<T> get validation {
+    final registeredValidation = tryGetValidation();
+
+    if (registeredValidation == null) {
+      throw StateError(
+        'No CurrentFieldValidation is registered for '
+        '${propertyName ?? runtimeType}.',
+      );
+    }
+
+    return registeredValidation;
+  }
+
   /// Creates a [CurrentFieldValidation] for this property.
   ///
   /// This is a convenience wrapper around [CurrentFieldValidation.new] that
   /// keeps validation setup close to the property declaration.
   ///
-  /// When the owning view model uses [CurrentValidationMixin], return the
-  /// created validator from [CurrentValidationMixin.currentValidations] so it
-  /// can attach after the view model initializes its properties.
+  /// The created validator is registered against this property automatically,
+  /// so it can attach immediately when the property already has a view model or
+  /// later when the property is assigned to one.
   ///
   /// ## Example
   ///
   /// ```dart
-  /// class ProfileViewModel extends CurrentViewModel with CurrentValidationMixin {
+  /// class ProfileViewModel extends CurrentViewModel {
   ///   final email = CurrentStringProperty('', propertyName: 'email');
   ///
   ///   CurrentFieldValidation<String>? _emailValidation;
@@ -698,21 +795,20 @@ extension CurrentPropertyValidationExtensions<T> on CurrentProperty<T> {
   ///               : null,
   ///         ],
   ///       );
-  ///
-  ///   @override
-  ///   Iterable<CurrentFieldValidation<dynamic>> get currentValidations => [
-  ///         emailValidation,
-  ///       ];
   /// }
   /// ```
   CurrentFieldValidation<T> createValidation({
     Iterable<CurrentValidationRule<T>> rules = const [],
     bool validateOnPropertyChange = false,
   }) {
-    return CurrentFieldValidation<T>(
+    final validation = CurrentFieldValidation<T>(
       this,
       rules: rules,
       validateOnPropertyChange: validateOnPropertyChange,
     );
+
+    registerBinding(validation);
+
+    return validation;
   }
 }

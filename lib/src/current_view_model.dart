@@ -8,9 +8,10 @@ import 'current_property.dart';
 /// Contract for helper objects that need to attach themselves to a
 /// [CurrentViewModel] after all [CurrentProperty] values have been initialized.
 ///
-/// Generic helper implementations should usually be exposed from
-/// [CurrentViewModel.currentBindings]. Validation helpers should typically use
-/// `CurrentValidationMixin` and `currentValidations` instead.
+/// Generic helper implementations can be exposed from
+/// [CurrentViewModel.currentBindings]. Validation no longer depends on this
+/// mechanism in the common path because property-owned validators can
+/// register and attach themselves directly.
 abstract class CurrentViewModelBinding {
   /// Attaches this helper to its owning [CurrentViewModel].
   ///
@@ -92,9 +93,9 @@ abstract class CurrentViewModel {
   /// own metadata events.
   ///
   /// This remains the low-level generic extension point for attachable helper
-  /// objects. Validation-enabled view models should usually prefer
-  /// `CurrentValidationMixin` and expose validators through
-  /// `currentValidations` instead of overriding this getter directly.
+  /// objects. Validation no longer requires overriding this getter in the
+  /// common path because validators can register themselves directly on the
+  /// property they validate.
   ///
   /// ## Example
   ///

@@ -122,7 +122,7 @@ Current validation is issue-based. Rules return `CurrentValidationIssue`, not di
 ```dart
 import 'package:current/current.dart';
 
-class ProfileViewModel extends CurrentViewModel with CurrentValidationMixin {
+class ProfileViewModel extends CurrentViewModel {
   final displayName = CurrentProperty.string(
     initialValue: '',
     propertyName: 'displayName',
@@ -132,50 +132,15 @@ class ProfileViewModel extends CurrentViewModel with CurrentValidationMixin {
     propertyName: 'age',
   );
 
-  CurrentFieldValidation<String>? _displayNameValidation;
-  CurrentFieldValidation<String> get displayNameValidation =>
-      _displayNameValidation ??= displayName.createValidation(
-        rules: [
-          (value) => value.trim().isEmpty
-              ? const CurrentValidationIssue(
-                  'profile.displayName.required',
-                  fallbackMessage: 'Display name is required',
-                )
-              : null,
-        ],
-        validateOnPropertyChange: true,
-      );
-
-  CurrentFieldValidation<int>? _ageValidation;
-  CurrentFieldValidation<int> get ageValidation =>
-      _ageValidation ??= age.createValidation(
-        rules: [
-          (value) => value < 18
-              ? const CurrentValidationIssue(
-                  'profile.age.minimum',
-                  arguments: {'minimumAge': 18},
-                  fallbackMessage: 'Must be at least 18',
-                )
-              : null,
-        ],
-        validateOnPropertyChange: true,
-      );
-
   CurrentValidationGroup? _profileValidation;
   CurrentValidationGroup get profileValidation =>
-      _profileValidation ??= CurrentValidationGroup([
-        displayNameValidation,
-        ageValidation,
+      _profileValidation ??= CurrentValidationGroup.forProperties([
+        displayName,
+        age,
       ]);
 
   @override
   Iterable<CurrentProperty> get currentProps => [displayName, age];
-
-  @override
-  Iterable<CurrentFieldValidation<dynamic>> get currentValidations => [
-        displayNameValidation,
-        ageValidation,
-      ];
 }
 ```
 
@@ -206,23 +171,51 @@ class _ProfilePageState extends CurrentState<ProfilePage, ProfileViewModel>
     displayNameController.bindString(
       property: viewModel.displayName,
       lifecycleProvider: this,
-      validation: viewModel.displayNameValidation,
+      validationBuilder: (property, context) => property.createValidation(
+        rules: [
+          (value) => value.trim().isEmpty
+              ? CurrentValidationIssue(
+                  'profile.displayName.required',
+                  fallbackMessage: 'Display name is required',
+                  contextTextBuilder: (context, issue) =>
+                      AppLocalizations.of(context)!.displayNameRequired,
+                )
+              : null,
+        ],
+        validateOnPropertyChange: true,
+      ),
     );
 
     ageController.bindInt(
       property: viewModel.age,
       lifecycleProvider: this,
-      validation: viewModel.ageValidation,
+      validationBuilder: (property, _) => property.createValidation(
+        rules: [
+          (value) => value < 18
+              ? const CurrentValidationIssue(
+                  'profile.age.minimum',
+                  arguments: {'minimumAge': 18},
+                  fallbackMessage: 'Must be at least 18',
+                )
+              : null,
+        ],
+        validateOnPropertyChange: true,
+      ),
       validationIssues: CurrentTextControllerValidationIssues(
         invalidValueIssueBuilder: _invalidAgeIssue,
       ),
     );
   }
 
-  String? fieldError(CurrentFieldValidation<dynamic> validation) {
-    if (validation.hasIssue &&
+  String? fieldError(CurrentProperty<dynamic> property, BuildContext context) {
+    final validation = property.tryGetValidation();
+
+    if (validation != null &&
         (validation.isTouched || validation.hasValidated)) {
-      return validation.resolveIssueText(_resolveIssueText);
+      return validation.resolveIssueText(
+        context: context,
+        resolver: _resolveIssueText,
+      );
     }
 
     return null;
@@ -252,11 +245,11 @@ class _ProfilePageState extends CurrentState<ProfilePage, ProfileViewModel>
 
 Key points:
 
-- Expose validators through `currentValidations` by mixing in `CurrentValidationMixin`.
-- Use memoized getters for `CurrentFieldValidation` and `CurrentValidationGroup`, or can use `late final`.
-- Let widgets resolve issue codes into localized or user-facing text.
+- Register validation once, either by calling `createValidation()` directly or by supplying `validationBuilder` when binding a controller.
+- Use `CurrentValidationGroup.forProperties([...])` when you want grouped validation without separately listing validators.
+- Let widgets resolve issue text either through a resolver or through `BuildContext` when your localization API requires it.
 - Use `CurrentTextControllerValidationIssues` for controller-generated parse or required-value failures.
-- Validation rules can live in the view model or in a separate plain-Dart helper file when that keeps a larger form easier to read.
+- Validation rules can live in the widget, the view model, or in a separate plain-Dart helper file when that keeps a larger form easier to read.
 
 ## Application Wide State Management
 

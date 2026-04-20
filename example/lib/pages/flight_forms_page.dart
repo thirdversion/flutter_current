@@ -3,6 +3,7 @@ import 'package:current_counter_example/space_mission_theme.dart';
 import 'package:flutter/material.dart';
 
 import '../components/mission_control_theme.dart';
+import '../view_models/flight_forms_validation.dart';
 import '../view_models/flight_forms_view_model.dart';
 
 class FlightFormsPage extends CurrentWidget<FlightFormsViewModel> {
@@ -28,12 +29,18 @@ class _FlightFormsPageState
     missionCodeController.bindString(
       property: viewModel.missionCode,
       lifecycleProvider: this,
-      validation: viewModel.missionCodeValidation,
+      validationBuilder: (property, _) => property.createValidation(
+        rules: missionCodeRules(),
+        validateOnPropertyChange: true,
+      ),
     );
     crewCountController.bindInt(
       property: viewModel.crewCapacity,
       lifecycleProvider: this,
-      validation: viewModel.crewCapacityValidation,
+      validationBuilder: (property, _) => property.createValidation(
+        rules: crewCapacityRules(),
+        validateOnPropertyChange: true,
+      ),
       validationIssues: const CurrentTextControllerValidationIssues(
         requiredValueIssueBuilder: _crewCapacityRequiredIssue,
         invalidValueIssueBuilder: _crewCapacityInvalidIssue,
@@ -44,7 +51,10 @@ class _FlightFormsPageState
       lifecycleProvider: this,
       fromString: _parseDate,
       asString: (value) => value == null ? '' : _formatDate(value),
-      validation: viewModel.launchWindowValidation,
+      validationBuilder: (property, _) => property.createValidation(
+        rules: launchWindowRules(),
+        validateOnPropertyChange: true,
+      ),
       validationIssues: const CurrentTextControllerValidationIssues(
         requiredValueIssueBuilder: _launchWindowRequiredIssue,
         invalidValueIssueBuilder: _launchWindowInvalidIssue,
@@ -58,7 +68,9 @@ class _FlightFormsPageState
     final compact = width < 1120;
     final group = viewModel.validationGroup;
     final readyForLaunch = group.isValid && !group.hasIssues;
-    final firstIssueText = group.resolveFirstIssueText(_resolveValidationText);
+    final firstIssueText = group.resolveFirstIssueText(
+      resolver: _resolveValidationText,
+    );
     final panels = [
       _buildFormPanel(context, readyForLaunch),
       _buildStatePanel(context, group),
@@ -145,7 +157,7 @@ class _FlightFormsPageState
             decoration: InputDecoration(
               labelText: 'Mission code',
               helperText: 'Try a value like ARTEMIS-2',
-              errorText: _visibleError(viewModel.missionCodeValidation),
+              errorText: _visibleError(viewModel.missionCode.validation),
             ),
           ),
           const SizedBox(height: 16),
@@ -155,7 +167,7 @@ class _FlightFormsPageState
             decoration: InputDecoration(
               labelText: 'Crew capacity',
               helperText: 'Digits only. Validation requires 2-8 crew.',
-              errorText: _visibleError(viewModel.crewCapacityValidation),
+              errorText: _visibleError(viewModel.crewCapacity.validation),
             ),
           ),
           const SizedBox(height: 16),
@@ -164,7 +176,7 @@ class _FlightFormsPageState
             decoration: InputDecoration(
               labelText: 'Launch window',
               helperText: 'YYYY-MM-DD',
-              errorText: _visibleError(viewModel.launchWindowValidation),
+              errorText: _visibleError(viewModel.launchWindow.validation),
             ),
           ),
           const SizedBox(height: 18),
@@ -181,7 +193,7 @@ class _FlightFormsPageState
                         approved
                             ? 'Launch package approved. CurrentValidationGroup is clear.'
                             : viewModel.validationGroup.resolveFirstIssueText(
-                                  _resolveValidationText,
+                                  resolver: _resolveValidationText,
                                 ) ??
                                 viewModel.submissionStatus.value,
                       ),
@@ -247,17 +259,17 @@ class _FlightFormsPageState
           const SizedBox(height: 12),
           _ValidationTile(
             title: 'Mission code',
-            validation: viewModel.missionCodeValidation,
+            validation: viewModel.missionCode.validation,
           ),
           const SizedBox(height: 12),
           _ValidationTile(
             title: 'Crew capacity',
-            validation: viewModel.crewCapacityValidation,
+            validation: viewModel.crewCapacity.validation,
           ),
           const SizedBox(height: 12),
           _ValidationTile(
             title: 'Launch window',
-            validation: viewModel.launchWindowValidation,
+            validation: viewModel.launchWindow.validation,
           ),
           const Divider(height: 32),
           Wrap(
@@ -292,7 +304,7 @@ class _FlightFormsPageState
   static String? _visibleError(CurrentFieldValidation<dynamic> validation) {
     if (validation.hasIssue &&
         (validation.isTouched || validation.hasValidated)) {
-      return validation.resolveIssueText(_resolveValidationText);
+      return validation.resolveIssueText(resolver: _resolveValidationText);
     }
 
     return null;
@@ -443,7 +455,7 @@ class _ValidationTile extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             validation.resolveIssueText(
-                  _FlightFormsPageState._resolveValidationText,
+                  resolver: _FlightFormsPageState._resolveValidationText,
                 ) ??
                 'No active issue.',
             style:

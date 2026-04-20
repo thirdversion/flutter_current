@@ -99,6 +99,11 @@ typedef CurrentTextControllerInvalidValueIssueBuilder = CurrentValidationIssue?
     Function(
   String text,
 );
+typedef CurrentTextControllerValidationBuilder<T> = CurrentFieldValidation<T>?
+    Function(
+  CurrentProperty<T> property,
+  BuildContext context,
+);
 
 /// Supplies controller-generated validation issues for [CurrentTextController].
 ///
@@ -130,7 +135,17 @@ typedef CurrentTextControllerInvalidValueIssueBuilder = CurrentValidationIssue?
 /// ageController.bindInt(
 ///   property: viewModel.age,
 ///   lifecycleProvider: this,
-///   validation: viewModel.ageValidation,
+///   validationBuilder: (property, _) => property.createValidation(
+///     rules: [
+///       (value) => value < 18
+///           ? const CurrentValidationIssue(
+///               'profile.age.minimum',
+///               fallbackMessage: 'Must be at least 18',
+///             )
+///           : null,
+///     ],
+///     validateOnPropertyChange: true,
+///   ),
 ///   validationIssues: CurrentTextControllerValidationIssues(
 ///     requiredValueIssueBuilder: () => const CurrentValidationIssue(
 ///       'profile.age.required',
@@ -360,6 +375,13 @@ final class CurrentTextController<T> extends TextEditingController {
   /// If [validation] is provided, [validationIssues] can be used to override
   /// the controller-generated validation issues for this binding.
   ///
+  /// If [validation] is omitted, the controller will try to discover a
+  /// validation already registered against [property] via
+  /// [CurrentPropertyValidationExtensions.createValidation].
+  ///
+  /// If the property does not already have a registered validation,
+  /// [validationBuilder] can create one using the current [BuildContext].
+  ///
   /// Validation behavior when [validation] is provided:
   /// - user edits mark the field as touched
   /// - parse failures set controller-generated validation metadata
@@ -378,9 +400,13 @@ final class CurrentTextController<T> extends TextEditingController {
     String? Function(T? propertyValue)? asString,
     T? defaultValue,
     CurrentFieldValidation<dynamic>? validation,
+    CurrentTextControllerValidationBuilder<T?>? validationBuilder,
     CurrentTextControllerValidationIssues? validationIssues,
   }) {
     final treatTextAsStringValue = _isStringProperty(property);
+    final resolvedValidation = validation ??
+        property.tryGetValidation() ??
+        validationBuilder?.call(property, lifecycleProvider.context);
 
     if (!treatTextAsStringValue && fromString == null) {
       throw ArgumentError.value(
@@ -390,12 +416,18 @@ final class CurrentTextController<T> extends TextEditingController {
       );
     }
 
-    if (validation != null && !identical(validation.property, property)) {
+    if (resolvedValidation != null &&
+        !identical(resolvedValidation.property, property)) {
       throw ArgumentError.value(
-        validation,
+        resolvedValidation,
         'validation',
         'The provided CurrentFieldValidation must target the same CurrentProperty bound to this controller.',
       );
+    }
+
+    if (resolvedValidation != null &&
+        !property.registeredBindings.contains(resolvedValidation)) {
+      property.registerBinding(resolvedValidation);
     }
 
     if (_matchesBinding(
@@ -405,7 +437,7 @@ final class CurrentTextController<T> extends TextEditingController {
       asString: asString,
       defaultValue: defaultValue,
       treatTextAsStringValue: treatTextAsStringValue,
-      validation: validation,
+      validation: resolvedValidation,
       validationIssues: validationIssues,
     )) {
       return;
@@ -420,7 +452,7 @@ final class CurrentTextController<T> extends TextEditingController {
     _hasDefaultValue = !_isNullable && defaultValue != null;
     _treatTextAsStringValue = treatTextAsStringValue;
     _lifecycleProvider = lifecycleProvider;
-    _validation = validation;
+    _validation = resolvedValidation;
     _validationIssues = validationIssues;
 
     _subscription =
@@ -447,6 +479,7 @@ final class CurrentTextController<T> extends TextEditingController {
     required CurrentTextControllersLifecycleMixin lifecycleProvider,
     String? Function(T? propertyValue)? asString,
     CurrentFieldValidation<T>? validation,
+    CurrentTextControllerValidationBuilder<T>? validationBuilder,
     CurrentTextControllerValidationIssues? validationIssues,
   }) {
     (bool isValidType, List<Type> validTypes) validateType(
@@ -483,6 +516,10 @@ final class CurrentTextController<T> extends TextEditingController {
       lifecycleProvider: lifecycleProvider,
       asString: asString,
       validation: validation,
+      validationBuilder: validationBuilder == null
+          ? null
+          : (property, context) =>
+              validationBuilder(property as CurrentProperty<T>, context),
       validationIssues: validationIssues,
     );
   }
@@ -502,6 +539,7 @@ final class CurrentTextController<T> extends TextEditingController {
     String? Function(T? propertyValue)? asString,
     T? defaultValue,
     CurrentFieldValidation<T>? validation,
+    CurrentTextControllerValidationBuilder<T>? validationBuilder,
     CurrentTextControllerValidationIssues? validationIssues,
   }) {
     (bool isValidType, List<Type> validTypes) validateType(
@@ -540,6 +578,10 @@ final class CurrentTextController<T> extends TextEditingController {
       asString: asString,
       defaultValue: defaultValue,
       validation: validation,
+      validationBuilder: validationBuilder == null
+          ? null
+          : (property, context) =>
+              validationBuilder(property as CurrentProperty<T>, context),
       validationIssues: validationIssues,
     );
   }
@@ -556,6 +598,7 @@ final class CurrentTextController<T> extends TextEditingController {
     String? Function(T? propertyValue)? asString,
     T? defaultValue,
     CurrentFieldValidation<T>? validation,
+    CurrentTextControllerValidationBuilder<T>? validationBuilder,
     CurrentTextControllerValidationIssues? validationIssues,
   }) {
     (bool isValidType, List<Type> validTypes) validateType(
@@ -596,6 +639,10 @@ final class CurrentTextController<T> extends TextEditingController {
               (propertyValue as DateTime?)?.toIso8601String() ?? '',
       defaultValue: defaultValue,
       validation: validation,
+      validationBuilder: validationBuilder == null
+          ? null
+          : (property, context) =>
+              validationBuilder(property as CurrentProperty<T>, context),
       validationIssues: validationIssues,
     );
   }

@@ -105,6 +105,14 @@ class CurrentProperty<T> implements CurrentValue<T> {
       currentValue != originalValue;
 
   CurrentViewModel? _viewModel;
+  final List<CurrentViewModelBinding> _registeredBindings = [];
+
+  /// Helper bindings registered directly against this property.
+  ///
+  /// Validation now uses this so bindings can attach automatically without
+  /// requiring separate registration on the view model.
+  Iterable<CurrentViewModelBinding> get registeredBindings =>
+      List.unmodifiable(_registeredBindings);
 
   /// Returns the instance of the [CurrentViewModel] this
   /// property is associated with.
@@ -470,6 +478,27 @@ class CurrentProperty<T> implements CurrentValue<T> {
   ///Links this [CurrentProperty] instance with an [CurrentViewModel].
   void setViewModel(CurrentViewModel viewModel) {
     _viewModel = viewModel;
+
+    for (final binding in _registeredBindings) {
+      binding.attachToViewModel();
+    }
+  }
+
+  /// Registers a helper binding against this property.
+  ///
+  /// If the property is already attached to a view model, the binding is
+  /// attached immediately. Otherwise it will attach the next time
+  /// [setViewModel] runs.
+  void registerBinding(CurrentViewModelBinding binding) {
+    if (_registeredBindings.contains(binding)) {
+      return;
+    }
+
+    _registeredBindings.add(binding);
+
+    if (_viewModel != null) {
+      binding.attachToViewModel();
+    }
   }
 
   /// Updates the underlying [value] for this CurrentProperty.

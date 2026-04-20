@@ -18,6 +18,11 @@ const _adultRequiredIssue = CurrentValidationIssue(
   'validation.age.adultRequired',
 );
 
+final _contextAwareIssue = CurrentValidationIssue(
+  'validation.name.contextAware',
+  contextTextBuilder: (context, issue) => 'Name is required from context',
+);
+
 String? _englishValidationText(CurrentValidationIssue issue) {
   switch (issue.code) {
     case 'validation.name.required':
@@ -52,8 +57,7 @@ String? _frenchValidationText(CurrentValidationIssue issue) {
   return issue.fallbackMessage ?? issue.code;
 }
 
-class _ValidationViewModel extends CurrentViewModel
-    with CurrentValidationMixin {
+class _ValidationViewModel extends CurrentViewModel {
   final name = CurrentStringProperty('', propertyName: 'name');
   CurrentFieldValidation<String>? _nameValidation;
   CurrentFieldValidation<String> get nameValidation =>
@@ -67,11 +71,19 @@ class _ValidationViewModel extends CurrentViewModel
 
   @override
   Iterable<CurrentProperty> get currentProps => [name];
+}
+
+class _EagerValidationViewModel extends CurrentViewModel {
+  final name = CurrentStringProperty('', propertyName: 'name');
+
+  late final CurrentFieldValidation<String> nameValidation =
+      name.createValidation(
+    rules: [(value) => value.isEmpty ? _nameRequiredIssue : null],
+    validateOnPropertyChange: true,
+  );
 
   @override
-  Iterable<CurrentFieldValidation<dynamic>> get currentValidations => [
-        nameValidation,
-      ];
+  Iterable<CurrentProperty> get currentProps => [name];
 }
 
 class _AttachmentTrackerBinding implements CurrentViewModelBinding {
@@ -112,10 +124,10 @@ class _ValidationMixinBindingViewModel extends _BindingBaseViewModel
 class _ValidationWidget extends CurrentWidget<_ValidationViewModel> {
   const _ValidationWidget({
     required super.viewModel,
-    required this.resolver,
+    this.resolver,
   });
 
-  final CurrentValidationIssueTextResolver resolver;
+  final CurrentValidationIssueTextResolver? resolver;
 
   @override
   CurrentState<CurrentWidget<CurrentViewModel>, _ValidationViewModel>
@@ -131,7 +143,11 @@ class _ValidationState
     return Directionality(
       textDirection: TextDirection.ltr,
       child: Text(
-        viewModel.nameValidation.resolveIssueText(widget.resolver) ?? 'valid',
+        viewModel.nameValidation.resolveIssueText(
+              context: context,
+              resolver: widget.resolver,
+            ) ??
+            'valid',
         key: const Key('validation-message'),
       ),
     );
@@ -164,6 +180,15 @@ void main() {
 
       expect(validation.isTouched, isTrue);
       expect(validation.issue, equals(_nameRequiredIssue));
+    });
+
+    test('createValidation - registers validator on the property', () {
+      final property = CurrentStringProperty('', propertyName: 'name');
+      final validation = property.createValidation(
+        rules: [(value) => value.isEmpty ? _nameRequiredIssue : null],
+      );
+
+      expect(property.tryGetValidation(), same(validation));
     });
 
     test('validate - passing value after failure - clears error metadata', () {
@@ -216,11 +241,29 @@ void main() {
 
       expect(validation.hasIssue, isTrue);
       expect(
-        validation.resolveIssueText(_englishValidationText),
+        validation.resolveIssueText(resolver: _englishValidationText),
         equals('Invalid from external source'),
       );
       expect(validation.isTouched, isTrue);
       expect(validation.hasValidated, isTrue);
+    });
+
+    testWidgets('resolveIssueText - BuildContext-aware issue builder wins',
+        (tester) async {
+      String? resolvedText;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) {
+              resolvedText = _contextAwareIssue.resolveText(context: context);
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+      );
+
+      expect(resolvedText, equals('Name is required from context'));
     });
   });
 
@@ -246,9 +289,27 @@ void main() {
       expect(group.hasIssues, isTrue);
       expect(group.firstIssue, equals(_firstNameRequiredIssue));
       expect(
-        group.resolveFirstIssueText(_englishValidationText),
+        group.resolveFirstIssueText(resolver: _englishValidationText),
         equals('First name is required'),
       );
+    });
+
+    test('forProperties - uses property-registered validations', () {
+      final firstName = CurrentStringProperty('', propertyName: 'firstName');
+      final age = CurrentIntProperty(10, propertyName: 'age');
+
+      firstName.createValidation(
+        rules: [(value) => value.isEmpty ? _firstNameRequiredIssue : null],
+      );
+      age.createValidation(
+        rules: [(value) => value < 18 ? _adultRequiredIssue : null],
+      );
+
+      final group = CurrentValidationGroup.forProperties([firstName, age]);
+
+      expect(group.validations, hasLength(2));
+      expect(group.validateAll(), isFalse);
+      expect(group.firstIssue, equals(_firstNameRequiredIssue));
     });
 
     test('resetAll - validated fields - clears aggregate errors', () {
@@ -319,6 +380,22 @@ void main() {
 
       expect(mixinViewModel.nameValidation.issue, isNull);
       expect(mixinViewModel.nameValidation.isValid, isTrue);
+    });
+
+    test(
+        'createValidation before property assignment - auto-attaches when the view model is created',
+        () async {
+      final eagerViewModel = _EagerValidationViewModel();
+
+      eagerViewModel.nameValidation.validate();
+      await Future<void>.microtask(() {});
+      expect(eagerViewModel.nameValidation.issue, equals(_nameRequiredIssue));
+
+      eagerViewModel.name('Alex');
+      await Future<void>.microtask(() {});
+
+      expect(eagerViewModel.nameValidation.issue, isNull);
+      expect(eagerViewModel.nameValidation.isValid, isTrue);
     });
 
     test(
