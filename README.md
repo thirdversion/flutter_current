@@ -17,7 +17,7 @@
 - View-model-driven widgets with `CurrentWidget` and `CurrentState`.
 - Application-wide shared state with `Current`.
 - Issue-based validation that keeps localization in the widget layer.
-- Text input binding with `CurrentTextController` for string, integer, and date values.
+- Text input binding with `CurrentTextController`, `CurrentTextFormField`, and `CurrentTextField` for form and non-form flows.
 - Built-in busy state, change notifications, and event listeners for async flows.
 
 ## Getting Started
@@ -261,11 +261,45 @@ class _ProfilePageState extends CurrentState<ProfilePage, ProfileViewModel>
 }
 ```
 
+### Choosing a field widget
+
+Current exposes three field-integration paths. Pick the one that matches who owns your widget tree and validation UX.
+
+- Use `CurrentTextFormField` when you are already inside a `Form` and want the shortest Current-specific wrapper.
+- Use native `TextFormField` with `controller.formValidator(...)` when your app already has its own field wrapper or design-system component and you only want Current to provide binding plus validation bridging.
+- Use `CurrentTextField` when you are not using Flutter `Form` widgets but still want Current-managed error visibility with `AutovalidateMode`-style behavior.
+
+```dart
+CurrentTextFormField<String>(
+  controller: displayNameController,
+  autovalidateMode: AutovalidateMode.onUserInteraction,
+  validationTextResolver: _resolveIssueText,
+  decoration: const InputDecoration(labelText: 'Display name'),
+);
+
+TextFormField(
+  controller: ageController,
+  autovalidateMode: AutovalidateMode.onUserInteraction,
+  validator: ageController.formValidator(
+    context: context,
+    resolver: _resolveIssueText,
+  ),
+  decoration: const InputDecoration(labelText: 'Age'),
+);
+
+CurrentTextField<String>(
+  controller: displayNameController,
+  autovalidateMode: AutovalidateMode.onUserInteractionIfError,
+  validationTextResolver: _resolveIssueText,
+  decoration: const InputDecoration(labelText: 'Quick search'),
+);
+```
+
 Key points:
 
 - Register validation once, either by calling `createValidation()` directly or by supplying `validationBuilder` when binding a controller.
 - Use `CurrentValidationGroup.forProperties([...])` when you want grouped validation without separately listing validators.
-- Use `TextFormField` with `controller.formValidator(...)`, or use `CurrentTextFormField` for a zero-boilerplate Current wrapper.
+- Use `CurrentTextFormField` for the shortest `Form` integration, native `TextFormField` with `controller.formValidator(...)` when your widget layer already exists, and `CurrentTextField` when you want Current-managed validation without a `Form`.
 - Let widgets resolve issue text either through a resolver or through `BuildContext` when your localization API requires it.
 - Use `CurrentTextControllerValidationIssues` for controller-generated parse or required-value failures.
 - Validation rules can live in the widget, the view model, or in a separate plain-Dart helper file when that keeps a larger form easier to read.

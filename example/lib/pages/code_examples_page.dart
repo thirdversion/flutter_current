@@ -287,15 +287,17 @@ class _MissionPageState extends CurrentState<MissionPage, MissionViewModel> {
 }''',
   ),
   _SnippetSection(
-    title: 'Bind text fields and validate',
-    subtitle: 'CurrentTextController + CurrentValidation',
+    title: 'Choose a text field bridge',
+    subtitle: 'Wrapper, native Form, or no Form',
     explanation:
-        'CurrentTextController keeps text editing synchronized with a property. Pair it with issue-based validation and resolve those issues in the widget layer so the same rules work with any localization setup.',
+        'CurrentTextController keeps text editing synchronized with a property. After that, choose the widget path that matches your UI layer: CurrentTextFormField for the shortest Form setup, native TextFormField when your design system already owns the field widget, or CurrentTextField when you want Current-managed validation outside Flutter Form widgets.',
     takeaways: [
       'Use memoized getters instead of late final for validators and validation groups.',
       'Validation rules can live in the widget, the view model, or in a separate plain-Dart helper file.',
       'Create validation once through property.createValidation or validationBuilder, then read it back from the property.',
-      'Use TextFormField with controller.formValidator(...) or CurrentTextFormField to let the library drive field errors.',
+      'Use CurrentTextFormField when you want the lowest-boilerplate Form integration.',
+      'Use TextFormField with controller.formValidator(...) when you already have a custom field wrapper to preserve.',
+      'Use CurrentTextField when there is no Form but you still want Current to manage when errors appear.',
       'Use contextTextBuilder on CurrentValidationIssue when your localization API needs BuildContext.',
     ],
     icon: Icons.fact_check_outlined,
@@ -315,10 +317,27 @@ void bindCurrentControllers() {
 }
 
 Widget build(BuildContext context) {
-  return CurrentTextFormField<String>(
-    controller: missionCodeController,
-    autovalidateMode: AutovalidateMode.onUserInteraction,
-    validationTextResolver: _resolveValidationText,
+  return Column(
+    children: [
+      CurrentTextFormField<String>(
+        controller: missionCodeController,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        validationTextResolver: _resolveValidationText,
+      ),
+      TextFormField(
+        controller: crewCountController,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        validator: crewCountController.formValidator(
+          context: context,
+          resolver: _resolveValidationText,
+        ),
+      ),
+      CurrentTextField<String>(
+        controller: quickSearchController,
+        autovalidateMode: AutovalidateMode.onUserInteractionIfError,
+        validationTextResolver: _resolveValidationText,
+      ),
+    ],
   );
 }''',
   ),
