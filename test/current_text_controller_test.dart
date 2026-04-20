@@ -76,7 +76,8 @@ class _AdditionalTypesViewModel extends CurrentViewModel {
       ];
 }
 
-class _ControllerValidationViewModel extends CurrentViewModel {
+class _ControllerValidationViewModel extends CurrentViewModel
+    with CurrentValidationMixin {
   final age = CurrentIntProperty(10, propertyName: 'age');
   CurrentFieldValidation<int>? _ageValidation;
   CurrentFieldValidation<int> get ageValidation =>
@@ -90,6 +91,11 @@ class _ControllerValidationViewModel extends CurrentViewModel {
 
   @override
   Iterable<CurrentProperty> get currentProps => [age];
+
+  @override
+  Iterable<CurrentFieldValidation<dynamic>> get currentValidations => [
+        ageValidation,
+      ];
 }
 
 class _ControllerValidationWidget

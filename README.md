@@ -122,7 +122,7 @@ Current validation is issue-based. Rules return `CurrentValidationIssue`, not di
 ```dart
 import 'package:current/current.dart';
 
-class ProfileViewModel extends CurrentViewModel {
+class ProfileViewModel extends CurrentViewModel with CurrentValidationMixin {
   final displayName = CurrentProperty.string(
     initialValue: '',
     propertyName: 'displayName',
@@ -172,7 +172,7 @@ class ProfileViewModel extends CurrentViewModel {
   Iterable<CurrentProperty> get currentProps => [displayName, age];
 
   @override
-  Iterable<CurrentViewModelBinding> get currentBindings => [
+  Iterable<CurrentFieldValidation<dynamic>> get currentValidations => [
         displayNameValidation,
         ageValidation,
       ];
@@ -252,8 +252,8 @@ class _ProfilePageState extends CurrentState<ProfilePage, ProfileViewModel>
 
 Key points:
 
-- Attach validators through `currentBindings` so they can subscribe to view-model changes.
-- Can Use memoized getters for `CurrentFieldValidation` and `CurrentValidationGroup`, or `late final`.
+- Expose validators through `currentValidations` by mixing in `CurrentValidationMixin`.
+- Use memoized getters for `CurrentFieldValidation` and `CurrentValidationGroup`, or can use `late final`.
 - Let widgets resolve issue codes into localized or user-facing text.
 - Use `CurrentTextControllerValidationIssues` for controller-generated parse or required-value failures.
 - Validation rules can live in the view model or in a separate plain-Dart helper file when that keeps a larger form easier to read.

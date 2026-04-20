@@ -296,7 +296,7 @@ class CurrentValidationChanged
 /// ## Example
 ///
 /// ```dart
-/// class ProfileViewModel extends CurrentViewModel {
+/// class ProfileViewModel extends CurrentViewModel with CurrentValidationMixin {
 ///   final email = CurrentStringProperty('', propertyName: 'email');
 ///
 ///   CurrentFieldValidation<String>? _emailValidation;
@@ -323,7 +323,9 @@ class CurrentValidationChanged
 ///   Iterable<CurrentProperty> get currentProps => [email];
 ///
 ///   @override
-///   Iterable<CurrentViewModelBinding> get currentBindings => [emailValidation];
+///   Iterable<CurrentFieldValidation<dynamic>> get currentValidations => [
+///         emailValidation,
+///       ];
 /// }
 /// ```
 class CurrentFieldValidation<T> implements CurrentViewModelBinding {
@@ -351,9 +353,12 @@ class CurrentFieldValidation<T> implements CurrentViewModelBinding {
   ///
   /// The optional [rules] are evaluated in the order supplied.
   ///
-  /// If [validateOnPropertyChange] is `true`, this validation helper should be
-  /// returned from [CurrentViewModel.currentBindings] so it can attach to the
-  /// owning [CurrentViewModel] after the property has been initialized.
+  /// If the owning view model uses [CurrentValidationMixin], expose this
+  /// validator from [CurrentValidationMixin.currentValidations] so it can
+  /// attach automatically after the view model has initialized its properties.
+  ///
+  /// Advanced consumers can still return validators from
+  /// [CurrentViewModel.currentBindings] directly
   CurrentFieldValidation(
     this.property, {
     Iterable<CurrentValidationRule<T>> rules = const [],
@@ -429,7 +434,7 @@ class CurrentFieldValidation<T> implements CurrentViewModelBinding {
     _updateState(_state.copyWith(isTouched: true));
   }
 
-  /// Sets a validation error message manually.
+  /// Sets a validation issue manually.
   ///
   /// This can be used to surface validation metadata produced outside the
   /// normal synchronous rule flow, such as controller parse failures or
@@ -463,7 +468,8 @@ class CurrentFieldValidation<T> implements CurrentViewModelBinding {
 
   /// Attaches this validator to the owning [CurrentViewModel].
   ///
-  /// This is called automatically when the validator is returned from
+  /// This is called automatically when the validator is surfaced through
+  /// [CurrentValidationMixin.currentValidations] or returned from
   /// [CurrentViewModel.currentBindings].
   ///
   /// When [validateOnPropertyChange] is enabled, this subscribes to property
@@ -521,6 +527,55 @@ class CurrentFieldValidation<T> implements CurrentViewModelBinding {
     } catch (_) {
       return null;
     }
+  }
+}
+
+/// Opts a [CurrentViewModel] into validation-specific helper wiring.
+///
+/// Validation is the primary use case for attachable helper bindings in the
+/// current package, but [CurrentViewModel.currentBindings] remains generic for
+/// advanced scenarios. Applying this mixin gives validation a more obvious home
+/// by requiring the view model to expose its validators through
+/// [currentValidations].
+///
+/// The mixin then merges those validators into the existing binding pipeline by
+/// appending them to [CurrentViewModel.currentBindings]. This keeps validation
+/// opt-in and explicit without removing the lower-level binding mechanism.
+///
+/// ## Example
+///
+/// ```dart
+/// class ProfileViewModel extends CurrentViewModel with CurrentValidationMixin {
+///   final email = CurrentStringProperty('', propertyName: 'email');
+///
+///   CurrentFieldValidation<String>? _emailValidation;
+///   CurrentFieldValidation<String> get emailValidation =>
+///       _emailValidation ??= email.createValidation(
+///         rules: [
+///           (value) => value.isEmpty
+///               ? const CurrentValidationIssue('profile.email.required')
+///               : null,
+///         ],
+///         validateOnPropertyChange: true,
+///       );
+///
+///   @override
+///   Iterable<CurrentProperty> get currentProps => [email];
+///
+///   @override
+///   Iterable<CurrentFieldValidation<dynamic>> get currentValidations => [
+///         emailValidation,
+///       ];
+/// }
+/// ```
+mixin CurrentValidationMixin on CurrentViewModel {
+  /// The validators owned by this view model.
+  Iterable<CurrentFieldValidation<dynamic>> get currentValidations;
+
+  @override
+  Iterable<CurrentViewModelBinding> get currentBindings sync* {
+    yield* super.currentBindings;
+    yield* currentValidations;
   }
 }
 
@@ -621,25 +676,34 @@ extension CurrentPropertyValidationExtensions<T> on CurrentProperty<T> {
   /// This is a convenience wrapper around [CurrentFieldValidation.new] that
   /// keeps validation setup close to the property declaration.
   ///
-  /// If [validateOnPropertyChange] is `true`, return the created validator from
-  /// [CurrentViewModel.currentBindings] so it can attach after the view model
-  /// initializes its properties.
+  /// When the owning view model uses [CurrentValidationMixin], return the
+  /// created validator from [CurrentValidationMixin.currentValidations] so it
+  /// can attach after the view model initializes its properties.
   ///
   /// ## Example
   ///
   /// ```dart
-  /// CurrentFieldValidation<String>? _emailValidation;
-  /// CurrentFieldValidation<String> get emailValidation =>
-  ///     _emailValidation ??= email.createValidation(
-  ///       rules: [
-  ///         (value) => value.isEmpty
-  ///             ? const CurrentValidationIssue(
-  ///                 'profile.email.required',
-  ///                 fallbackMessage: 'Email is required',
-  ///               )
-  ///             : null,
-  ///       ],
-  ///     );
+  /// class ProfileViewModel extends CurrentViewModel with CurrentValidationMixin {
+  ///   final email = CurrentStringProperty('', propertyName: 'email');
+  ///
+  ///   CurrentFieldValidation<String>? _emailValidation;
+  ///   CurrentFieldValidation<String> get emailValidation =>
+  ///       _emailValidation ??= email.createValidation(
+  ///         rules: [
+  ///           (value) => value.isEmpty
+  ///               ? const CurrentValidationIssue(
+  ///                   'profile.email.required',
+  ///                   fallbackMessage: 'Email is required',
+  ///                 )
+  ///               : null,
+  ///         ],
+  ///       );
+  ///
+  ///   @override
+  ///   Iterable<CurrentFieldValidation<dynamic>> get currentValidations => [
+  ///         emailValidation,
+  ///       ];
+  /// }
   /// ```
   CurrentFieldValidation<T> createValidation({
     Iterable<CurrentValidationRule<T>> rules = const [],

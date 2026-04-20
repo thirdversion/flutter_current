@@ -52,7 +52,8 @@ String? _frenchValidationText(CurrentValidationIssue issue) {
   return issue.fallbackMessage ?? issue.code;
 }
 
-class _ValidationViewModel extends CurrentViewModel {
+class _ValidationViewModel extends CurrentViewModel
+    with CurrentValidationMixin {
   final name = CurrentStringProperty('', propertyName: 'name');
   CurrentFieldValidation<String>? _nameValidation;
   CurrentFieldValidation<String> get nameValidation =>
@@ -68,7 +69,44 @@ class _ValidationViewModel extends CurrentViewModel {
   Iterable<CurrentProperty> get currentProps => [name];
 
   @override
-  Iterable<CurrentViewModelBinding> get currentBindings => [nameValidation];
+  Iterable<CurrentFieldValidation<dynamic>> get currentValidations => [
+        nameValidation,
+      ];
+}
+
+class _AttachmentTrackerBinding implements CurrentViewModelBinding {
+  bool attached = false;
+
+  @override
+  void attachToViewModel() {
+    attached = true;
+  }
+}
+
+class _BindingBaseViewModel extends CurrentViewModel {
+  final name = CurrentStringProperty('', propertyName: 'name');
+  final trackerBinding = _AttachmentTrackerBinding();
+
+  @override
+  Iterable<CurrentProperty> get currentProps => [name];
+
+  @override
+  Iterable<CurrentViewModelBinding> get currentBindings => [trackerBinding];
+}
+
+class _ValidationMixinBindingViewModel extends _BindingBaseViewModel
+    with CurrentValidationMixin {
+  CurrentFieldValidation<String>? _nameValidation;
+  CurrentFieldValidation<String> get nameValidation =>
+      _nameValidation ??= name.createValidation(
+        rules: [(value) => value.isEmpty ? _nameRequiredIssue : null],
+        validateOnPropertyChange: true,
+      );
+
+  @override
+  Iterable<CurrentFieldValidation<dynamic>> get currentValidations => [
+        nameValidation,
+      ];
 }
 
 class _ValidationWidget extends CurrentWidget<_ValidationViewModel> {
@@ -262,6 +300,25 @@ void main() {
       expect(receivedEvent?.nextValue?.issue, equals(_nameRequiredIssue));
 
       await subscription.cancel();
+    });
+
+    test('CurrentValidationMixin - merges validation and generic bindings',
+        () async {
+      final mixinViewModel = _ValidationMixinBindingViewModel();
+
+      expect(mixinViewModel.trackerBinding.attached, isTrue);
+      expect(mixinViewModel.nameValidation.issue, isNull);
+
+      mixinViewModel.nameValidation.validate();
+      await Future<void>.microtask(() {});
+
+      expect(mixinViewModel.nameValidation.issue, equals(_nameRequiredIssue));
+
+      mixinViewModel.name('Alice');
+      await Future<void>.microtask(() {});
+
+      expect(mixinViewModel.nameValidation.issue, isNull);
+      expect(mixinViewModel.nameValidation.isValid, isTrue);
     });
 
     test(

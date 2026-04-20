@@ -294,18 +294,26 @@ class _MissionPageState extends CurrentState<MissionPage, MissionViewModel> {
     takeaways: [
       'Use memoized getters instead of late final for validators and validation groups.',
       'Validation rules can live in the view model or in a separate plain-Dart helper file.',
-      'Return validators from currentBindings when validateOnPropertyChange is enabled.',
+      'Expose validators through currentValidations by mixing in CurrentValidationMixin.',
       'Use controller validation issues for parse and required-value feedback, then resolve display text in the page.',
     ],
     icon: Icons.fact_check_outlined,
     color: SpaceMissionTheme.warning,
     liveSection: MissionSection.flightForms,
-    code: '''CurrentFieldValidation<String>? _missionCodeValidation;
+    code: '''class FlightFormsViewModel extends CurrentViewModel
+    with CurrentValidationMixin {
+CurrentFieldValidation<String>? _missionCodeValidation;
 CurrentFieldValidation<String> get missionCodeValidation =>
     _missionCodeValidation ??= missionCode.createValidation(
       rules: missionCodeRules(),
       validateOnPropertyChange: true,
     );
+
+@override
+Iterable<CurrentFieldValidation<dynamic>> get currentValidations => [
+      missionCodeValidation,
+    ];
+}
 
 @override
 void bindCurrentControllers() {

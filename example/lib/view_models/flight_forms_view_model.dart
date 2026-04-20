@@ -2,7 +2,8 @@ import 'package:current/current.dart';
 
 import 'flight_forms_validation.dart';
 
-class FlightFormsViewModel extends CurrentViewModel {
+class FlightFormsViewModel extends CurrentViewModel
+    with CurrentValidationMixin {
   final missionCode = CurrentProperty.string(
     initialValue: '',
     propertyName: 'missionCode',
@@ -58,7 +59,7 @@ class FlightFormsViewModel extends CurrentViewModel {
       ];
 
   @override
-  Iterable<CurrentViewModelBinding> get currentBindings => [
+  Iterable<CurrentFieldValidation> get currentValidations => [
         missionCodeValidation,
         crewCapacityValidation,
         launchWindowValidation,

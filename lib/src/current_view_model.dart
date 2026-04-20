@@ -8,7 +8,9 @@ import 'current_property.dart';
 /// Contract for helper objects that need to attach themselves to a
 /// [CurrentViewModel] after all [CurrentProperty] values have been initialized.
 ///
-/// Implementations should usually be exposed from [CurrentViewModel.currentBindings].
+/// Generic helper implementations should usually be exposed from
+/// [CurrentViewModel.currentBindings]. Validation helpers should typically use
+/// `CurrentValidationMixin` and `currentValidations` instead.
 abstract class CurrentViewModelBinding {
   /// Attaches this helper to its owning [CurrentViewModel].
   ///
@@ -89,31 +91,34 @@ abstract class CurrentViewModel {
   /// being available before they can subscribe to state changes or emit their
   /// own metadata events.
   ///
-  /// Implementations commonly return objects such as [CurrentFieldValidation]
-  /// that implement [CurrentViewModelBinding].
+  /// This remains the low-level generic extension point for attachable helper
+  /// objects. Validation-enabled view models should usually prefer
+  /// `CurrentValidationMixin` and expose validators through
+  /// `currentValidations` instead of overriding this getter directly.
   ///
   /// ## Example
   ///
   /// ```dart
-  /// class ProfileViewModel extends CurrentViewModel {
-  ///   final email = CurrentStringProperty('', propertyName: 'email');
-  ///
-  ///   CurrentFieldValidation<String>? _emailValidation;
-  ///   CurrentFieldValidation<String> get emailValidation =>
-  ///       _emailValidation ??= email.createValidation(
-  ///         rules: [
-  ///           (value) => value.isEmpty
-  ///               ? const CurrentValidationIssue('profile.email.required')
-  ///               : null,
-  ///         ],
-  ///         validateOnPropertyChange: true,
-  ///       );
+  /// class AnalyticsBinding implements CurrentViewModelBinding {
+  ///   bool attached = false;
   ///
   ///   @override
-  ///   Iterable<CurrentProperty> get currentProps => [email];
+  ///   void attachToViewModel() {
+  ///     attached = true;
+  ///   }
+  /// }
+  ///
+  /// class DashboardViewModel extends CurrentViewModel {
+  ///   final title = CurrentStringProperty('Home', propertyName: 'title');
+  ///   final analyticsBinding = AnalyticsBinding();
   ///
   ///   @override
-  ///   Iterable<CurrentViewModelBinding> get currentBindings => [emailValidation];
+  ///   Iterable<CurrentProperty> get currentProps => [title];
+  ///
+  ///   @override
+  ///   Iterable<CurrentViewModelBinding> get currentBindings => [
+  ///         analyticsBinding,
+  ///       ];
   /// }
   /// ```
   Iterable<CurrentViewModelBinding> get currentBindings => const [];
