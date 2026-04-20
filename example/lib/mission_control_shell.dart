@@ -1,13 +1,16 @@
 import 'package:current/current.dart';
+import 'package:current_counter_example/extensions.dart';
+import 'package:current_counter_example/mission_section.dart';
+import 'package:current_counter_example/space_mission_theme.dart';
 import 'package:flutter/material.dart';
 
 import 'application_view_model.dart';
 import 'mission_control_theme.dart';
-import 'modules/flight_forms_page.dart';
-import 'modules/launch_events_page.dart';
-import 'modules/mission_overview_page.dart';
-import 'modules/star_map_page.dart';
-import 'modules/telemetry_lab_page.dart';
+import 'pages/flight_forms_page.dart';
+import 'pages/launch_events_page.dart';
+import 'pages/mission_overview_page.dart';
+import 'pages/star_map_page.dart';
+import 'pages/telemetry_lab_page.dart';
 import 'view_models/flight_forms_view_model.dart';
 import 'view_models/launch_events_view_model.dart';
 import 'view_models/star_map_view_model.dart';
@@ -66,8 +69,9 @@ class _MissionControlShellState
                       ? Column(
                           children: [
                             Expanded(
-                                child: _MissionViewport(
-                                    section: section, pages: _pages)),
+                              child: _MissionViewport(
+                                  section: section, pages: _pages),
+                            ),
                             const SizedBox(height: 14),
                             _CompactNavigation(
                               section: section,
@@ -87,7 +91,9 @@ class _MissionControlShellState
                             const SizedBox(width: 18),
                             Expanded(
                               child: _MissionViewport(
-                                  section: section, pages: _pages),
+                                section: section,
+                                pages: _pages,
+                              ),
                             ),
                           ],
                         ),
