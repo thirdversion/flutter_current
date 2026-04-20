@@ -6,11 +6,10 @@ import 'current_view_model.dart';
 /// Signature for a synchronous validation rule used by [CurrentFieldValidation].
 ///
 /// Return `null` when the provided [value] is valid.
-/// Return a non-empty [String] when the value is invalid. The returned string
-/// is treated as the validation error message.
+/// Return a [CurrentValidationIssue] when the value is invalid.
 ///
 /// Rules are executed in the order they are added. The first rule that returns
-/// a non-null, non-empty message wins.
+/// a non-null issue wins.
 ///
 /// ## Example
 ///
@@ -19,12 +18,133 @@ import 'current_view_model.dart';
 ///
 /// final validation = name.createValidation(
 ///   rules: [
-///     (value) => value.isEmpty ? 'Name is required' : null,
-///     (value) => value.length < 3 ? 'Name is too short' : null,
+///     (value) => value.isEmpty
+///         ? const CurrentValidationIssue(
+///             'profile.name.required',
+///             fallbackMessage: 'Name is required',
+///           )
+///         : null,
+///     (value) => value.length < 3
+///         ? const CurrentValidationIssue(
+///             'profile.name.tooShort',
+///             fallbackMessage: 'Name is too short',
+///           )
+///         : null,
 ///   ],
 /// );
 /// ```
-typedef CurrentValidationRule<T> = String? Function(T value);
+typedef CurrentValidationRule<T> = CurrentValidationIssue? Function(T value);
+
+/// Resolves a [CurrentValidationIssue] into display text.
+///
+/// This is typically supplied from the widget layer, where localization is
+/// available.
+typedef CurrentValidationIssueTextResolver = String? Function(
+  CurrentValidationIssue issue,
+);
+
+/// Describes a validation failure without tying it to a specific locale.
+///
+/// Validation rules should return this object instead of already-localized
+/// display text. Widgets can later resolve the issue into a localized string
+/// using the active [CurrentValidationIssueTextResolver].
+final class CurrentValidationIssue {
+  /// Stable identifier for the validation failure.
+  final String code;
+
+  /// Optional structured arguments that a resolver can use when building text.
+  final Map<String, Object?> arguments;
+
+  /// Optional fallback text for environments that do not provide a resolver.
+  final String? fallbackMessage;
+
+  /// Creates a validation issue with a stable [code].
+  const CurrentValidationIssue(
+    this.code, {
+    this.arguments = const {},
+    this.fallbackMessage,
+  });
+
+  /// Creates an issue backed only by a fallback message.
+  const CurrentValidationIssue.message(
+    String message, {
+    String code = 'current.validation.message',
+    Map<String, Object?> arguments = const {},
+  }) : this(
+          code,
+          arguments: arguments,
+          fallbackMessage: message,
+        );
+
+  /// Creates an issue representing a required-value failure.
+  const CurrentValidationIssue.requiredValue({
+    String code = 'current.validation.requiredValue',
+    Map<String, Object?> arguments = const {},
+    String? fallbackMessage,
+  }) : this(
+          code,
+          arguments: arguments,
+          fallbackMessage: fallbackMessage,
+        );
+
+  /// Creates an issue representing a parse or invalid-value failure.
+  const CurrentValidationIssue.invalidValue({
+    String code = 'current.validation.invalidValue',
+    Map<String, Object?> arguments = const {},
+    String? fallbackMessage,
+  }) : this(
+          code,
+          arguments: arguments,
+          fallbackMessage: fallbackMessage,
+        );
+
+  /// Resolves this issue into display text.
+  ///
+  /// If [resolver] is provided, it is asked first. Otherwise [fallbackMessage]
+  /// is returned. If neither is available, [code] is used as a last resort so
+  /// the failure still remains observable during development.
+  String resolveText([CurrentValidationIssueTextResolver? resolver]) {
+    return resolver?.call(this) ?? fallbackMessage ?? code;
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is CurrentValidationIssue &&
+        other.code == code &&
+        other.fallbackMessage == fallbackMessage &&
+        _mapsEqual(other.arguments, arguments);
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        code,
+        fallbackMessage,
+        Object.hashAllUnordered(
+          arguments.entries.map((entry) => Object.hash(entry.key, entry.value)),
+        ),
+      );
+
+  static bool _mapsEqual(
+    Map<String, Object?> left,
+    Map<String, Object?> right,
+  ) {
+    if (identical(left, right)) {
+      return true;
+    }
+
+    if (left.length != right.length) {
+      return false;
+    }
+
+    for (final entry in left.entries) {
+      if (!right.containsKey(entry.key) || right[entry.key] != entry.value) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+}
 
 /// Represents the current validation metadata for a field.
 ///
@@ -32,7 +152,7 @@ typedef CurrentValidationRule<T> = String? Function(T value);
 /// [CurrentProperty] remains the source of truth for the underlying value,
 /// while [CurrentValidationState] describes whether that value has been
 /// validated, whether the field has been touched, and what the current error
-/// message is, if any.
+/// issue is, if any.
 ///
 /// Widgets can read this state to determine whether to show validation errors,
 /// enable a submit action, or mark a field as interacted with.
@@ -43,7 +163,7 @@ class CurrentValidationState {
   /// Private marker used by [copyWith] to distinguish between
   /// "parameter not provided" and an explicit `null` value.
   ///
-  /// This is necessary for nullable fields like [errorText], where passing
+  /// This is necessary for nullable fields like [issue], where passing
   /// `null` should clear the value, while omitting the argument should leave the
   /// existing value unchanged.
   ///
@@ -51,10 +171,10 @@ class CurrentValidationState {
   /// the _omitted is a unique object used to detect that nothing was passed at all.
   static const Object _omitted = Object();
 
-  /// The current validation error message for the field.
+  /// The current validation issue for the field.
   ///
   /// This is `null` when there is no validation error.
-  final String? errorText;
+  final CurrentValidationIssue? issue;
 
   /// Whether the field has been touched by the current validation workflow.
   ///
@@ -73,7 +193,7 @@ class CurrentValidationState {
 
   /// Creates a validation state with the provided metadata.
   const CurrentValidationState({
-    this.errorText,
+    this.issue,
     this.isTouched = false,
     this.hasValidated = false,
     this.lastValidatedValue,
@@ -84,16 +204,16 @@ class CurrentValidationState {
   /// This is typically the starting state for a validator before any rules have
   /// executed.
   const CurrentValidationState.untouched()
-      : errorText = null,
+      : issue = null,
         isTouched = false,
         hasValidated = false,
         lastValidatedValue = null;
 
-  /// Whether the state currently contains a validation error.
-  bool get hasError => errorText != null && errorText!.isNotEmpty;
+  /// Whether the state currently contains a validation issue.
+  bool get hasIssue => issue != null;
 
   /// Whether the current state is valid.
-  bool get isValid => !hasError;
+  bool get isValid => !hasIssue;
 
   /// Creates a copy of this validation state with selected values replaced.
   ///
@@ -101,15 +221,15 @@ class CurrentValidationState {
   /// be used publicly so you can update specific validation metadata without affecting other fields.
   /// For example, you might want to mark a field as touched without changing the current error state, or update the error message without affecting the touched state.
   CurrentValidationState copyWith({
-    Object? errorText = _omitted,
+    Object? issue = _omitted,
     bool? isTouched,
     bool? hasValidated,
     Object? lastValidatedValue = _omitted,
   }) {
     return CurrentValidationState(
-      errorText: identical(errorText, _omitted)
-          ? this.errorText
-          : errorText as String?,
+      issue: identical(issue, _omitted)
+          ? this.issue
+          : issue as CurrentValidationIssue?,
       isTouched: isTouched ?? this.isTouched,
       hasValidated: hasValidated ?? this.hasValidated,
       lastValidatedValue: identical(lastValidatedValue, _omitted)
@@ -121,7 +241,7 @@ class CurrentValidationState {
   @override
   bool operator ==(Object other) {
     return other is CurrentValidationState &&
-        other.errorText == errorText &&
+        other.issue == issue &&
         other.isTouched == isTouched &&
         other.hasValidated == hasValidated &&
         other.lastValidatedValue == lastValidatedValue;
@@ -129,7 +249,7 @@ class CurrentValidationState {
 
   @override
   int get hashCode =>
-      Object.hash(errorText, isTouched, hasValidated, lastValidatedValue);
+      Object.hash(issue, isTouched, hasValidated, lastValidatedValue);
 }
 
 /// Event sent when the validation metadata for a field changes.
@@ -179,10 +299,22 @@ class CurrentValidationChanged
 /// class ProfileViewModel extends CurrentViewModel {
 ///   final email = CurrentStringProperty('', propertyName: 'email');
 ///
-///   late final emailValidation = email.createValidation(
+///   CurrentFieldValidation<String>? _emailValidation;
+///   CurrentFieldValidation<String> get emailValidation =>
+///       _emailValidation ??= email.createValidation(
 ///     rules: [
-///       (value) => value.isEmpty ? 'Email is required' : null,
-///       (value) => value.contains('@') ? null : 'Email is invalid',
+///       (value) => value.isEmpty
+///           ? const CurrentValidationIssue(
+///               'profile.email.required',
+///               fallbackMessage: 'Email is required',
+///             )
+///           : null,
+///       (value) => value.contains('@')
+///           ? null
+///           : const CurrentValidationIssue(
+///               'profile.email.invalid',
+///               fallbackMessage: 'Email is invalid',
+///             ),
 ///     ],
 ///     validateOnPropertyChange: true,
 ///   );
@@ -231,11 +363,11 @@ class CurrentFieldValidation<T> implements CurrentViewModelBinding {
   /// The current validation state.
   CurrentValidationState get state => _state;
 
-  /// The current validation error message, if any.
-  String? get errorText => _state.errorText;
+  /// The current validation issue, if any.
+  CurrentValidationIssue? get issue => _state.issue;
 
-  /// Whether the validator currently has an error.
-  bool get hasError => _state.hasError;
+  /// Whether the validator currently has an issue.
+  bool get hasIssue => _state.hasIssue;
 
   /// Whether the current validation state is valid.
   bool get isValid => _state.isValid;
@@ -248,8 +380,7 @@ class CurrentFieldValidation<T> implements CurrentViewModelBinding {
 
   /// Adds a validation [rule] to this validator.
   ///
-  /// Rules run in insertion order, and the first non-null, non-empty error
-  /// message wins.
+  /// Rules run in insertion order, and the first non-null issue wins.
   ///
   /// Returns this validator to support fluent setup.
   CurrentFieldValidation<T> addRule(CurrentValidationRule<T> rule) {
@@ -267,19 +398,19 @@ class CurrentFieldValidation<T> implements CurrentViewModelBinding {
   /// This method emits a [CurrentValidationChanged] event when the validation
   /// metadata changes.
   CurrentValidationState validate({bool markTouched = false}) {
-    String? errorText;
+    CurrentValidationIssue? issue;
 
     for (final rule in _rules) {
       final result = rule(property.value);
 
-      if (result != null && result.isNotEmpty) {
-        errorText = result;
+      if (result != null) {
+        issue = result;
         break;
       }
     }
 
     final nextState = _state.copyWith(
-      errorText: errorText,
+      issue: issue,
       isTouched: _state.isTouched || markTouched,
       hasValidated: true,
       lastValidatedValue: property.value,
@@ -304,18 +435,23 @@ class CurrentFieldValidation<T> implements CurrentViewModelBinding {
   /// normal synchronous rule flow, such as controller parse failures or
   /// other external validation results.
   ///
-  /// Passing `null` clears the current error state.
+  /// Passing `null` clears the current issue state.
   ///
   /// If [markTouched] is `true`, the field is also marked as touched.
-  void setError(String? errorText, {bool markTouched = false}) {
+  void setIssue(CurrentValidationIssue? issue, {bool markTouched = false}) {
     final nextState = _state.copyWith(
-      errorText: errorText,
+      issue: issue,
       isTouched: _state.isTouched || markTouched,
       hasValidated: true,
       lastValidatedValue: property.value,
     );
 
     _updateState(nextState);
+  }
+
+  /// Resolves the current issue into display text.
+  String? resolveIssueText([CurrentValidationIssueTextResolver? resolver]) {
+    return issue?.resolveText(resolver);
   }
 
   /// Resets the validation metadata back to the untouched state.
@@ -398,11 +534,25 @@ class CurrentFieldValidation<T> implements CurrentViewModelBinding {
 ///
 /// ```dart
 /// final firstNameValidation = firstName.createValidation(
-///   rules: [(value) => value.isEmpty ? 'First name is required' : null],
+///   rules: [
+///     (value) => value.isEmpty
+///         ? const CurrentValidationIssue(
+///             'profile.firstName.required',
+///             fallbackMessage: 'First name is required',
+///           )
+///         : null,
+///   ],
 /// );
 ///
 /// final ageValidation = age.createValidation(
-///   rules: [(value) => value < 18 ? 'Must be an adult' : null],
+///   rules: [
+///     (value) => value < 18
+///         ? const CurrentValidationIssue(
+///             'profile.age.adultRequired',
+///             fallbackMessage: 'Must be an adult',
+///           )
+///         : null,
+///   ],
 /// );
 ///
 /// final validationGroup = CurrentValidationGroup([
@@ -423,18 +573,24 @@ class CurrentValidationGroup {
   /// Whether every validator in the group is currently valid.
   bool get isValid => validations.every((validation) => validation.isValid);
 
-  /// Whether any validator in the group currently has an error.
-  bool get hasErrors => validations.any((validation) => validation.hasError);
+  /// Whether any validator in the group currently has an issue.
+  bool get hasIssues => validations.any((validation) => validation.hasIssue);
 
-  /// The first error message currently reported by the group, if any.
-  String? get firstErrorText {
+  /// The first issue currently reported by the group, if any.
+  CurrentValidationIssue? get firstIssue {
     for (final validation in validations) {
-      if (validation.hasError) {
-        return validation.errorText;
+      if (validation.hasIssue) {
+        return validation.issue;
       }
     }
 
     return null;
+  }
+
+  /// Resolves the first issue currently reported by the group, if any.
+  String? resolveFirstIssueText(
+      [CurrentValidationIssueTextResolver? resolver]) {
+    return firstIssue?.resolveText(resolver);
   }
 
   /// Validates every field in the group.
@@ -472,11 +628,18 @@ extension CurrentPropertyValidationExtensions<T> on CurrentProperty<T> {
   /// ## Example
   ///
   /// ```dart
-  /// late final emailValidation = email.createValidation(
-  ///   rules: [
-  ///     (value) => value.isEmpty ? 'Email is required' : null,
-  ///   ],
-  /// );
+  /// CurrentFieldValidation<String>? _emailValidation;
+  /// CurrentFieldValidation<String> get emailValidation =>
+  ///     _emailValidation ??= email.createValidation(
+  ///       rules: [
+  ///         (value) => value.isEmpty
+  ///             ? const CurrentValidationIssue(
+  ///                 'profile.email.required',
+  ///                 fallbackMessage: 'Email is required',
+  ///               )
+  ///             : null,
+  ///       ],
+  ///     );
   /// ```
   CurrentFieldValidation<T> createValidation({
     Iterable<CurrentValidationRule<T>> rules = const [],

@@ -13,7 +13,6 @@ class CodeExamplesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
     final compact = width < 860;
-    final snippets = _snippetSections;
 
     return SingleChildScrollView(
       padding: EdgeInsets.all(compact ? 20 : 28),
@@ -64,7 +63,7 @@ class CodeExamplesPage extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Column(
-                children: snippets
+                children: _snippetSections
                     .map(
                       (snippet) => Padding(
                         padding: const EdgeInsets.only(bottom: 18),
@@ -291,22 +290,22 @@ class _MissionPageState extends CurrentState<MissionPage, MissionViewModel> {
     title: 'Bind text fields and validate',
     subtitle: 'CurrentTextController + CurrentValidation',
     explanation:
-        'CurrentTextController keeps text editing synchronized with a property. Pair it with createValidation and CurrentValidationGroup to surface field errors and gate submission.',
+        'CurrentTextController keeps text editing synchronized with a property. Pair it with issue-based validation and resolve those issues in the widget layer so the same rules work with any localization setup.',
     takeaways: [
-      'Store validation helpers on the view model next to the properties.',
+      'Use memoized getters instead of late final for validators and validation groups.',
+      'Validation rules can live in the view model or in a separate plain-Dart helper file.',
       'Return validators from currentBindings when validateOnPropertyChange is enabled.',
-      'Use controller validation messages for parse and required-value feedback.',
+      'Use controller validation issues for parse and required-value feedback, then resolve display text in the page.',
     ],
     icon: Icons.fact_check_outlined,
     color: SpaceMissionTheme.warning,
     liveSection: MissionSection.flightForms,
-    code: '''late final missionCodeValidation = missionCode.createValidation(
-  rules: [
-    (value) => value.isEmpty ? 'Mission code is required.' : null,
-    (value) => value.contains('-') ? null : 'Use a code like ORION-7.',
-  ],
-  validateOnPropertyChange: true,
-);
+    code: '''CurrentFieldValidation<String>? _missionCodeValidation;
+CurrentFieldValidation<String> get missionCodeValidation =>
+    _missionCodeValidation ??= missionCode.createValidation(
+      rules: missionCodeRules(),
+      validateOnPropertyChange: true,
+    );
 
 @override
 void bindCurrentControllers() {
@@ -315,6 +314,10 @@ void bindCurrentControllers() {
     lifecycleProvider: this,
     validation: viewModel.missionCodeValidation,
   );
+}
+
+String? visibleError(CurrentFieldValidation<dynamic> validation) {
+  return validation.issue?.resolveText(_resolveValidationText);
 }''',
   ),
   _SnippetSection(

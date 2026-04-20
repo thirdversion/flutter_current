@@ -78,9 +78,15 @@ class _AdditionalTypesViewModel extends CurrentViewModel {
 
 class _ControllerValidationViewModel extends CurrentViewModel {
   final age = CurrentIntProperty(10, propertyName: 'age');
-  late final ageValidation = age.createValidation(
-    rules: [(value) => value < 0 ? 'Age cannot be negative' : null],
-  );
+  CurrentFieldValidation<int>? _ageValidation;
+  CurrentFieldValidation<int> get ageValidation =>
+      _ageValidation ??= age.createValidation(
+        rules: [
+          (value) => value < 0
+              ? const CurrentValidationIssue('controller.age.negative')
+              : null,
+        ],
+      );
 
   @override
   Iterable<CurrentProperty> get currentProps => [age];
@@ -89,12 +95,12 @@ class _ControllerValidationViewModel extends CurrentViewModel {
 class _ControllerValidationWidget
     extends CurrentWidget<_ControllerValidationViewModel> {
   final CurrentTextController<int> ageController;
-  final CurrentTextControllerValidationMessages? validationMessages;
+  final CurrentTextControllerValidationIssues? validationIssues;
 
   const _ControllerValidationWidget({
     required super.viewModel,
     required this.ageController,
-    this.validationMessages,
+    this.validationIssues,
   });
 
   @override
@@ -113,7 +119,7 @@ class _ControllerValidationState extends CurrentState<
       property: viewModel.age,
       lifecycleProvider: this,
       validation: viewModel.ageValidation,
-      validationMessages: widget.validationMessages,
+      validationIssues: widget.validationIssues,
     );
   }
 
@@ -670,14 +676,14 @@ void main() {
   group('CurrentTextController validation integration', () {
     late _ControllerValidationViewModel viewModel;
     late CurrentTextController<int> ageController;
-    late CurrentTextControllerValidationMessages japaneseMessages;
+    late CurrentTextControllerValidationIssues japaneseIssues;
 
     setUp(() {
       viewModel = _ControllerValidationViewModel();
       ageController = CurrentTextController.integer();
-      japaneseMessages = CurrentTextControllerValidationMessages(
-        requiredValueErrorBuilder: () => '値を入力してください',
-        invalidValueErrorBuilder: (_) => '無効な値です',
+      japaneseIssues = const CurrentTextControllerValidationIssues(
+        requiredValueIssueBuilder: _japaneseRequiredIssue,
+        invalidValueIssueBuilder: _japaneseInvalidIssue,
       );
     });
 
@@ -687,13 +693,13 @@ void main() {
 
     Future<void> pumpHarness(
       WidgetTester tester, {
-      CurrentTextControllerValidationMessages? validationMessages,
+      CurrentTextControllerValidationIssues? validationIssues,
     }) async {
       await tester.pumpWidget(
         _ControllerValidationWidget(
           viewModel: viewModel,
           ageController: ageController,
-          validationMessages: validationMessages,
+          validationIssues: validationIssues,
         ),
       );
     }
@@ -709,8 +715,16 @@ void main() {
       expect(viewModel.age.value, 10);
       expect(ageController.text, 'abc');
       expect(viewModel.ageValidation.isTouched, isTrue);
-      expect(viewModel.ageValidation.hasError, isTrue);
-      expect(viewModel.ageValidation.errorText, equals('Invalid value.'));
+      expect(viewModel.ageValidation.hasIssue, isTrue);
+      expect(
+        viewModel.ageValidation.issue,
+        equals(
+          const CurrentValidationIssue.invalidValue(
+            arguments: {'text': 'abc'},
+            fallbackMessage: 'Invalid value.',
+          ),
+        ),
+      );
     });
 
     testWidgets('valid text clears controller validation errors',
@@ -721,7 +735,7 @@ void main() {
           find.byKey(const Key('validated-age-field')), 'abc');
       await tester.pump();
 
-      expect(viewModel.ageValidation.errorText, equals('Invalid value.'));
+      expect(viewModel.ageValidation.issue, isNotNull);
 
       await tester.enterText(
           find.byKey(const Key('validated-age-field')), '42');
@@ -729,8 +743,8 @@ void main() {
 
       expect(viewModel.age.value, 42);
       expect(viewModel.ageValidation.isTouched, isTrue);
-      expect(viewModel.ageValidation.hasError, isFalse);
-      expect(viewModel.ageValidation.errorText, isNull);
+      expect(viewModel.ageValidation.hasIssue, isFalse);
+      expect(viewModel.ageValidation.issue, isNull);
     });
 
     testWidgets(
@@ -742,15 +756,15 @@ void main() {
           find.byKey(const Key('validated-age-field')), 'abc');
       await tester.pump();
 
-      expect(viewModel.ageValidation.errorText, equals('Invalid value.'));
+      expect(viewModel.ageValidation.issue, isNotNull);
       expect(ageController.text, 'abc');
 
       viewModel.age(12);
       await tester.pump();
 
       expect(ageController.text, '12');
-      expect(viewModel.ageValidation.hasError, isFalse);
-      expect(viewModel.ageValidation.errorText, isNull);
+      expect(viewModel.ageValidation.hasIssue, isFalse);
+      expect(viewModel.ageValidation.issue, isNull);
     });
 
     testWidgets(
@@ -764,16 +778,23 @@ void main() {
       expect(viewModel.age.value, 10);
       expect(ageController.text, '10');
       expect(viewModel.ageValidation.isTouched, isTrue);
-      expect(viewModel.ageValidation.hasError, isTrue);
-      expect(viewModel.ageValidation.errorText, equals('A value is required.'));
+      expect(viewModel.ageValidation.hasIssue, isTrue);
+      expect(
+        viewModel.ageValidation.issue,
+        equals(
+          const CurrentValidationIssue.requiredValue(
+            fallbackMessage: 'A value is required.',
+          ),
+        ),
+      );
     });
 
     testWidgets(
-        'controller-generated validation messages can be localized per binding',
+        'controller-generated validation issues can be localized per binding',
         (tester) async {
       await pumpHarness(
         tester,
-        validationMessages: japaneseMessages,
+        validationIssues: japaneseIssues,
       );
 
       await tester.enterText(
@@ -782,7 +803,16 @@ void main() {
       );
       await tester.pump();
 
-      expect(viewModel.ageValidation.errorText, equals('無効な値です'));
+      expect(
+        viewModel.ageValidation.issue,
+        equals(
+          const CurrentValidationIssue(
+            'controller.age.invalid.ja',
+            fallbackMessage: '無効な値です',
+            arguments: {'text': 'abc'},
+          ),
+        ),
+      );
 
       await tester.enterText(
         find.byKey(const Key('validated-age-field')),
@@ -790,7 +820,30 @@ void main() {
       );
       await tester.pump();
 
-      expect(viewModel.ageValidation.errorText, equals('値を入力してください'));
+      expect(
+        viewModel.ageValidation.issue,
+        equals(
+          const CurrentValidationIssue(
+            'controller.age.required.ja',
+            fallbackMessage: '値を入力してください',
+          ),
+        ),
+      );
     });
   });
+}
+
+CurrentValidationIssue _japaneseRequiredIssue() {
+  return const CurrentValidationIssue(
+    'controller.age.required.ja',
+    fallbackMessage: '値を入力してください',
+  );
+}
+
+CurrentValidationIssue _japaneseInvalidIssue(String text) {
+  return CurrentValidationIssue(
+    'controller.age.invalid.ja',
+    fallbackMessage: '無効な値です',
+    arguments: {'text': text},
+  );
 }

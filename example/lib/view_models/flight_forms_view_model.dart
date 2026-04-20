@@ -1,5 +1,7 @@
 import 'package:current/current.dart';
 
+import 'flight_forms_validation.dart';
+
 class FlightFormsViewModel extends CurrentViewModel {
   final missionCode = CurrentProperty.string(
     initialValue: '',
@@ -18,42 +20,34 @@ class FlightFormsViewModel extends CurrentViewModel {
     propertyName: 'submissionStatus',
   );
 
-  late final CurrentFieldValidation<String> missionCodeValidation =
-      missionCode.createValidation(
-    rules: [
-      (value) => value.trim().isEmpty ? 'Mission code is required.' : null,
-      (value) => value.contains('-') ? null : 'Use a code like ARTEMIS-2.',
-      (value) => value.length >= 6
-          ? null
-          : 'Mission code must be at least 6 characters.',
-    ],
-    validateOnPropertyChange: true,
-  );
+  CurrentFieldValidation<String>? _missionCodeValidation;
+  CurrentFieldValidation<String> get missionCodeValidation =>
+      _missionCodeValidation ??= missionCode.createValidation(
+        rules: missionCodeRules(),
+        validateOnPropertyChange: true,
+      );
 
-  late final CurrentFieldValidation<int> crewCapacityValidation =
-      crewCapacity.createValidation(
-    rules: [
-      (value) => value >= 2 ? null : 'Crew capacity must be at least 2.',
-      (value) => value <= 8 ? null : 'Crew capacity must be 8 or fewer.',
-    ],
-    validateOnPropertyChange: true,
-  );
+  CurrentFieldValidation<int>? _crewCapacityValidation;
+  CurrentFieldValidation<int> get crewCapacityValidation =>
+      _crewCapacityValidation ??= crewCapacity.createValidation(
+        rules: crewCapacityRules(),
+        validateOnPropertyChange: true,
+      );
 
-  late final CurrentFieldValidation<DateTime> launchWindowValidation =
-      launchWindow.createValidation(
-    rules: [
-      (value) => value.isAfter(DateTime.now().add(const Duration(days: 2)))
-          ? null
-          : 'Launch window must be at least 48 hours from now.',
-    ],
-    validateOnPropertyChange: true,
-  );
+  CurrentFieldValidation<DateTime>? _launchWindowValidation;
+  CurrentFieldValidation<DateTime> get launchWindowValidation =>
+      _launchWindowValidation ??= launchWindow.createValidation(
+        rules: launchWindowRules(),
+        validateOnPropertyChange: true,
+      );
 
-  late final validationGroup = CurrentValidationGroup([
-    missionCodeValidation,
-    crewCapacityValidation,
-    launchWindowValidation,
-  ]);
+  CurrentValidationGroup? _validationGroup;
+  CurrentValidationGroup get validationGroup =>
+      _validationGroup ??= CurrentValidationGroup([
+        missionCodeValidation,
+        crewCapacityValidation,
+        launchWindowValidation,
+      ]);
 
   @override
   Iterable<CurrentProperty> get currentProps => [
@@ -75,8 +69,7 @@ class FlightFormsViewModel extends CurrentViewModel {
 
     submissionStatus.value = isReady
         ? 'Launch package approved for ignition.'
-        : validationGroup.firstErrorText ??
-            'Launch package still has open validation issues.';
+        : 'Launch package still has open validation issues.';
 
     return isReady;
   }

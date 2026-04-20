@@ -34,9 +34,9 @@ class _FlightFormsPageState
       property: viewModel.crewCapacity,
       lifecycleProvider: this,
       validation: viewModel.crewCapacityValidation,
-      validationMessages: CurrentTextControllerValidationMessages(
-        requiredValueErrorBuilder: () => 'Crew count is required.',
-        invalidValueErrorBuilder: (_) => 'Digits only for crew count.',
+      validationIssues: const CurrentTextControllerValidationIssues(
+        requiredValueIssueBuilder: _crewCapacityRequiredIssue,
+        invalidValueIssueBuilder: _crewCapacityInvalidIssue,
       ),
     );
     launchDateController.bindDateTime(
@@ -45,9 +45,9 @@ class _FlightFormsPageState
       fromString: _parseDate,
       asString: (value) => value == null ? '' : _formatDate(value),
       validation: viewModel.launchWindowValidation,
-      validationMessages: CurrentTextControllerValidationMessages(
-        requiredValueErrorBuilder: () => 'Launch window is required.',
-        invalidValueErrorBuilder: (_) => 'Use YYYY-MM-DD.',
+      validationIssues: const CurrentTextControllerValidationIssues(
+        requiredValueIssueBuilder: _launchWindowRequiredIssue,
+        invalidValueIssueBuilder: _launchWindowInvalidIssue,
       ),
     );
   }
@@ -57,7 +57,8 @@ class _FlightFormsPageState
     final width = MediaQuery.sizeOf(context).width;
     final compact = width < 1120;
     final group = viewModel.validationGroup;
-    final readyForLaunch = group.isValid && !group.hasErrors;
+    final readyForLaunch = group.isValid && !group.hasIssues;
+    final firstIssueText = group.resolveFirstIssueText(_resolveValidationText);
     final panels = [
       _buildFormPanel(context, readyForLaunch),
       _buildStatePanel(context, group),
@@ -98,9 +99,9 @@ class _FlightFormsPageState
                           : SpaceMissionTheme.warning,
                     ),
                     StatusPill(
-                      label: 'First error: ${group.firstErrorText ?? 'None'}',
+                      label: 'First issue: ${firstIssueText ?? 'None'}',
                       icon: Icons.rule_outlined,
-                      color: group.hasErrors
+                      color: group.hasIssues
                           ? SpaceMissionTheme.danger
                           : SpaceMissionTheme.accent,
                     ),
@@ -143,7 +144,7 @@ class _FlightFormsPageState
             controller: missionCodeController,
             decoration: InputDecoration(
               labelText: 'Mission code',
-              helperText: 'Try a value like ORION-7',
+              helperText: 'Try a value like ARTEMIS-2',
               errorText: _visibleError(viewModel.missionCodeValidation),
             ),
           ),
@@ -179,7 +180,10 @@ class _FlightFormsPageState
                       content: Text(
                         approved
                             ? 'Launch package approved. CurrentValidationGroup is clear.'
-                            : viewModel.submissionStatus.value,
+                            : viewModel.validationGroup.resolveFirstIssueText(
+                                  _resolveValidationText,
+                                ) ??
+                                viewModel.submissionStatus.value,
                       ),
                     ),
                   );
@@ -270,11 +274,11 @@ class _FlightFormsPageState
                     : SpaceMissionTheme.warning,
               ),
               StatusPill(
-                label: group.hasErrors ? 'Errors present' : 'No active errors',
-                icon: group.hasErrors
+                label: group.hasIssues ? 'Issues present' : 'No active issues',
+                icon: group.hasIssues
                     ? Icons.report_problem_outlined
                     : Icons.checklist_rtl_outlined,
-                color: group.hasErrors
+                color: group.hasIssues
                     ? SpaceMissionTheme.danger
                     : SpaceMissionTheme.accent,
               ),
@@ -286,12 +290,62 @@ class _FlightFormsPageState
   }
 
   static String? _visibleError(CurrentFieldValidation<dynamic> validation) {
-    if (validation.hasError &&
+    if (validation.hasIssue &&
         (validation.isTouched || validation.hasValidated)) {
-      return validation.errorText;
+      return validation.resolveIssueText(_resolveValidationText);
     }
 
     return null;
+  }
+
+  // Basic example of a validation text resolver that could be used to map issue codes to user-friendly messages or localized strings.
+  static String? _resolveValidationText(CurrentValidationIssue issue) {
+    switch (issue.code) {
+      case 'flightForms.missionCode.required':
+        return 'Mission code is required.';
+      case 'flightForms.missionCode.format':
+        return 'Use a code like ARTEMIS-2.';
+      case 'flightForms.missionCode.length':
+        return 'Mission code must be at least ${issue.arguments['minimumLength']} characters.';
+      case 'flightForms.crewCapacity.minimum':
+        return 'Crew capacity must be at least ${issue.arguments['minimumCrew']}.';
+      case 'flightForms.crewCapacity.maximum':
+        return 'Crew capacity must be ${issue.arguments['maximumCrew']} or fewer.';
+      case 'flightForms.crewCapacity.required':
+        return 'Crew count is required.';
+      case 'flightForms.crewCapacity.invalidFormat':
+        return 'Digits only for crew count.';
+      case 'flightForms.launchWindow.minimumLeadTime':
+        return 'Launch window must be at least ${issue.arguments['minimumHours']} hours from now.';
+      case 'flightForms.launchWindow.required':
+        return 'Launch window is required.';
+      case 'flightForms.launchWindow.invalidFormat':
+        return 'Use YYYY-MM-DD.';
+    }
+
+    return issue.fallbackMessage ?? issue.code;
+  }
+
+  static CurrentValidationIssue _crewCapacityRequiredIssue() {
+    return const CurrentValidationIssue('flightForms.crewCapacity.required');
+  }
+
+  static CurrentValidationIssue _crewCapacityInvalidIssue(String text) {
+    return CurrentValidationIssue(
+      'flightForms.crewCapacity.invalidFormat',
+      arguments: {'text': text},
+    );
+  }
+
+  static CurrentValidationIssue _launchWindowRequiredIssue() {
+    return const CurrentValidationIssue('flightForms.launchWindow.required');
+  }
+
+  static CurrentValidationIssue _launchWindowInvalidIssue(String text) {
+    return CurrentValidationIssue(
+      'flightForms.launchWindow.invalidFormat',
+      arguments: {'text': text},
+    );
   }
 
   static DateTime _parseDate(String text) {
@@ -350,7 +404,7 @@ class _ValidationTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = validation.hasError
+    final color = validation.hasIssue
         ? SpaceMissionTheme.danger
         : validation.hasValidated
             ? SpaceMissionTheme.highlight
@@ -388,7 +442,10 @@ class _ValidationTile extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            validation.errorText ?? 'No active error.',
+            validation.resolveIssueText(
+                  _FlightFormsPageState._resolveValidationText,
+                ) ??
+                'No active issue.',
             style:
                 Theme.of(context).textTheme.bodyMedium?.copyWith(color: color),
           ),

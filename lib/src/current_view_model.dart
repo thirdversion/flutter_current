@@ -98,10 +98,16 @@ abstract class CurrentViewModel {
   /// class ProfileViewModel extends CurrentViewModel {
   ///   final email = CurrentStringProperty('', propertyName: 'email');
   ///
-  ///   late final emailValidation = email.createValidation(
-  ///     rules: [(value) => value.isEmpty ? 'Email is required' : null],
-  ///     validateOnPropertyChange: true,
-  ///   );
+  ///   CurrentFieldValidation<String>? _emailValidation;
+  ///   CurrentFieldValidation<String> get emailValidation =>
+  ///       _emailValidation ??= email.createValidation(
+  ///         rules: [
+  ///           (value) => value.isEmpty
+  ///               ? const CurrentValidationIssue('profile.email.required')
+  ///               : null,
+  ///         ],
+  ///         validateOnPropertyChange: true,
+  ///       );
   ///
   ///   @override
   ///   Iterable<CurrentProperty> get currentProps => [email];
