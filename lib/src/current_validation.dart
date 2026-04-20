@@ -521,9 +521,7 @@ class CurrentFieldValidation<T> implements CurrentViewModelBinding {
   /// Attaches this validator to the owning [CurrentViewModel].
   ///
   /// This is called automatically when the validator is registered against its
-  /// property, or when it is surfaced through legacy binding paths such as
-  /// [CurrentValidationMixin.currentValidations] or
-  /// [CurrentViewModel.currentBindings].
+  /// property or when it is surfaced through [CurrentViewModel.currentBindings].
   ///
   /// When [validateOnPropertyChange] is enabled, this subscribes to property
   /// change events and re-runs [validate] whenever the target [property]
@@ -580,52 +578,6 @@ class CurrentFieldValidation<T> implements CurrentViewModelBinding {
     } catch (_) {
       return null;
     }
-  }
-}
-
-/// Compatibility mixin for validation-specific helper wiring.
-///
-/// Validation no longer requires this mixin in the common path because
-/// validators register themselves directly against the property they validate.
-///
-/// This mixin remains available as a compatibility layer for code that still
-/// wants to surface validators through [currentValidations]. It merges those
-/// validators into [CurrentViewModel.currentBindings].
-///
-/// ## Example
-///
-/// ```dart
-/// class ProfileViewModel extends CurrentViewModel with CurrentValidationMixin {
-///   final email = CurrentStringProperty('', propertyName: 'email');
-///
-///   CurrentFieldValidation<String>? _emailValidation;
-///   CurrentFieldValidation<String> get emailValidation =>
-///       _emailValidation ??= email.createValidation(
-///         rules: [
-///           (value) => value.isEmpty
-///               ? const CurrentValidationIssue('profile.email.required')
-///               : null,
-///         ],
-///         validateOnPropertyChange: true,
-///       );
-///
-///   @override
-///   Iterable<CurrentProperty> get currentProps => [email];
-///
-///   @override
-///   Iterable<CurrentFieldValidation<dynamic>> get currentValidations => [
-///         emailValidation,
-///       ];
-/// }
-/// ```
-mixin CurrentValidationMixin on CurrentViewModel {
-  /// The validators owned by this view model.
-  Iterable<CurrentFieldValidation<dynamic>> get currentValidations;
-
-  @override
-  Iterable<CurrentViewModelBinding> get currentBindings sync* {
-    yield* super.currentBindings;
-    yield* currentValidations;
   }
 }
 

@@ -106,19 +106,12 @@ class _BindingBaseViewModel extends CurrentViewModel {
   Iterable<CurrentViewModelBinding> get currentBindings => [trackerBinding];
 }
 
-class _ValidationMixinBindingViewModel extends _BindingBaseViewModel
-    with CurrentValidationMixin {
-  CurrentFieldValidation<String>? _nameValidation;
-  CurrentFieldValidation<String> get nameValidation =>
-      _nameValidation ??= name.createValidation(
-        rules: [(value) => value.isEmpty ? _nameRequiredIssue : null],
-        validateOnPropertyChange: true,
-      );
-
-  @override
-  Iterable<CurrentFieldValidation<dynamic>> get currentValidations => [
-        nameValidation,
-      ];
+class _BindingAndValidationViewModel extends _BindingBaseViewModel {
+  late final CurrentFieldValidation<String> nameValidation =
+      name.createValidation(
+    rules: [(value) => value.isEmpty ? _nameRequiredIssue : null],
+    validateOnPropertyChange: true,
+  );
 }
 
 class _ValidationWidget extends CurrentWidget<_ValidationViewModel> {
@@ -363,23 +356,26 @@ void main() {
       await subscription.cancel();
     });
 
-    test('CurrentValidationMixin - merges validation and generic bindings',
+    test('property-registered validation coexists with generic bindings',
         () async {
-      final mixinViewModel = _ValidationMixinBindingViewModel();
+      final viewModelWithBinding = _BindingAndValidationViewModel();
 
-      expect(mixinViewModel.trackerBinding.attached, isTrue);
-      expect(mixinViewModel.nameValidation.issue, isNull);
+      expect(viewModelWithBinding.trackerBinding.attached, isTrue);
+      expect(viewModelWithBinding.nameValidation.issue, isNull);
 
-      mixinViewModel.nameValidation.validate();
+      viewModelWithBinding.nameValidation.validate();
       await Future<void>.microtask(() {});
 
-      expect(mixinViewModel.nameValidation.issue, equals(_nameRequiredIssue));
+      expect(
+        viewModelWithBinding.nameValidation.issue,
+        equals(_nameRequiredIssue),
+      );
 
-      mixinViewModel.name('Alice');
+      viewModelWithBinding.name('Alice');
       await Future<void>.microtask(() {});
 
-      expect(mixinViewModel.nameValidation.issue, isNull);
-      expect(mixinViewModel.nameValidation.isValid, isTrue);
+      expect(viewModelWithBinding.nameValidation.issue, isNull);
+      expect(viewModelWithBinding.nameValidation.isValid, isTrue);
     });
 
     test(
