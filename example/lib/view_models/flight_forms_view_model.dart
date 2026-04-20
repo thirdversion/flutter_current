@@ -4,21 +4,13 @@ import 'flight_forms_validation.dart';
 
 class FlightFormsViewModel extends CurrentViewModel
     with CurrentValidationMixin {
-  final missionCode = CurrentProperty.string(
-    initialValue: '',
-    propertyName: 'missionCode',
-  );
-  final crewCapacity = CurrentProperty.integer(
-    initialValue: 0,
-    propertyName: 'crewCapacity',
-  );
+  final missionCode = CurrentProperty.string();
+  final crewCapacity = CurrentProperty.integer();
   final launchWindow = CurrentProperty.dateTime(
     initialValue: DateTime.now().add(const Duration(days: 14)),
-    propertyName: 'launchWindow',
   );
   final submissionStatus = CurrentProperty.string(
     initialValue: 'Awaiting launch authorization.',
-    propertyName: 'submissionStatus',
   );
 
   CurrentFieldValidation<String>? _missionCodeValidation;

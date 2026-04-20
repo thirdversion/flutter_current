@@ -3,21 +3,13 @@ import 'package:current/current.dart';
 class LaunchEventsViewModel extends CurrentViewModel {
   static const diagnosticsTask = 'diagnostics';
 
-  final countdown = CurrentProperty.integer(
-    initialValue: 10,
-    propertyName: 'countdown',
-  );
-  final autoAbortArmed = CurrentProperty.boolean(
-    initialValue: true,
-    propertyName: 'autoAbortArmed',
-  );
+  final countdown = CurrentProperty.integer(initialValue: 10);
+  final autoAbortArmed = CurrentProperty.boolean(initialValue: true);
   final launchState = CurrentProperty.string(
     initialValue: 'Standing by for launch sequence.',
-    propertyName: 'launchState',
   );
   final activityLog = CurrentProperty.list<String>(
     initialValue: ['[Mission Control] Standing by for launch sequence.'],
-    propertyName: 'activityLog',
   );
 
   @override

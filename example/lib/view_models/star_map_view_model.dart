@@ -5,15 +5,14 @@ class StarMapViewModel extends CurrentViewModel {
 
   final routePlan = CurrentProperty.list<String>(
     initialValue: ['Mercury', 'Venus', 'Earth'],
-    propertyName: 'routePlan',
   );
+
   final cargoManifest = CurrentProperty.map<String, String>(
     initialValue: {
       'Habitat Ring': 'Stable and pressurized',
       'Sensor Array': 'Calibrating in low orbit',
       'Fuel': '92% capacity',
     },
-    propertyName: 'cargoManifest',
   );
 
   static const _planetCatalog = [

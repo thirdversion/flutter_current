@@ -3,25 +3,12 @@ import 'package:current/current.dart';
 class TelemetryLabViewModel extends CurrentViewModel {
   TelemetryLabViewModel();
 
-  final missionName = CurrentProperty.string(
-    initialValue: 'Odyssey Relay',
-    propertyName: 'missionName',
-  );
-  final crewCount = CurrentProperty.integer(
-    initialValue: 4,
-    propertyName: 'crewCount',
-  );
-  final thrust = CurrentProperty.doubleProp(
-    initialValue: 72.4,
-    propertyName: 'thrust',
-  );
-  final autopilotArmed = CurrentProperty.boolean(
-    initialValue: true,
-    propertyName: 'autopilotArmed',
-  );
+  final missionName = CurrentProperty.string(initialValue: 'Odyssey Relay');
+  final crewCount = CurrentProperty.integer(initialValue: 4);
+  final thrust = CurrentProperty.doubleProp(initialValue: 72.4);
+  final autopilotArmed = CurrentProperty.boolean(initialValue: true);
   final nextBurn = CurrentProperty.dateTime(
     initialValue: DateTime.utc(2042, 7, 16, 14, 45),
-    propertyName: 'nextBurn',
   );
 
   static const _callsigns = [
