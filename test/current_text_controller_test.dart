@@ -136,6 +136,223 @@ class _ControllerValidationState extends CurrentState<
   }
 }
 
+class _ControllerValidationFormWidget
+    extends CurrentWidget<_ControllerValidationViewModel> {
+  final CurrentTextController<int> ageController;
+  final GlobalKey<FormState> formKey;
+  final bool useCurrentWrapper;
+  final AutovalidateMode? autovalidateMode;
+
+  const _ControllerValidationFormWidget({
+    required super.viewModel,
+    required this.ageController,
+    required this.formKey,
+    required this.useCurrentWrapper,
+    this.autovalidateMode,
+  });
+
+  @override
+  CurrentState<CurrentWidget<CurrentViewModel>, _ControllerValidationViewModel>
+      createCurrent() => _ControllerValidationFormState(viewModel);
+}
+
+class _ControllerValidationFormState extends CurrentState<
+    _ControllerValidationFormWidget,
+    _ControllerValidationViewModel> with CurrentTextControllersLifecycleMixin {
+  _ControllerValidationFormState(super.viewModel);
+
+  @override
+  void bindCurrentControllers() {
+    widget.ageController.bindInt(
+      property: viewModel.age,
+      lifecycleProvider: this,
+      validationBuilder: (_, __) => viewModel.ageValidation,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final field = widget.useCurrentWrapper
+        ? CurrentTextFormField<int>(
+            key: const Key('validated-age-form-field'),
+            controller: widget.ageController,
+            autovalidateMode: widget.autovalidateMode,
+            validationTextResolver: _englishFormValidationText,
+            decoration: const InputDecoration(labelText: 'Age'),
+          )
+        : TextFormField(
+            key: const Key('validated-age-form-field'),
+            controller: widget.ageController,
+            autovalidateMode: widget.autovalidateMode,
+            validator: widget.ageController.formValidator(
+              context: context,
+              resolver: _englishFormValidationText,
+            ),
+            decoration: const InputDecoration(labelText: 'Age'),
+          );
+
+    return MaterialApp(
+      home: Scaffold(
+        body: Form(
+          key: widget.formKey,
+          child: Column(
+            children: [
+              field,
+              const TextField(key: Key('secondary-field')),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _RequiredNameFieldWidget
+    extends CurrentWidget<_RequiredNameFormViewModel> {
+  final CurrentTextController<String> nameController;
+  final AutovalidateMode autovalidateMode;
+  final bool useFormWrapper;
+  final bool useCurrentTextField;
+
+  const _RequiredNameFieldWidget({
+    required super.viewModel,
+    required this.nameController,
+    required this.autovalidateMode,
+    this.useFormWrapper = false,
+    this.useCurrentTextField = false,
+  });
+
+  @override
+  CurrentState<CurrentWidget<CurrentViewModel>, _RequiredNameFormViewModel>
+      createCurrent() => _RequiredNameFieldState(viewModel);
+}
+
+class _RequiredNameFieldState
+    extends CurrentState<_RequiredNameFieldWidget, _RequiredNameFormViewModel>
+    with CurrentTextControllersLifecycleMixin {
+  _RequiredNameFieldState(super.viewModel);
+
+  @override
+  void bindCurrentControllers() {
+    widget.nameController.bindString(
+      property: viewModel.name,
+      lifecycleProvider: this,
+      validationBuilder: (_, __) => viewModel.nameValidation,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final field = widget.useCurrentTextField
+        ? CurrentTextField<String>(
+            key: const Key('required-name-field'),
+            controller: widget.nameController,
+            autovalidateMode: widget.autovalidateMode,
+            validationTextResolver: _englishFormValidationText,
+            decoration: const InputDecoration(labelText: 'Mission name'),
+          )
+        : widget.useFormWrapper
+            ? CurrentTextFormField<String>(
+                key: const Key('required-name-field'),
+                controller: widget.nameController,
+                autovalidateMode: widget.autovalidateMode,
+                validationTextResolver: _englishFormValidationText,
+                decoration: const InputDecoration(labelText: 'Mission name'),
+              )
+            : TextFormField(
+                key: const Key('required-name-field'),
+                controller: widget.nameController,
+                autovalidateMode: widget.autovalidateMode,
+                validator: widget.nameController.formValidator(
+                  context: context,
+                  resolver: _englishFormValidationText,
+                ),
+                decoration: const InputDecoration(labelText: 'Mission name'),
+              );
+
+    return MaterialApp(
+      home: Scaffold(
+        body: Column(
+          children: [
+            field,
+            const TextField(key: Key('secondary-name-field')),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _RequiredNameFormViewModel extends CurrentViewModel {
+  final name = CurrentStringProperty('', propertyName: 'name');
+  late final CurrentFieldValidation<String> nameValidation =
+      name.createValidation(
+    rules: [
+      (value) => value.trim().isEmpty
+          ? const CurrentValidationIssue('controller.name.required')
+          : null,
+    ],
+    validateOnPropertyChange: true,
+  );
+
+  @override
+  Iterable<CurrentProperty> get currentProps => [name];
+}
+
+class _RequiredNameFormWidget
+    extends CurrentWidget<_RequiredNameFormViewModel> {
+  final CurrentTextController<String> nameController;
+  final GlobalKey<FormState> formKey;
+  final AutovalidateMode? autovalidateMode;
+
+  const _RequiredNameFormWidget({
+    required super.viewModel,
+    required this.nameController,
+    required this.formKey,
+    this.autovalidateMode,
+  });
+
+  @override
+  CurrentState<CurrentWidget<CurrentViewModel>, _RequiredNameFormViewModel>
+      createCurrent() => _RequiredNameFormState(viewModel);
+}
+
+class _RequiredNameFormState
+    extends CurrentState<_RequiredNameFormWidget, _RequiredNameFormViewModel>
+    with CurrentTextControllersLifecycleMixin {
+  _RequiredNameFormState(super.viewModel);
+
+  @override
+  void bindCurrentControllers() {
+    widget.nameController.bindString(
+      property: viewModel.name,
+      lifecycleProvider: this,
+      validationBuilder: (_, __) => viewModel.nameValidation,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Form(
+          key: widget.formKey,
+          child: TextFormField(
+            key: const Key('required-name-form-field'),
+            controller: widget.nameController,
+            autovalidateMode: widget.autovalidateMode,
+            validator: widget.nameController.formValidator(
+              context: context,
+              resolver: _englishFormValidationText,
+            ),
+            decoration: const InputDecoration(labelText: 'Mission name'),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _ControllerTestWidget extends CurrentWidget<_ControllerTestViewModel> {
   final CurrentTextController<String> nameController;
   final CurrentTextController<int> ageController;
@@ -677,10 +894,12 @@ void main() {
     late _ControllerValidationViewModel viewModel;
     late CurrentTextController<int> ageController;
     late CurrentTextControllerValidationIssues japaneseIssues;
+    late GlobalKey<FormState> formKey;
 
     setUp(() {
       viewModel = _ControllerValidationViewModel();
       ageController = CurrentTextController.integer();
+      formKey = GlobalKey<FormState>();
       japaneseIssues = const CurrentTextControllerValidationIssues(
         requiredValueIssueBuilder: _japaneseRequiredIssue,
         invalidValueIssueBuilder: _japaneseInvalidIssue,
@@ -830,7 +1049,277 @@ void main() {
         ),
       );
     });
+
+    testWidgets(
+        'stock TextFormField shows Current validation without a manual helper',
+        (tester) async {
+      await tester.pumpWidget(
+        _ControllerValidationFormWidget(
+          viewModel: viewModel,
+          ageController: ageController,
+          formKey: formKey,
+          useCurrentWrapper: false,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+        ),
+      );
+
+      await tester.enterText(
+        find.byKey(const Key('validated-age-form-field')),
+        '-1',
+      );
+      await tester.pump();
+
+      expect(find.text('Age cannot be negative.'), findsOneWidget);
+      expect(viewModel.ageValidation.issue?.code, 'controller.age.negative');
+    });
+
+    testWidgets(
+        'CurrentTextFormField shows Current validation without extra wiring',
+        (tester) async {
+      await tester.pumpWidget(
+        _ControllerValidationFormWidget(
+          viewModel: viewModel,
+          ageController: ageController,
+          formKey: formKey,
+          useCurrentWrapper: true,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+        ),
+      );
+
+      await tester.enterText(
+        find.byKey(const Key('validated-age-form-field')),
+        '-1',
+      );
+      await tester.pump();
+
+      expect(find.text('Age cannot be negative.'), findsOneWidget);
+      expect(viewModel.ageValidation.issue?.code, 'controller.age.negative');
+    });
+
+    testWidgets(
+        'Form.validate runs untouched Current validation through the controller bridge',
+        (tester) async {
+      final requiredViewModel = _RequiredNameFormViewModel();
+      final requiredController = CurrentTextController.string();
+      final requiredFormKey = GlobalKey<FormState>();
+
+      addTearDown(requiredController.dispose);
+
+      await tester.pumpWidget(
+        _RequiredNameFormWidget(
+          viewModel: requiredViewModel,
+          nameController: requiredController,
+          formKey: requiredFormKey,
+          autovalidateMode: AutovalidateMode.onUserInteractionIfError,
+        ),
+      );
+
+      expect(requiredViewModel.nameValidation.hasValidated, isFalse);
+
+      final isValid = requiredFormKey.currentState!.validate();
+      await tester.pump();
+
+      expect(isValid, isFalse);
+      expect(find.text('Name is required.'), findsOneWidget);
+      expect(requiredViewModel.nameValidation.hasValidated, isTrue);
+      expect(requiredViewModel.nameValidation.isTouched, isTrue);
+      expect(
+        requiredViewModel.nameValidation.issue?.code,
+        'controller.name.required',
+      );
+    });
+
+    testWidgets(
+        'native TextFormField with AutovalidateMode.always shows an initial error',
+        (tester) async {
+      final requiredViewModel = _RequiredNameFormViewModel();
+      final requiredController = CurrentTextController.string();
+
+      addTearDown(requiredController.dispose);
+
+      await tester.pumpWidget(
+        _RequiredNameFieldWidget(
+          viewModel: requiredViewModel,
+          nameController: requiredController,
+          autovalidateMode: AutovalidateMode.always,
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('Name is required.'), findsOneWidget);
+      expect(requiredViewModel.nameValidation.hasValidated, isTrue);
+    });
+
+    testWidgets(
+        'CurrentTextFormField with AutovalidateMode.onUnfocus validates when focus leaves the field',
+        (tester) async {
+      final requiredViewModel = _RequiredNameFormViewModel();
+      final requiredController = CurrentTextController.string();
+
+      addTearDown(requiredController.dispose);
+
+      await tester.pumpWidget(
+        _RequiredNameFieldWidget(
+          viewModel: requiredViewModel,
+          nameController: requiredController,
+          autovalidateMode: AutovalidateMode.onUnfocus,
+          useFormWrapper: true,
+        ),
+      );
+
+      await tester.tap(find.byKey(const Key('required-name-field')));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('secondary-name-field')));
+      await tester.pump();
+
+      expect(find.text('Name is required.'), findsOneWidget);
+      expect(requiredViewModel.nameValidation.isTouched, isTrue);
+    });
+
+    testWidgets(
+        'CurrentTextField with AutovalidateMode.onUserInteractionIfError revalidates after an error exists',
+        (tester) async {
+      final requiredViewModel = _RequiredNameFormViewModel();
+      final requiredController = CurrentTextController.string();
+
+      addTearDown(requiredController.dispose);
+
+      await tester.pumpWidget(
+        _RequiredNameFieldWidget(
+          viewModel: requiredViewModel,
+          nameController: requiredController,
+          autovalidateMode: AutovalidateMode.onUserInteractionIfError,
+          useCurrentTextField: true,
+        ),
+      );
+
+      requiredController.synchronizeValidation(
+        markTouched: true,
+        resetTextOnRequiredFailure: false,
+      );
+      await tester.pump();
+      expect(find.text('Name is required.'), findsOneWidget);
+
+      await tester.enterText(
+        find.byKey(const Key('required-name-field')),
+        'Apollo',
+      );
+      await tester.pump();
+
+      expect(find.text('Name is required.'), findsNothing);
+      expect(requiredViewModel.nameValidation.hasIssue, isFalse);
+    });
+
+    testWidgets(
+        'CurrentTextField with AutovalidateMode.onUserInteraction shows errors without a Form',
+        (tester) async {
+      await tester.pumpWidget(
+        _ControllerValidationFieldHarness(
+          viewModel: viewModel,
+          ageController: ageController,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+        ),
+      );
+
+      await tester.enterText(
+        find.byKey(const Key('validated-age-plain-field')),
+        '-1',
+      );
+      await tester.pump();
+
+      expect(find.text('Age cannot be negative.'), findsOneWidget);
+      expect(viewModel.ageValidation.issue?.code, 'controller.age.negative');
+    });
+
+    testWidgets(
+        'CurrentTextField with AutovalidateMode.onUnfocus shows errors after blur without a Form',
+        (tester) async {
+      final requiredViewModel = _RequiredNameFormViewModel();
+      final requiredController = CurrentTextController.string();
+
+      addTearDown(requiredController.dispose);
+
+      await tester.pumpWidget(
+        _RequiredNameFieldWidget(
+          viewModel: requiredViewModel,
+          nameController: requiredController,
+          autovalidateMode: AutovalidateMode.onUnfocus,
+          useCurrentTextField: true,
+        ),
+      );
+
+      await tester.tap(find.byKey(const Key('required-name-field')));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('secondary-name-field')));
+      await tester.pump();
+
+      expect(find.text('Name is required.'), findsOneWidget);
+      expect(requiredViewModel.nameValidation.isTouched, isTrue);
+    });
   });
+}
+
+class _ControllerValidationFieldHarness
+    extends CurrentWidget<_ControllerValidationViewModel> {
+  final CurrentTextController<int> ageController;
+  final AutovalidateMode autovalidateMode;
+
+  const _ControllerValidationFieldHarness({
+    required super.viewModel,
+    required this.ageController,
+    required this.autovalidateMode,
+  });
+
+  @override
+  CurrentState<CurrentWidget<CurrentViewModel>, _ControllerValidationViewModel>
+      createCurrent() => _ControllerValidationFieldHarnessState(viewModel);
+}
+
+class _ControllerValidationFieldHarnessState extends CurrentState<
+    _ControllerValidationFieldHarness,
+    _ControllerValidationViewModel> with CurrentTextControllersLifecycleMixin {
+  _ControllerValidationFieldHarnessState(super.viewModel);
+
+  @override
+  void bindCurrentControllers() {
+    widget.ageController.bindInt(
+      property: viewModel.age,
+      lifecycleProvider: this,
+      validationBuilder: (_, __) => viewModel.ageValidation,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Column(
+          children: [
+            CurrentTextField<int>(
+              key: const Key('validated-age-plain-field'),
+              controller: widget.ageController,
+              autovalidateMode: widget.autovalidateMode,
+              validationTextResolver: _englishFormValidationText,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'Age'),
+            ),
+            const TextField(key: Key('secondary-age-field')),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+String? _englishFormValidationText(CurrentValidationIssue issue) {
+  switch (issue.code) {
+    case 'controller.age.negative':
+      return 'Age cannot be negative.';
+    case 'controller.name.required':
+      return 'Name is required.';
+  }
+
+  return issue.fallbackMessage ?? issue.code;
 }
 
 CurrentValidationIssue _japaneseRequiredIssue() {
