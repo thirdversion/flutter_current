@@ -2,10 +2,16 @@ import 'package:current/current.dart';
 import 'package:current_counter_example/mission_section.dart';
 
 class ApplicationViewModel extends CurrentViewModel {
-  final selectedSectionIndex =
-      CurrentProperty.integer(initialValue: 0, propertyName: 'selectedSection');
+  final selectedSectionIndex = CurrentProperty.integer(
+    initialValue: 0,
+    propertyName: 'selectedSection',
+  );
+
   final starfieldEnabled = CurrentProperty.boolean(
-      initialValue: true, propertyName: 'starfieldEnabled');
+    initialValue: true,
+    propertyName: 'starfieldEnabled',
+  );
+
   final missionStatus = CurrentProperty.string(
     initialValue: 'All systems nominal. Current is tracking every signal.',
     propertyName: 'missionStatus',
