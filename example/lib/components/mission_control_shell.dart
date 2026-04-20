@@ -1,20 +1,20 @@
 import 'package:current/current.dart';
 import 'package:current_counter_example/extensions.dart';
-import 'package:current_counter_example/mission_section.dart';
+import 'package:current_counter_example/components/mission_section.dart';
 import 'package:current_counter_example/space_mission_theme.dart';
 import 'package:flutter/material.dart';
 
-import 'application_view_model.dart';
+import '../application_view_model.dart';
 import 'mission_control_theme.dart';
-import 'pages/flight_forms_page.dart';
-import 'pages/launch_events_page.dart';
-import 'pages/mission_overview_page.dart';
-import 'pages/star_map_page.dart';
-import 'pages/telemetry_lab_page.dart';
-import 'view_models/flight_forms_view_model.dart';
-import 'view_models/launch_events_view_model.dart';
-import 'view_models/star_map_view_model.dart';
-import 'view_models/telemetry_lab_view_model.dart';
+import '../pages/flight_forms_page.dart';
+import '../pages/launch_events_page.dart';
+import '../pages/mission_overview_page.dart';
+import '../pages/star_map_page.dart';
+import '../pages/telemetry_lab_page.dart';
+import '../view_models/flight_forms_view_model.dart';
+import '../view_models/launch_events_view_model.dart';
+import '../view_models/star_map_view_model.dart';
+import '../view_models/telemetry_lab_view_model.dart';
 
 class MissionControlShell extends CurrentWidget<ApplicationViewModel> {
   const MissionControlShell({super.key, required super.viewModel});

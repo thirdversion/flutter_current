@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
 import 'application_view_model.dart';
-import 'mission_control_shell.dart';
+import 'components/mission_control_shell.dart';
 
 void main() {
   runApp(MyApp());

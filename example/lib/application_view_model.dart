@@ -1,5 +1,5 @@
 import 'package:current/current.dart';
-import 'package:current_counter_example/mission_section.dart';
+import 'package:current_counter_example/components/mission_section.dart';
 
 class ApplicationViewModel extends CurrentViewModel {
   final selectedSectionIndex = CurrentProperty.integer(

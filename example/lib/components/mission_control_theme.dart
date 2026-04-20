@@ -1,4 +1,4 @@
-import 'package:current_counter_example/space_backdrop_painter.dart';
+import 'package:current_counter_example/components/space_backdrop_painter.dart';
 import 'package:current_counter_example/space_mission_theme.dart';
 import 'package:flutter/material.dart';
 

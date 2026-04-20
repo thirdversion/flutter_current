@@ -2,7 +2,7 @@ import 'package:current/current.dart';
 import 'package:current_counter_example/space_mission_theme.dart';
 import 'package:flutter/material.dart';
 
-import '../mission_control_theme.dart';
+import '../components/mission_control_theme.dart';
 import '../view_models/flight_forms_view_model.dart';
 
 class FlightFormsPage extends CurrentWidget<FlightFormsViewModel> {

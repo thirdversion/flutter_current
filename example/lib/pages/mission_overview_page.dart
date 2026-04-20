@@ -1,11 +1,11 @@
 import 'package:current/current.dart';
 import 'package:current_counter_example/extensions.dart';
-import 'package:current_counter_example/mission_section.dart';
+import 'package:current_counter_example/components/mission_section.dart';
 import 'package:current_counter_example/space_mission_theme.dart';
 import 'package:flutter/material.dart';
 
 import '../application_view_model.dart';
-import '../mission_control_theme.dart';
+import '../components/mission_control_theme.dart';
 
 class MissionOverviewPage extends StatelessWidget {
   const MissionOverviewPage({super.key});
