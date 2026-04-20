@@ -14,6 +14,8 @@ extension MissionSectionMetadata on MissionSection {
         return 'Star Map Collections';
       case MissionSection.launchEvents:
         return 'Launch Events';
+      case MissionSection.codeExamples:
+        return 'Code Examples';
     }
   }
 
@@ -29,6 +31,8 @@ extension MissionSectionMetadata on MissionSection {
         return 'Collection properties tracking planets, cargo, and mission assets.';
       case MissionSection.launchEvents:
         return 'Busy states, custom events, filtered listeners, and anomaly handling.';
+      case MissionSection.codeExamples:
+        return 'Reference snippets explaining how to build with Current.';
     }
   }
 
@@ -44,6 +48,8 @@ extension MissionSectionMetadata on MissionSection {
         return Icons.public_outlined;
       case MissionSection.launchEvents:
         return Icons.rocket_launch_outlined;
+      case MissionSection.codeExamples:
+        return Icons.code_outlined;
     }
   }
 }

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import '../application_view_model.dart';
 import 'mission_control_theme.dart';
 import '../pages/flight_forms_page.dart';
+import '../pages/code_examples_page.dart';
 import '../pages/launch_events_page.dart';
 import '../pages/mission_overview_page.dart';
 import '../pages/star_map_page.dart';
@@ -35,6 +36,7 @@ class _MissionControlShellState
     FlightFormsPage(viewModel: FlightFormsViewModel()),
     StarMapPage(viewModel: StarMapViewModel()),
     LaunchEventsPage(viewModel: LaunchEventsViewModel()),
+    const CodeExamplesPage(),
   ];
 
   @override

@@ -1,6 +1,7 @@
 import 'package:current_counter_example/components/space_backdrop_painter.dart';
 import 'package:current_counter_example/space_mission_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/link.dart';
 
 class SpaceBackdrop extends StatelessWidget {
   const SpaceBackdrop({
@@ -104,12 +105,35 @@ class MissionFooterAttribution extends StatelessWidget {
             height: 34,
             fit: BoxFit.contain,
           ),
-          Text(
-            'Built with Love by Third Version Technology Ltd.',
-            textAlign: TextAlign.center,
-            style: textTheme.bodyMedium?.copyWith(
-              color: SpaceMissionTheme.textMuted,
-              fontWeight: FontWeight.w600,
+          Link(
+            uri: Uri.parse('https://thirdversion.ca'),
+            target: LinkTarget.blank,
+            builder: (context, followLink) => InkWell(
+              onTap: followLink,
+              borderRadius: BorderRadius.circular(999),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Built with ❤️ by Third Version Technology Ltd.',
+                      textAlign: TextAlign.center,
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: SpaceMissionTheme.textMuted,
+                        fontWeight: FontWeight.w600,
+                        decorationColor: SpaceMissionTheme.textMuted,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    const Icon(
+                      Icons.open_in_new_rounded,
+                      size: 16,
+                      color: SpaceMissionTheme.textMuted,
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ],

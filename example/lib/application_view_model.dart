@@ -40,6 +40,8 @@ class ApplicationViewModel extends CurrentViewModel {
         'Orbital inventory is reacting through list and map properties.',
       MissionSection.launchEvents =>
         'Mission event handlers are listening for milestones, busy states, and anomalies.',
+      MissionSection.codeExamples =>
+        'Reference snippets are online to show how Current features fit together in code.',
     };
   }
 

@@ -4,4 +4,5 @@ enum MissionSection {
   flightForms,
   starMap,
   launchEvents,
+  codeExamples,
 }

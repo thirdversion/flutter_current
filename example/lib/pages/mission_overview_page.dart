@@ -62,6 +62,17 @@ class MissionOverviewPage extends StatelessWidget {
           'Error event handlers and countdown listeners',
         ],
       ),
+      _OverviewCardData(
+        section: MissionSection.codeExamples,
+        title: 'Reference snippets',
+        description:
+            'Walk through concise examples that show how to declare a view model, bind fields, validate forms, and react to Current events.',
+        bulletPoints: const [
+          'CurrentViewModel + CurrentWidget basics',
+          'Text binding and validation examples',
+          'Collections, busy state, and event listeners',
+        ],
+      ),
     ];
 
     return SingleChildScrollView(
@@ -123,7 +134,7 @@ class MissionOverviewPage extends StatelessWidget {
                               runSpacing: 12,
                               children: const [
                                 StatusPill(
-                                  label: '5 mission modules',
+                                  label: '6 mission modules',
                                   icon: Icons.dashboard_customize_outlined,
                                 ),
                                 StatusPill(
