@@ -20,6 +20,7 @@ class _FlightFormsPageState
     with CurrentTextControllersLifecycleMixin {
   _FlightFormsPageState(super.viewModel);
 
+  final _formKey = GlobalKey<FormState>();
   final missionCodeController = CurrentTextController.string();
   final crewCountController = CurrentTextController.integer();
   final launchDateController = CurrentTextController.date();
@@ -146,87 +147,132 @@ class _FlightFormsPageState
 
   Widget _buildFormPanel(BuildContext context, bool readyForLaunch) {
     return MissionPanel(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Launch authorization input',
-              style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 16),
-          TextField(
-            controller: missionCodeController,
-            decoration: InputDecoration(
-              labelText: 'Mission code',
-              helperText: 'Try a value like ARTEMIS-2',
-              errorText: _visibleError(viewModel.missionCode.validation),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Launch authorization input',
+                style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 8),
+            Text(
+              'This panel intentionally shows both field integration styles: the wrapper widget and a plain TextFormField using controller.formValidator(...).',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: SpaceMissionTheme.textMuted,
+                  ),
             ),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: crewCountController,
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(
-              labelText: 'Crew capacity',
-              helperText: 'Digits only. Validation requires 2-8 crew.',
-              errorText: _visibleError(viewModel.crewCapacity.validation),
+            const SizedBox(height: 16),
+            Text(
+              'CurrentTextFormField wrapper',
+              style: Theme.of(context).textTheme.titleMedium,
             ),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: launchDateController,
-            decoration: InputDecoration(
-              labelText: 'Launch window',
-              helperText: 'YYYY-MM-DD',
-              errorText: _visibleError(viewModel.launchWindow.validation),
+            const SizedBox(height: 10),
+            CurrentTextFormField<String>(
+              controller: missionCodeController,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validationTextResolver: _resolveValidationText,
+              decoration: const InputDecoration(
+                labelText: 'Mission code',
+                helperText: 'Try a value like ARTEMIS-2',
+              ),
             ),
-          ),
-          const SizedBox(height: 18),
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: [
-              FilledButton.icon(
-                onPressed: () {
-                  final approved = viewModel.authorizeLaunch();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        approved
-                            ? 'Launch package approved. CurrentValidationGroup is clear.'
-                            : viewModel.validationGroup.resolveFirstIssueText(
-                                  resolver: _resolveValidationText,
-                                ) ??
-                                viewModel.submissionStatus.value,
+            const SizedBox(height: 16),
+            Text(
+              'Native TextFormField + CurrentTextController',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 10),
+            TextFormField(
+              controller: crewCountController,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: crewCountController.formValidator(
+                context: context,
+                resolver: _resolveValidationText,
+              ),
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Crew capacity',
+                helperText: 'Digits only. Validation requires 2-8 crew.',
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'CurrentTextFormField wrapper',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 10),
+            CurrentTextFormField<DateTime>(
+              controller: launchDateController,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validationTextResolver: _resolveValidationText,
+              decoration: const InputDecoration(
+                labelText: 'Launch window',
+                helperText: 'YYYY-MM-DD',
+              ),
+            ),
+            const SizedBox(height: 18),
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: [
+                FilledButton.icon(
+                  onPressed: () {
+                    final formIsValid =
+                        _formKey.currentState?.validate() ?? true;
+
+                    if (!formIsValid) {
+                      viewModel.submissionStatus.value =
+                          'Launch package still has open validation issues.';
+                    }
+
+                    final approved = formIsValid && viewModel.authorizeLaunch();
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          approved
+                              ? 'Launch package approved. CurrentValidationGroup is clear.'
+                              : _firstVisibleFormError(context) ??
+                                  viewModel.validationGroup
+                                      .resolveFirstIssueText(
+                                    resolver: _resolveValidationText,
+                                  ) ??
+                                  viewModel.submissionStatus.value,
+                        ),
                       ),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.rocket_launch_outlined),
-                label: const Text('Authorize launch'),
-              ),
-              FilledButton.tonalIcon(
-                onPressed: viewModel.loadSampleManifest,
-                icon: const Icon(Icons.playlist_add_check_circle_outlined),
-                label: const Text('Load sample manifest'),
-              ),
-              OutlinedButton.icon(
-                onPressed: viewModel.resetMissionPlan,
-                icon: const Icon(Icons.restart_alt_outlined),
-                label: const Text('Reset form'),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            readyForLaunch
-                ? 'All validation rules are satisfied. The launch package can proceed.'
-                : 'CurrentValidation metadata blocks submission until each field passes.',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: readyForLaunch
-                      ? SpaceMissionTheme.highlight
-                      : SpaceMissionTheme.textMuted,
+                    );
+                  },
+                  icon: const Icon(Icons.rocket_launch_outlined),
+                  label: const Text('Authorize launch'),
                 ),
-          ),
-        ],
+                FilledButton.tonalIcon(
+                  onPressed: viewModel.loadSampleManifest,
+                  icon: const Icon(Icons.playlist_add_check_circle_outlined),
+                  label: const Text('Load sample manifest'),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () {
+                    _formKey.currentState?.reset();
+                    viewModel.resetMissionPlan();
+                  },
+                  icon: const Icon(Icons.restart_alt_outlined),
+                  label: const Text('Reset form'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              readyForLaunch
+                  ? 'All validation rules are satisfied. The launch package can proceed.'
+                  : 'CurrentValidation metadata blocks submission until each field passes.',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: readyForLaunch
+                        ? SpaceMissionTheme.highlight
+                        : SpaceMissionTheme.textMuted,
+                  ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -301,13 +347,19 @@ class _FlightFormsPageState
     );
   }
 
-  static String? _visibleError(CurrentFieldValidation<dynamic> validation) {
-    if (validation.hasIssue &&
-        (validation.isTouched || validation.hasValidated)) {
-      return validation.resolveIssueText(resolver: _resolveValidationText);
-    }
-
-    return null;
+  String? _firstVisibleFormError(BuildContext context) {
+    return missionCodeController.visibleErrorText(
+          context: context,
+          resolver: _resolveValidationText,
+        ) ??
+        crewCountController.visibleErrorText(
+          context: context,
+          resolver: _resolveValidationText,
+        ) ??
+        launchDateController.visibleErrorText(
+          context: context,
+          resolver: _resolveValidationText,
+        );
   }
 
   // Basic example of a validation text resolver that could be used to map issue codes to user-friendly messages or localized strings.

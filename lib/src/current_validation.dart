@@ -442,6 +442,23 @@ class CurrentFieldValidation<T> implements CurrentViewModelBinding {
     return this;
   }
 
+  /// Evaluates the configured rules against [value] without mutating state.
+  ///
+  /// This is useful for integrations such as [FormField.validator], where the
+  /// current issue text is needed immediately but validation state updates
+  /// should happen outside the widget build phase.
+  CurrentValidationIssue? issueForValue(T value) {
+    for (final rule in _rules) {
+      final result = rule(value);
+
+      if (result != null) {
+        return result;
+      }
+    }
+
+    return null;
+  }
+
   /// Runs the validator rules against the current property value.
   ///
   /// Returns the updated [CurrentValidationState].
@@ -452,16 +469,7 @@ class CurrentFieldValidation<T> implements CurrentViewModelBinding {
   /// This method emits a [CurrentValidationChanged] event when the validation
   /// metadata changes.
   CurrentValidationState validate({bool markTouched = false}) {
-    CurrentValidationIssue? issue;
-
-    for (final rule in _rules) {
-      final result = rule(property.value);
-
-      if (result != null) {
-        issue = result;
-        break;
-      }
-    }
+    final issue = issueForValue(property.value);
 
     final nextState = _state.copyWith(
       issue: issue,

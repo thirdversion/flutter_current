@@ -163,6 +163,7 @@ class _ProfilePageState extends CurrentState<ProfilePage, ProfileViewModel>
     with CurrentTextControllersLifecycleMixin {
   _ProfilePageState(super.viewModel);
 
+  final _formKey = GlobalKey<FormState>();
   final displayNameController = CurrentTextController.string();
   final ageController = CurrentTextController.integer();
 
@@ -207,18 +208,35 @@ class _ProfilePageState extends CurrentState<ProfilePage, ProfileViewModel>
     );
   }
 
-  String? fieldError(CurrentProperty<dynamic> property, BuildContext context) {
-    final validation = property.tryGetValidation();
-
-    if (validation != null &&
-        (validation.isTouched || validation.hasValidated)) {
-      return validation.resolveIssueText(
-        context: context,
-        resolver: _resolveIssueText,
-      );
-    }
-
-    return null;
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+      key: _formKey,
+      child: Column(
+        children: [
+          CurrentTextFormField<String>(
+            controller: displayNameController,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            validationTextResolver: _resolveIssueText,
+            decoration: const InputDecoration(labelText: 'Display name'),
+          ),
+          CurrentTextFormField<int>(
+            controller: ageController,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            validationTextResolver: _resolveIssueText,
+            decoration: const InputDecoration(labelText: 'Age'),
+          ),
+          FilledButton(
+            onPressed: () {
+              if (_formKey.currentState?.validate() ?? false) {
+                // Submit the form.
+              }
+            },
+            child: const Text('Save profile'),
+          ),
+        ],
+      ),
+    );
   }
 
   static String? _resolveIssueText(CurrentValidationIssue issue) {
@@ -247,6 +265,7 @@ Key points:
 
 - Register validation once, either by calling `createValidation()` directly or by supplying `validationBuilder` when binding a controller.
 - Use `CurrentValidationGroup.forProperties([...])` when you want grouped validation without separately listing validators.
+- Use `TextFormField` with `controller.formValidator(...)`, or use `CurrentTextFormField` for a zero-boilerplate Current wrapper.
 - Let widgets resolve issue text either through a resolver or through `BuildContext` when your localization API requires it.
 - Use `CurrentTextControllerValidationIssues` for controller-generated parse or required-value failures.
 - Validation rules can live in the widget, the view model, or in a separate plain-Dart helper file when that keeps a larger form easier to read.

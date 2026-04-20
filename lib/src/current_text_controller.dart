@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:current/current.dart';
 import 'package:current/src/current_exceptions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// A TextEditingController that is bound to a CurrentProperty.
 ///
@@ -104,6 +105,9 @@ typedef CurrentTextControllerValidationBuilder<T> = CurrentFieldValidation<T>?
   CurrentProperty<T> property,
   BuildContext context,
 );
+
+/// Builds a [FormFieldValidator] from a [CurrentTextController].
+typedef CurrentTextControllerFormValidatorBuilder = FormFieldValidator<String>?;
 
 /// Supplies controller-generated validation issues for [CurrentTextController].
 ///
@@ -297,6 +301,11 @@ final class CurrentTextController<T> extends TextEditingController {
   bool _hasDefaultValue = false;
   bool _isSyncingText = false;
   bool _treatTextAsStringValue = false;
+  bool _validationSyncScheduled = false;
+
+  /// Whether the controller is currently applying a synchronized text update
+  /// from the bound property.
+  bool get isSynchronizingText => _isSyncingText;
 
   CurrentTextControllersLifecycleMixin? _lifecycleProvider;
 
@@ -647,6 +656,85 @@ final class CurrentTextController<T> extends TextEditingController {
     );
   }
 
+  /// Resolves the currently visible validation error for text-field style
+  /// widgets that still use `InputDecoration.errorText` directly.
+  ///
+  /// This keeps the legacy TextField path to a single expression instead of
+  /// forcing each widget to inspect touched and validated state manually.
+  String? visibleErrorText({
+    BuildContext? context,
+    CurrentValidationIssueTextResolver? resolver,
+  }) {
+    final currentValidation = _validation;
+
+    if (currentValidation == null ||
+        !currentValidation.hasIssue ||
+        !(currentValidation.isTouched || currentValidation.hasValidated)) {
+      return null;
+    }
+
+    return currentValidation.resolveIssueText(
+      context: context,
+      resolver: resolver,
+    );
+  }
+
+  /// Computes the current validation issue for the controller text without
+  /// mutating validation state.
+  CurrentValidationIssue? previewValidationIssue() {
+    return _computeValidationIssueForText();
+  }
+
+  /// Synchronizes validation metadata with the controller's current text.
+  ///
+  /// This is useful for wrapper widgets that need TextField-style validation
+  /// behavior outside Flutter's built-in [Form] pipeline.
+  void synchronizeValidation({
+    bool markTouched = true,
+    bool resetTextOnRequiredFailure = true,
+  }) {
+    if (_property == null) {
+      return;
+    }
+
+    _syncValidationFromCurrentText(
+      resetTextOnRequiredFailure: resetTextOnRequiredFailure,
+      markTouched: markTouched,
+    );
+  }
+
+  /// Creates a stock Flutter [FormField.validator] callback for this
+  /// controller.
+  ///
+  /// Use this with [TextFormField] when you want Current to drive validation
+  /// while still using Flutter's native form widgets and
+  /// [AutovalidateMode] behavior.
+  FormFieldValidator<String>? formValidator({
+    BuildContext? context,
+    CurrentValidationIssueTextResolver? resolver,
+    bool markTouched = true,
+  }) {
+    final currentValidation = _validation;
+
+    if (currentValidation == null) {
+      return null;
+    }
+
+    return (_) {
+      final issue = _computeValidationIssueForText() ?? currentValidation.issue;
+      final shouldSync = markTouched &&
+          (!currentValidation.hasValidated ||
+              !currentValidation.isTouched ||
+              currentValidation.issue != issue);
+
+      if (shouldSync) {
+        _scheduleValidationSync(markTouched: markTouched);
+      }
+
+      return issue?.resolveText(context: context, resolver: resolver);
+    };
+  }
+
   void _setText({bool selectAll = false}) {
     final boundProperty = _property;
 
@@ -683,7 +771,66 @@ final class CurrentTextController<T> extends TextEditingController {
       return;
     }
 
-    _validation?.markTouched();
+    _syncValidationFromCurrentText(resetTextOnRequiredFailure: true);
+  }
+
+  CurrentValidationIssue? _computeValidationIssueForText() {
+    final currentValidation = _validation;
+
+    if (currentValidation == null) {
+      return null;
+    }
+
+    final parseResult = _tryParseText(text);
+
+    if (!parseResult.shouldUpdate &&
+        text.isEmpty &&
+        !_isNullable &&
+        !_hasDefaultValue) {
+      return _resolvedValidationIssues.requiredValueIssue();
+    }
+
+    if (!parseResult.shouldUpdate) {
+      return _resolvedValidationIssues.invalidValueIssue(text);
+    }
+
+    return currentValidation.issueForValue(parseResult.value);
+  }
+
+  void _scheduleValidationSync({required bool markTouched}) {
+    if (_validation == null || _validationSyncScheduled) {
+      return;
+    }
+
+    _validationSyncScheduled = true;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _validationSyncScheduled = false;
+
+      if (_validation == null || _property == null) {
+        return;
+      }
+
+      _syncValidationFromCurrentText(
+        resetTextOnRequiredFailure: false,
+        markTouched: markTouched,
+      );
+    });
+  }
+
+  void _syncValidationFromCurrentText({
+    required bool resetTextOnRequiredFailure,
+    bool markTouched = true,
+  }) {
+    final boundProperty = _property;
+
+    if (boundProperty == null) {
+      return;
+    }
+
+    if (markTouched) {
+      _validation?.markTouched();
+    }
 
     final parseResult = _tryParseText(text);
 
@@ -694,7 +841,11 @@ final class CurrentTextController<T> extends TextEditingController {
       _setControllerValidationError(
         _resolvedValidationIssues.requiredValueIssue(),
       );
-      _setText(selectAll: true);
+
+      if (resetTextOnRequiredFailure) {
+        _setText(selectAll: true);
+      }
+
       return;
     }
 
@@ -706,12 +857,12 @@ final class CurrentTextController<T> extends TextEditingController {
     }
 
     if (parseResult.value == boundProperty.value) {
-      _validation?.validate(markTouched: true);
+      _validation?.validate(markTouched: markTouched);
       return;
     }
 
     boundProperty.value = parseResult.value;
-    _validation?.validate(markTouched: true);
+    _validation?.validate(markTouched: markTouched);
   }
 
   ({bool shouldUpdate, T? value}) _tryParseText(String text) {
@@ -796,6 +947,7 @@ final class CurrentTextController<T> extends TextEditingController {
     _subscription = null;
     _validation = null;
     _validationIssues = null;
+    _validationSyncScheduled = false;
     super.dispose();
   }
 
@@ -809,6 +961,397 @@ final class CurrentTextController<T> extends TextEditingController {
     return CurrentValidationIssue.invalidValue(
       fallbackMessage: 'Invalid value.',
       arguments: {'text': text},
+    );
+  }
+}
+
+/// A convenience [TextFormField] wired to a [CurrentTextController].
+///
+/// This keeps Flutter's native form behavior and [AutovalidateMode] behavior
+/// while delegating property synchronization and validation to Current.
+class CurrentTextFormField<T> extends StatelessWidget {
+  const CurrentTextFormField({
+    super.key,
+    required this.controller,
+    this.validationTextResolver,
+    this.autovalidateMode,
+    this.decoration = const InputDecoration(),
+    this.focusNode,
+    this.keyboardType,
+    this.textInputAction,
+    this.textCapitalization = TextCapitalization.none,
+    this.textAlign = TextAlign.start,
+    this.style,
+    this.readOnly = false,
+    this.enabled,
+    this.autofocus = false,
+    this.obscureText = false,
+    this.minLines,
+    this.maxLines = 1,
+    this.maxLength,
+    this.expands = false,
+    this.inputFormatters,
+    this.onChanged,
+    this.onFieldSubmitted,
+    this.onTap,
+  });
+
+  final CurrentTextController<T> controller;
+  final CurrentValidationIssueTextResolver? validationTextResolver;
+  final AutovalidateMode? autovalidateMode;
+  final InputDecoration decoration;
+  final FocusNode? focusNode;
+  final TextInputType? keyboardType;
+  final TextInputAction? textInputAction;
+  final TextCapitalization textCapitalization;
+  final TextAlign textAlign;
+  final TextStyle? style;
+  final bool readOnly;
+  final bool? enabled;
+  final bool autofocus;
+  final bool obscureText;
+  final int? minLines;
+  final int? maxLines;
+  final int? maxLength;
+  final bool expands;
+  final List<TextInputFormatter>? inputFormatters;
+  final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onFieldSubmitted;
+  final GestureTapCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: controller,
+      focusNode: focusNode,
+      keyboardType: keyboardType,
+      textInputAction: textInputAction,
+      textCapitalization: textCapitalization,
+      textAlign: textAlign,
+      style: style,
+      readOnly: readOnly,
+      enabled: enabled,
+      autofocus: autofocus,
+      obscureText: obscureText,
+      minLines: minLines,
+      maxLines: maxLines,
+      maxLength: maxLength,
+      expands: expands,
+      inputFormatters: inputFormatters,
+      decoration: decoration,
+      autovalidateMode: autovalidateMode,
+      validator: controller.formValidator(
+        context: context,
+        resolver: validationTextResolver,
+      ),
+      onChanged: onChanged,
+      onFieldSubmitted: onFieldSubmitted,
+      onTap: onTap,
+    );
+  }
+}
+
+/// A convenience [TextField] wired to a [CurrentTextController].
+///
+/// This is useful when you want Current-managed field validation without using
+/// Flutter's [Form] widgets. Validation visibility is controlled locally using
+/// [AutovalidateMode]-style behaviors.
+class CurrentTextField<T> extends StatefulWidget {
+  const CurrentTextField({
+    super.key,
+    required this.controller,
+    this.validationTextResolver,
+    this.autovalidateMode = AutovalidateMode.disabled,
+    this.decoration = const InputDecoration(),
+    this.focusNode,
+    this.keyboardType,
+    this.textInputAction,
+    this.textCapitalization = TextCapitalization.none,
+    this.textAlign = TextAlign.start,
+    this.style,
+    this.readOnly = false,
+    this.enabled,
+    this.autofocus = false,
+    this.obscureText = false,
+    this.minLines,
+    this.maxLines = 1,
+    this.maxLength,
+    this.expands = false,
+    this.inputFormatters,
+    this.onChanged,
+    this.onSubmitted,
+    this.onTap,
+  });
+
+  final CurrentTextController<T> controller;
+  final CurrentValidationIssueTextResolver? validationTextResolver;
+  final AutovalidateMode autovalidateMode;
+  final InputDecoration decoration;
+  final FocusNode? focusNode;
+  final TextInputType? keyboardType;
+  final TextInputAction? textInputAction;
+  final TextCapitalization textCapitalization;
+  final TextAlign textAlign;
+  final TextStyle? style;
+  final bool readOnly;
+  final bool? enabled;
+  final bool autofocus;
+  final bool obscureText;
+  final int? minLines;
+  final int? maxLines;
+  final int? maxLength;
+  final bool expands;
+  final List<TextInputFormatter>? inputFormatters;
+  final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onSubmitted;
+  final GestureTapCallback? onTap;
+
+  @override
+  State<CurrentTextField<T>> createState() => _CurrentTextFieldState<T>();
+}
+
+class _CurrentTextFieldState<T> extends State<CurrentTextField<T>> {
+  StreamSubscription<CurrentValidationChanged>? _validationSubscription;
+  FocusNode? _ownedFocusNode;
+  bool _hasInteracted = false;
+  bool _hasLostFocusOnce = false;
+  bool _revalidateOnInteractionAfterError = false;
+  String _lastObservedText = '';
+
+  FocusNode get _focusNode => widget.focusNode ?? _ownedFocusNode!;
+
+  @override
+  void initState() {
+    super.initState();
+    _lastObservedText = widget.controller.text;
+    _attachFocusNode();
+    widget.controller.addListener(_handleControllerChanged);
+    _subscribeToValidationChanges();
+    _scheduleAlwaysValidationIfNeeded();
+  }
+
+  @override
+  void didUpdateWidget(covariant CurrentTextField<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (!identical(oldWidget.controller, widget.controller)) {
+      oldWidget.controller.removeListener(_handleControllerChanged);
+      widget.controller.addListener(_handleControllerChanged);
+      _lastObservedText = widget.controller.text;
+      _subscribeToValidationChanges();
+    }
+
+    if (!identical(oldWidget.focusNode, widget.focusNode)) {
+      _detachFocusNode(oldWidget.focusNode);
+      _attachFocusNode();
+    }
+
+    if (oldWidget.autovalidateMode != widget.autovalidateMode) {
+      _scheduleAlwaysValidationIfNeeded();
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_handleControllerChanged);
+    _validationSubscription?.cancel();
+    _detachFocusNode(widget.focusNode);
+    super.dispose();
+  }
+
+  void _attachFocusNode() {
+    if (widget.focusNode == null) {
+      _ownedFocusNode ??= FocusNode();
+    }
+
+    _focusNode.addListener(_handleFocusChanged);
+  }
+
+  void _detachFocusNode(FocusNode? explicitFocusNode) {
+    final focusNode = explicitFocusNode ?? _ownedFocusNode;
+
+    if (focusNode == null) {
+      return;
+    }
+
+    focusNode.removeListener(_handleFocusChanged);
+
+    if (explicitFocusNode == null) {
+      focusNode.dispose();
+      _ownedFocusNode = null;
+    }
+  }
+
+  void _subscribeToValidationChanges() {
+    _validationSubscription?.cancel();
+
+    final validation = widget.controller.validation;
+
+    if (validation == null) {
+      return;
+    }
+
+    _validationSubscription = validation.property.viewModel
+        .addStateChangedListener<CurrentValidationChanged>(
+      (_) {
+        if (!mounted) {
+          return;
+        }
+
+        if (validation.hasIssue) {
+          _revalidateOnInteractionAfterError = true;
+        }
+
+        setState(() {});
+      },
+      filter: (event) =>
+          event.validationSourceHashCode == validation.validationSourceHashCode,
+    );
+  }
+
+  void _scheduleAlwaysValidationIfNeeded() {
+    if (widget.autovalidateMode != AutovalidateMode.always) {
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || widget.autovalidateMode != AutovalidateMode.always) {
+        return;
+      }
+
+      widget.controller.synchronizeValidation(
+        markTouched: false,
+        resetTextOnRequiredFailure: false,
+      );
+
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
+  void _handleControllerChanged() {
+    final textChanged = widget.controller.text != _lastObservedText;
+    _lastObservedText = widget.controller.text;
+
+    if (!mounted) {
+      return;
+    }
+
+    if (widget.controller.isSynchronizingText || !textChanged) {
+      setState(() {});
+      return;
+    }
+
+    if (_focusNode.hasFocus) {
+      _hasInteracted = true;
+    }
+
+    switch (widget.autovalidateMode) {
+      case AutovalidateMode.disabled:
+        setState(() {});
+        break;
+      case AutovalidateMode.always:
+        widget.controller.synchronizeValidation(markTouched: true);
+        setState(() {});
+        break;
+      case AutovalidateMode.onUserInteraction:
+        widget.controller.synchronizeValidation(markTouched: true);
+        setState(() {});
+        break;
+      case AutovalidateMode.onUnfocus:
+        setState(() {});
+        break;
+      case AutovalidateMode.onUserInteractionIfError:
+        if (_revalidateOnInteractionAfterError ||
+            (widget.controller.validation?.hasIssue ?? false)) {
+          widget.controller.synchronizeValidation(markTouched: true);
+        }
+        setState(() {});
+        break;
+    }
+  }
+
+  void _handleFocusChanged() {
+    if (!mounted) {
+      return;
+    }
+
+    if (!_focusNode.hasFocus) {
+      _hasLostFocusOnce = true;
+
+      if (widget.autovalidateMode == AutovalidateMode.onUnfocus) {
+        widget.controller.synchronizeValidation(markTouched: true);
+      }
+    }
+
+    setState(() {});
+  }
+
+  String? _resolvedErrorText(BuildContext context) {
+    final resolver = widget.validationTextResolver;
+
+    switch (widget.autovalidateMode) {
+      case AutovalidateMode.disabled:
+        return widget.controller.visibleErrorText(
+          context: context,
+          resolver: resolver,
+        );
+      case AutovalidateMode.always:
+        return widget.controller.visibleErrorText(
+          context: context,
+          resolver: resolver,
+        );
+      case AutovalidateMode.onUserInteraction:
+        return _hasInteracted
+            ? widget.controller.visibleErrorText(
+                context: context,
+                resolver: resolver,
+              )
+            : null;
+      case AutovalidateMode.onUnfocus:
+        return _hasLostFocusOnce
+            ? widget.controller.visibleErrorText(
+                context: context,
+                resolver: resolver,
+              )
+            : null;
+      case AutovalidateMode.onUserInteractionIfError:
+        return _revalidateOnInteractionAfterError ||
+                (widget.controller.validation?.hasIssue ?? false)
+            ? widget.controller.visibleErrorText(
+                context: context,
+                resolver: resolver,
+              )
+            : null;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: widget.controller,
+      focusNode: _focusNode,
+      keyboardType: widget.keyboardType,
+      textInputAction: widget.textInputAction,
+      textCapitalization: widget.textCapitalization,
+      textAlign: widget.textAlign,
+      style: widget.style,
+      readOnly: widget.readOnly,
+      enabled: widget.enabled,
+      autofocus: widget.autofocus,
+      obscureText: widget.obscureText,
+      minLines: widget.minLines,
+      maxLines: widget.maxLines,
+      maxLength: widget.maxLength,
+      expands: widget.expands,
+      inputFormatters: widget.inputFormatters,
+      decoration: widget.decoration.copyWith(
+        errorText: _resolvedErrorText(context),
+      ),
+      onChanged: widget.onChanged,
+      onSubmitted: widget.onSubmitted,
+      onTap: widget.onTap,
     );
   }
 }

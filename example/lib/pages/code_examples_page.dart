@@ -295,7 +295,7 @@ class _MissionPageState extends CurrentState<MissionPage, MissionViewModel> {
       'Use memoized getters instead of late final for validators and validation groups.',
       'Validation rules can live in the widget, the view model, or in a separate plain-Dart helper file.',
       'Create validation once through property.createValidation or validationBuilder, then read it back from the property.',
-      'Use controller validation issues for parse and required-value feedback, then resolve display text in the page.',
+      'Use TextFormField with controller.formValidator(...) or CurrentTextFormField to let the library drive field errors.',
       'Use contextTextBuilder on CurrentValidationIssue when your localization API needs BuildContext.',
     ],
     icon: Icons.fact_check_outlined,
@@ -314,10 +314,11 @@ void bindCurrentControllers() {
   );
 }
 
-String? visibleError(CurrentProperty<String> property, BuildContext context) {
-  return property.validation.resolveIssueText(
-    context: context,
-    resolver: _resolveValidationText,
+Widget build(BuildContext context) {
+  return CurrentTextFormField<String>(
+    controller: missionCodeController,
+    autovalidateMode: AutovalidateMode.onUserInteraction,
+    validationTextResolver: _resolveValidationText,
   );
 }''',
   ),
