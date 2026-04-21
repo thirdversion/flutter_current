@@ -766,8 +766,8 @@ void main() {
       viewModel = _AdditionalTypesViewModel();
       titleController = CurrentTextController.string();
       nullableTitleController = CurrentTextController.nullableString();
-      eventDateController = CurrentTextController.date();
-      nullableEventDateController = CurrentTextController.nullableDate();
+      eventDateController = CurrentTextController.dateTime();
+      nullableEventDateController = CurrentTextController.nullableDateTime();
       customObjectController = CurrentTextController.of<_TestCustomObject>();
     });
 

@@ -23,7 +23,7 @@ class _FlightFormsPageState
   final _formKey = GlobalKey<FormState>();
   final missionCodeController = CurrentTextController.string();
   final crewCountController = CurrentTextController.integer();
-  final launchDateController = CurrentTextController.date();
+  final launchDateController = CurrentTextController.dateTime();
 
   @override
   void bindCurrentControllers() {

@@ -15,7 +15,7 @@ import 'package:flutter/services.dart';
 ///
 /// [CurrentTextController.integer], [CurrentTextController.nullableInteger],
 ///
-/// [CurrentTextController.date], and [CurrentTextController.nullableDate]
+/// [CurrentTextController.dateTime], and [CurrentTextController.nullableDateTime]
 ///
 /// These are provided for convenience when working with common types, but you can also use [CurrentTextController.of] to create a controller for any type.
 ///
@@ -349,7 +349,7 @@ final class CurrentTextController<T> extends TextEditingController {
   /// **IMPORTANT**: You still must call either the [bind] or the [bindDateTime]
   /// in the [CurrentTextControllersLifecycleMixin.bindCurrentControllers] method to initialize the controller and bind it to a CurrentProperty.
   /// The factory constructor only creates an instance of the controller, but does not configure it in any way.
-  static CurrentTextController<DateTime> date() =>
+  static CurrentTextController<DateTime> dateTime() =>
       CurrentTextController<DateTime>._();
 
   /// Factory constructor to create a CurrentTextController for a nullable DateTime property.
@@ -357,7 +357,7 @@ final class CurrentTextController<T> extends TextEditingController {
   /// **IMPORTANT**: You still must call either the [bind] or the [bindDateTime]
   /// in the [CurrentTextControllersLifecycleMixin.bindCurrentControllers] method to initialize the controller and bind it to a CurrentProperty.
   /// The factory constructor only creates an instance of the controller, but does not configure it in any way.
-  static CurrentTextController<DateTime?> nullableDate() =>
+  static CurrentTextController<DateTime?> nullableDateTime() =>
       CurrentTextController<DateTime?>._();
 
   /// Factory constructor to create a CurrentTextController for a type specified by the generic parameter [T].
