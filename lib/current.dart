@@ -7,3 +7,4 @@ export 'src/current_view_model.dart';
 export 'src/current_widget.dart';
 export 'src/current_cloneable.dart';
 export 'src/current_text_controller.dart';
+export 'src/current_validation.dart';

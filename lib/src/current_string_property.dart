@@ -30,6 +30,13 @@ class CurrentStringProperty extends CurrentProperty<String> {
   /// The length of the string value.
   int get length => _value.length;
 
+  /// Sets the string value to an empty string.
+  ///
+  /// This is a convenience method for the common case of clearing a string value, such as form inputs.
+  /// It is equivalent to setting `value = ''`, but more concise and semantically clear, and allows
+  /// for function tear-off.
+  void toEmpty() => value = '';
+
   /// Whether the string value contains a match of [other].
   ///
   /// Example:
@@ -89,6 +96,12 @@ class CurrentNullableStringProperty extends CurrentProperty<String?> {
   ///
   /// Returns 0 if the string value is null
   int get length => _value?.length ?? 0;
+
+  /// Sets the string value to null.
+  ///
+  /// This is a convenience method for the common case of clearing a string value to null, such as form inputs, when using a nullable string property.
+  /// It is equivalent to setting `value = null`, but more concise and semantically clear, and allows for function tear-off.
+  void toNull() => value = null;
 
   /// Whether the string value contains a match of [other].
   ///

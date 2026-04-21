@@ -5,6 +5,21 @@ import 'package:flutter/foundation.dart';
 
 import 'current_property.dart';
 
+/// Contract for helper objects that need to attach themselves to a
+/// [CurrentViewModel] after all [CurrentProperty] values have been initialized.
+///
+/// Generic helper implementations can be exposed from
+/// [CurrentViewModel.currentBindings]. Validation no longer depends on this
+/// mechanism in the common path because property-owned validators can
+/// register and attach themselves directly.
+abstract class CurrentViewModelBinding {
+  /// Attaches this helper to its owning [CurrentViewModel].
+  ///
+  /// This is called automatically from the [CurrentViewModel] constructor after
+  /// all [currentProps] have been associated with the view model.
+  void attachToViewModel();
+}
+
 ///A ViewModel is an abstraction of the view it is bound to and represents the current state of
 ///the data in your model.
 ///
@@ -59,12 +74,55 @@ abstract class CurrentViewModel {
     for (var element in currentProps) {
       element.setViewModel(this);
     }
+
+    for (final binding in currentBindings) {
+      binding.attachToViewModel();
+    }
   }
 
   ///Provides a list of [CurrentProperty] fields in the [CurrentViewModel].
   ///
   ///Properties on the implementation must be added to this list in order to be reactive and update the UI on change.
   Iterable<CurrentProperty> get currentProps;
+
+  /// Provides a list of helper bindings that should attach after the view model
+  /// has assigned itself to all [currentProps].
+  ///
+  /// This is useful for helper types that depend on [CurrentProperty.viewModel]
+  /// being available before they can subscribe to state changes or emit their
+  /// own metadata events.
+  ///
+  /// This remains the low-level generic extension point for attachable helper
+  /// objects. Validation no longer requires overriding this getter in the
+  /// common path because validators can register themselves directly on the
+  /// property they validate.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// class AnalyticsBinding implements CurrentViewModelBinding {
+  ///   bool attached = false;
+  ///
+  ///   @override
+  ///   void attachToViewModel() {
+  ///     attached = true;
+  ///   }
+  /// }
+  ///
+  /// class DashboardViewModel extends CurrentViewModel {
+  ///   final title = CurrentStringProperty('Home', propertyName: 'title');
+  ///   final analyticsBinding = AnalyticsBinding();
+  ///
+  ///   @override
+  ///   Iterable<CurrentProperty> get currentProps => [title];
+  ///
+  ///   @override
+  ///   Iterable<CurrentViewModelBinding> get currentBindings => [
+  ///         analyticsBinding,
+  ///       ];
+  /// }
+  /// ```
+  Iterable<CurrentViewModelBinding> get currentBindings => const [];
 
   ///Creates associates the view model with a specific [CurrentState] via the states hash code.
   ///
@@ -326,8 +384,8 @@ abstract class CurrentViewModel {
   ///Example:
   ///```dart
   ///Future<void> loadUsers() async {
-  ///    final users = await doAsync<User>(
-  ///      () async => await userService.getAll(),
+  ///    final users = await doAsync(
+  ///      () => userService.getAll(),
   ///      busyTaskKey: 'loadingUsers'
   ///    );
   ///}

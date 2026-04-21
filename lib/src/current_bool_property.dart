@@ -43,6 +43,12 @@ class CurrentNullableBoolProperty extends CurrentProperty<bool?> {
   ///Whether the underlying value is not null and false
   bool get isFalse => isNotNull && _value == false;
 
+  /// Sets the value to null
+  ///
+  /// This is a convenience method for the common case of clearing a bool value to null, such as form inputs, when using a nullable bool property.
+  /// It is equivalent to setting `value = null`, but more concise and semantically clear, and allows for function tear-off.
+  void toNull() => value = null;
+
   ///Sets the value to true
   void setTrue({bool notifyChange = true}) =>
       super.set(true, notifyChange: notifyChange);

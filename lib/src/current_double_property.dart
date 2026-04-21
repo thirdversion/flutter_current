@@ -36,6 +36,12 @@ class CurrentDoubleProperty extends CurrentProperty<double> {
   /// Whether this number is negative.
   bool get isNegative => _value.isNegative;
 
+  /// Sets the double value to zero.
+  ///
+  /// This is a convenience method for the common case of clearing a double value to zero, such as form inputs.
+  /// It is equivalent to setting `value = 0`, but more concise and semantically clear, and allows for function tear-off.
+  void toZero() => value = 0.0;
+
   /// Truncates the double value and returns the int
   int toInt() => _value.toInt();
 
@@ -193,6 +199,12 @@ class CurrentNullableDoubleProperty extends CurrentProperty<double?> {
   ///
   /// Returns false if the double value is null
   bool get isNegative => _value?.isNegative ?? false;
+
+  /// Sets the double value to zero.
+  ///
+  /// This is a convenience method for the common case of clearing a double value to zero, such as form inputs.
+  /// It is equivalent to setting `value = 0`, but more concise and semantically clear, and allows for function tear-off.
+  void toNull() => value = null;
 
   /// Truncates the double value and returns the int
   ///
