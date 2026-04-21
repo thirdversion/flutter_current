@@ -210,6 +210,18 @@ class CurrentDateTimeProperty extends CurrentProperty<DateTime> {
   /// UTC.
   Duration get timeZoneOffset => _value.timeZoneOffset;
 
+  /// Sets the DateTime value to the current date and time.
+  ///
+  /// This is a convenience method for the common case of setting a DateTime property to the current date and time, such as form inputs.
+  /// It is equivalent to setting `value = DateTime.now()`, but more concise and semantically clear, and allows for function tear-off.
+  void toNow() => value = DateTime.now();
+
+  /// Sets the DateTime value to the current date and time in UTC.
+  ///
+  /// This is a convenience method for the common case of setting a DateTime property to the current date and time in UTC, such as form inputs.
+  /// It is equivalent to setting `value = DateTime.now().toUtc()`, but more concise and semantically clear, and allows for function tear-off.
+  void toNowUtc() => value = DateTime.now().toUtc();
+
   /// Returns true if this [CurrentDateTimeProperty] occurs before [other].
   ///
   /// The comparison is independent
@@ -615,6 +627,12 @@ class CurrentNullableDateTimeProperty extends CurrentProperty<DateTime?> {
   /// local time. Java, C# and Ruby return the difference between local time and
   /// UTC.
   Duration? get timeZoneOffset => _value?.timeZoneOffset;
+
+  /// Sets the value to null
+  ///
+  /// This is a convenience method for the common case of setting a DateTime property to null, such as form inputs.
+  /// It is equivalent to setting `value = null`, but more concise and semantically clear, and allows for function tear-off.
+  void toNull() => value = null;
 
   /// Returns true if this [CurrentNullableDateTimeProperty] occurs before [other].
   ///
