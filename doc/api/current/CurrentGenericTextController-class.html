@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the CurrentTextController class from the current library, for the Dart programming language.">
-  <title>CurrentTextController class - current library - Dart API</title>
+  <meta name="description" content="API docs for the CurrentGenericTextController class from the current library, for the Dart programming language.">
+  <title>CurrentGenericTextController class - current library - Dart API</title>
 
 
   
@@ -26,9 +26,9 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">current</a></li>
     <li><a href="../current/">current.dart</a></li>
-    <li class="self-crumb">CurrentTextController<span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span> class</li>
+    <li class="self-crumb">CurrentGenericTextController<span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span> class</li>
   </ol>
-  <div class="self-name">CurrentTextController</div>
+  <div class="self-name">CurrentGenericTextController</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -46,33 +46,17 @@
     id="dartdoc-main-content"
     class="main-content"
     data-above-sidebar="current&#47;current-library-sidebar.html"
-    data-below-sidebar="current&#47;CurrentTextController-class-sidebar.html">
+    data-below-sidebar="current&#47;CurrentGenericTextController-class-sidebar.html">
     <div>
-<h1><span class="kind-class">CurrentTextController&lt;<wbr><span class="type-parameter">T</span>&gt;</span> class 
+<h1><span class="kind-class">CurrentGenericTextController&lt;<wbr><span class="type-parameter">T extends Object</span>&gt;</span> class 
+    <a href="https://dart.dev/language/class-modifiers#final" class="feature feature-final" title="This class can neither be extended, implemented, nor mixed in.">final</a>
  
 </h1></div>
 
     
 <section class="desc markdown">
-  <p>A <a href="https://api.flutter.dev/flutter/widgets/TextEditingController-class.html">TextEditingController</a> that keeps a <a href="../current/CurrentProperty-class.html">CurrentProperty</a> and a text field in
-sync.</p>
-<p><a href="../current/CurrentTextController-class.html">CurrentTextController</a> is intended to remove the repetitive plumbing around
-reading, formatting, parsing, and writing text-field state when working with
-<a href="../current/CurrentProperty-class.html">CurrentProperty</a> values.</p>
-<p>The controller supports:</p>
-<ul>
-<li>String bindings to keep controller text in sync with the property's value</li>
-<li>non-String bindings through a <a href="../current/CurrentTextController/fromString.html">fromString</a> parser</li>
-<li>custom display formatting through <a href="../current/CurrentTextController/asString.html">asString</a></li>
-<li>default values for cleared non-nullable fields</li>
-<li>optional validation through <a href="../current/CurrentFieldValidation-class.html">CurrentFieldValidation</a></li>
-<li>localized controller-generated validation issues through
-<a href="../current/CurrentTextControllerValidationIssues-class.html">CurrentTextControllerValidationIssues</a></li>
-</ul>
-<p>This controller does not replace your field validators. Instead, it fills in
-the gap between raw text editing and property-level validation by surfacing
-validation metadata for failures that occur before property-level validation,
-such as parse errors.</p>
+  <p>A <a href="../current/CurrentTextController-class.html">CurrentTextController</a> that is bindable to a <a href="../current/CurrentProperty-class.html">CurrentProperty</a> of type <code>T</code>.</p>
+<p>Use <a href="../current/CurrentTextController/of.html">CurrentTextController.of</a> to create an instance of this controller.</p>
 </section>
 
 
@@ -86,23 +70,14 @@ such as parse errors.</p>
         <li><a href="https://api.flutter.dev/flutter/foundation/ChangeNotifier-class.html">ChangeNotifier</a></li>
         <li><a href="https://api.flutter.dev/flutter/foundation/ValueNotifier-class.html">ValueNotifier</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/services/TextEditingValue-class.html">TextEditingValue</a></span>&gt;</span></li>
         <li><a href="https://api.flutter.dev/flutter/widgets/TextEditingController-class.html">TextEditingController</a></li>
-      <li>CurrentTextController</li>
+        <li><a href="../current/CurrentTextController-class.html">CurrentTextController</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></li>
+      <li>CurrentGenericTextController</li>
     </ul>
   </dd>
 
         
         
 
-          <dt>Implementers</dt>
-          <dd><ul class="comma-separated clazz-relationships">
-              <li><a href="../current/CurrentDateTimeTextController-class.html">CurrentDateTimeTextController</a></li>
-              <li><a href="../current/CurrentGenericTextController-class.html">CurrentGenericTextController</a></li>
-              <li><a href="../current/CurrentIntTextController-class.html">CurrentIntTextController</a></li>
-              <li><a href="../current/CurrentNullableDateTimeTextController-class.html">CurrentNullableDateTimeTextController</a></li>
-              <li><a href="../current/CurrentNullableIntTextController-class.html">CurrentNullableIntTextController</a></li>
-              <li><a href="../current/CurrentNullableStringTextController-class.html">CurrentNullableStringTextController</a></li>
-              <li><a href="../current/CurrentStringTextController-class.html">CurrentStringTextController</a></li>
-          </ul></dd>
 
         
         
@@ -114,43 +89,43 @@ such as parse errors.</p>
     
     
   <section
-      class="summary offset-anchor"
+      class="summary offset-anchor inherited"
       id="instance-properties">
     <h2>Properties</h2>
     <dl class="properties">
-        <dt id="asString" class="property">
+        <dt id="asString" class="property inherited">
   <span class="name"><a href="../current/CurrentTextController/asString.html">asString</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>? Function<span class="signature">(<span class="parameter" id="param-propertyValue"><span class="type-annotation">T?</span> <span class="parameter-name">propertyValue</span></span>)</span>?</span>
   
 
 </dt>
-<dd>
+<dd class="inherited">
   
-  <div class="features"><span class="feature">no setter</span></div>
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
 
-        <dt id="defaultValue" class="property">
+        <dt id="defaultValue" class="property inherited">
   <span class="name"><a href="../current/CurrentTextController/defaultValue.html">defaultValue</a></span>
   <span class="signature">&#8594; T?</span>
   
 
 </dt>
-<dd>
+<dd class="inherited">
   
-  <div class="features"><span class="feature">no setter</span></div>
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
 
-        <dt id="fromString" class="property">
+        <dt id="fromString" class="property inherited">
   <span class="name"><a href="../current/CurrentTextController/fromString.html">fromString</a></span>
   <span class="signature">&#8594; T Function<span class="signature">(<span class="parameter" id="param-text"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">text</span></span>)</span>?</span>
   
 
 </dt>
-<dd>
+<dd class="inherited">
   
-  <div class="features"><span class="feature">no setter</span></div>
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
 
@@ -178,28 +153,28 @@ such as parse errors.</p>
 
 </dd>
 
-        <dt id="isSynchronizingText" class="property">
+        <dt id="isSynchronizingText" class="property inherited">
   <span class="name"><a href="../current/CurrentTextController/isSynchronizingText.html">isSynchronizingText</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
   
 
 </dt>
-<dd>
+<dd class="inherited">
   Whether the controller is currently applying a synchronized text update
 from the bound property.
-  <div class="features"><span class="feature">no setter</span></div>
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
 
-        <dt id="property" class="property">
+        <dt id="property" class="property inherited">
   <span class="name"><a href="../current/CurrentTextController/property.html">property</a></span>
   <span class="signature">&#8594; <a href="../current/CurrentProperty-class.html">CurrentProperty</a><span class="signature">&lt;<wbr><span class="type-parameter">T?</span>&gt;</span></span>
   
 
 </dt>
-<dd>
+<dd class="inherited">
   
-  <div class="features"><span class="feature">no setter</span></div>
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
 
@@ -239,27 +214,27 @@ from the bound property.
 
 </dd>
 
-        <dt id="validation" class="property">
+        <dt id="validation" class="property inherited">
   <span class="name"><a href="../current/CurrentTextController/validation.html">validation</a></span>
   <span class="signature">&#8594; <a href="../current/CurrentFieldValidation-class.html">CurrentFieldValidation</a>?</span>
   
 
 </dt>
-<dd>
+<dd class="inherited">
   
-  <div class="features"><span class="feature">no setter</span></div>
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
 
-        <dt id="validationIssues" class="property">
+        <dt id="validationIssues" class="property inherited">
   <span class="name"><a href="../current/CurrentTextController/validationIssues.html">validationIssues</a></span>
   <span class="signature">&#8594; <a href="../current/CurrentTextControllerValidationIssues-class.html">CurrentTextControllerValidationIssues</a>?</span>
   
 
 </dt>
-<dd>
+<dd class="inherited">
   
-  <div class="features"><span class="feature">no setter</span></div>
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
 
@@ -294,6 +269,19 @@ from the bound property.
 <dd class="inherited">
   Register a closure to be called when the object changes.
   <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="bind" class="callable">
+  <span class="name"><a href="../current/CurrentGenericTextController/bind.html">bind</a></span><span class="signature">(<wbr>{<span class="parameter" id="bind-param-property"><span>required</span> <span class="type-annotation"><a href="../current/CurrentProperty-class.html">CurrentProperty</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">property</span>, </span><span class="parameter" id="bind-param-lifecycleProvider"><span>required</span> <span class="type-annotation"><a href="../current/CurrentTextControllersLifecycleMixin-mixin.html">CurrentTextControllersLifecycleMixin</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../current/CurrentWidget-class.html">CurrentWidget</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../current/CurrentViewModel-class.html">CurrentViewModel</a></span>&gt;</span></span>, <span class="type-parameter"><a href="../current/CurrentViewModel-class.html">CurrentViewModel</a></span>&gt;</span></span> <span class="parameter-name">lifecycleProvider</span>, </span><span class="parameter" id="bind-param-fromString"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">fromString</span>(<span class="parameter" id="param-text"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">text</span></span>), </span><span class="parameter" id="bind-param-asString"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">asString</span>(<span class="parameter" id="param-propertyValue"><span class="type-annotation">T</span> <span class="parameter-name">propertyValue</span></span>)?, </span><span class="parameter" id="bind-param-defaultValue"><span class="type-annotation">T?</span> <span class="parameter-name">defaultValue</span>, </span><span class="parameter" id="bind-param-validation"><span class="type-annotation"><a href="../current/CurrentFieldValidation-class.html">CurrentFieldValidation</a>?</span> <span class="parameter-name">validation</span>, </span><span class="parameter" id="bind-param-validationBuilder"><span class="type-annotation"><a href="../current/CurrentTextControllerValidationBuilder.html">CurrentTextControllerValidationBuilder</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span>?</span> <span class="parameter-name">validationBuilder</span>, </span><span class="parameter" id="bind-param-validationIssues"><span class="type-annotation"><a href="../current/CurrentTextControllerValidationIssues-class.html">CurrentTextControllerValidationIssues</a>?</span> <span class="parameter-name">validationIssues</span></span>})
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  
+  
 
 </dd>
 
@@ -336,32 +324,32 @@ from the bound property.
 
 </dd>
 
-        <dt id="dispose" class="callable">
+        <dt id="dispose" class="callable inherited">
   <span class="name"><a href="../current/CurrentTextController/dispose.html">dispose</a></span><span class="signature">(<wbr>)
     <span class="returntype parameter">&#8594; void</span>
   </span>
   
 
 </dt>
-<dd>
+<dd class="inherited">
   Discards any resources used by the object. After this is called, the
 object is not in a usable state and should be discarded (calls to
 <a href="https://api.flutter.dev/flutter/foundation/ChangeNotifier/addListener.html">addListener</a> will throw after the object is disposed).
-  <div class="features"><span class="feature">override</span></div>
+  <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
-        <dt id="formValidator" class="callable">
+        <dt id="formValidator" class="callable inherited">
   <span class="name"><a href="../current/CurrentTextController/formValidator.html">formValidator</a></span><span class="signature">(<wbr>{<span class="parameter" id="formValidator-param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a>?</span> <span class="parameter-name">context</span>, </span><span class="parameter" id="formValidator-param-resolver"><span class="type-annotation"><a href="../current/CurrentValidationIssueTextResolver.html">CurrentValidationIssueTextResolver</a>?</span> <span class="parameter-name">resolver</span>, </span><span class="parameter" id="formValidator-param-markTouched"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">markTouched</span> = <span class="default-value">true</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/widgets/FormFieldValidator.html">FormFieldValidator</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span>?</span>
   </span>
   
 
 </dt>
-<dd>
+<dd class="inherited">
   Creates a stock Flutter <a href="https://api.flutter.dev/flutter/widgets/FormField/validator.html">FormField.validator</a> callback for this
 controller.
-  
+  <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
@@ -391,17 +379,17 @@ controller.
 
 </dd>
 
-        <dt id="previewValidationIssue" class="callable">
+        <dt id="previewValidationIssue" class="callable inherited">
   <span class="name"><a href="../current/CurrentTextController/previewValidationIssue.html">previewValidationIssue</a></span><span class="signature">(<wbr>)
     <span class="returntype parameter">&#8594; <a href="../current/CurrentValidationIssue-class.html">CurrentValidationIssue</a>?</span>
   </span>
   
 
 </dt>
-<dd>
+<dd class="inherited">
   Computes the current validation issue for the controller text without
 mutating validation state.
-  
+  <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
@@ -419,16 +407,16 @@ notified when the object changes.
 
 </dd>
 
-        <dt id="synchronizeValidation" class="callable">
+        <dt id="synchronizeValidation" class="callable inherited">
   <span class="name"><a href="../current/CurrentTextController/synchronizeValidation.html">synchronizeValidation</a></span><span class="signature">(<wbr>{<span class="parameter" id="synchronizeValidation-param-markTouched"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">markTouched</span> = <span class="default-value">true</span>, </span><span class="parameter" id="synchronizeValidation-param-resetTextOnRequiredFailure"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">resetTextOnRequiredFailure</span> = <span class="default-value">true</span></span>})
     <span class="returntype parameter">&#8594; void</span>
   </span>
   
 
 </dt>
-<dd>
+<dd class="inherited">
   Synchronizes validation metadata with the controller's current text.
-  
+  <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
@@ -445,17 +433,17 @@ notified when the object changes.
 
 </dd>
 
-        <dt id="visibleErrorText" class="callable">
+        <dt id="visibleErrorText" class="callable inherited">
   <span class="name"><a href="../current/CurrentTextController/visibleErrorText.html">visibleErrorText</a></span><span class="signature">(<wbr>{<span class="parameter" id="visibleErrorText-param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a>?</span> <span class="parameter-name">context</span>, </span><span class="parameter" id="visibleErrorText-param-resolver"><span class="type-annotation"><a href="../current/CurrentValidationIssueTextResolver.html">CurrentValidationIssueTextResolver</a>?</span> <span class="parameter-name">resolver</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
   </span>
   
 
 </dt>
-<dd>
+<dd class="inherited">
   Resolves the currently visible validation error for text-field style
 widgets that still use <code>InputDecoration.errorText</code> directly.
-  
+  <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
@@ -483,121 +471,7 @@ widgets that still use <code>InputDecoration.errorText</code> directly.
     </dl>
   </section>
     
-  <section class="summary offset-anchor" id="static-properties">
-    <h2>Static Properties</h2>
-    <dl class="properties">
-        <dt id="defaultValidationIssues" class="property">
-  <span class="name"><a href="../current/CurrentTextController/defaultValidationIssues.html">defaultValidationIssues</a></span>
-  <span class="signature">&#8596; <a href="../current/CurrentTextControllerValidationIssues-class.html">CurrentTextControllerValidationIssues</a></span>
-  
-
-</dt>
-<dd>
-  Global default issues used when a binding does not provide
-<a href="../current/CurrentTextControllerValidationIssues-class.html">CurrentTextControllerValidationIssues</a> explicitly.
-  <div class="features"><span class="feature">getter/setter pair</span></div>
-
-</dd>
-
-    </dl>
-  </section>
     
-  <section class="summary offset-anchor" id="static-methods">
-    <h2>Static Methods</h2>
-    <dl class="callables">
-        <dt id="dateTime" class="callable">
-  <span class="name"><a href="../current/CurrentTextController/dateTime.html">dateTime</a></span><span class="signature">(<wbr>)
-    <span class="returntype parameter">&#8594; <a href="../current/CurrentDateTimeTextController-class.html">CurrentDateTimeTextController</a></span>
-  </span>
-  
-
-</dt>
-<dd>
-  Factory constructor to create a CurrentTextController for a DateTime property.
-  
-
-</dd>
-
-        <dt id="integer" class="callable">
-  <span class="name"><a href="../current/CurrentTextController/integer.html">integer</a></span><span class="signature">(<wbr>)
-    <span class="returntype parameter">&#8594; <a href="../current/CurrentIntTextController-class.html">CurrentIntTextController</a></span>
-  </span>
-  
-
-</dt>
-<dd>
-  Factory constructor to create a CurrentTextController for an integer property.
-  
-
-</dd>
-
-        <dt id="nullableDateTime" class="callable">
-  <span class="name"><a href="../current/CurrentTextController/nullableDateTime.html">nullableDateTime</a></span><span class="signature">(<wbr>)
-    <span class="returntype parameter">&#8594; <a href="../current/CurrentNullableDateTimeTextController-class.html">CurrentNullableDateTimeTextController</a></span>
-  </span>
-  
-
-</dt>
-<dd>
-  Factory constructor to create a CurrentTextController for a nullable DateTime property.
-  
-
-</dd>
-
-        <dt id="nullableInteger" class="callable">
-  <span class="name"><a href="../current/CurrentTextController/nullableInteger.html">nullableInteger</a></span><span class="signature">(<wbr>)
-    <span class="returntype parameter">&#8594; <a href="../current/CurrentNullableIntTextController-class.html">CurrentNullableIntTextController</a></span>
-  </span>
-  
-
-</dt>
-<dd>
-  Factory constructor to create a CurrentTextController for a nullable integer property.
-  
-
-</dd>
-
-        <dt id="nullableString" class="callable">
-  <span class="name"><a href="../current/CurrentTextController/nullableString.html">nullableString</a></span><span class="signature">(<wbr>)
-    <span class="returntype parameter">&#8594; <a href="../current/CurrentNullableStringTextController-class.html">CurrentNullableStringTextController</a></span>
-  </span>
-  
-
-</dt>
-<dd>
-  Factory constructor to create a CurrentTextController for a nullable String  property.
-  
-
-</dd>
-
-        <dt id="of" class="callable">
-  <span class="name"><a href="../current/CurrentTextController/of.html">of</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span><span class="signature">(<wbr>)
-    <span class="returntype parameter">&#8594; <a href="../current/CurrentGenericTextController-class.html">CurrentGenericTextController</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
-  </span>
-  
-
-</dt>
-<dd>
-  Factory constructor to create a CurrentTextController for a type specified by the generic parameter <code>T</code>.
-  
-
-</dd>
-
-        <dt id="string" class="callable">
-  <span class="name"><a href="../current/CurrentTextController/string.html">string</a></span><span class="signature">(<wbr>)
-    <span class="returntype parameter">&#8594; <a href="../current/CurrentStringTextController-class.html">CurrentStringTextController</a></span>
-  </span>
-  
-
-</dt>
-<dd>
-  Factory constructor to create a CurrentTextController for a String property.
-  
-
-</dd>
-
-    </dl>
-  </section>
     
 
   </div> <!-- /.main-content -->
@@ -611,7 +485,7 @@ widgets that still use <code>InputDecoration.errorText</code> directly.
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../index.html">current</a></li>
     <li><a href="../current/">current</a></li>
-    <li class="self-crumb">CurrentTextController<span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span> class</li>
+    <li class="self-crumb">CurrentGenericTextController<span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span> class</li>
 </ol>
 
     <h5>current library</h5>

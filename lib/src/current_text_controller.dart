@@ -19,10 +19,10 @@ import 'package:flutter/services.dart';
 ///
 /// These are provided for convenience when working with common types, but you can also use [CurrentTextController.of] to create a controller for any type.
 ///
-/// When using [CurrentTextController.of], you must provide the fromString and asString functions in the [CurrentTextController.bind] method to specify how to parse the text into the property's type and how to display the property's value as text.
+/// When using [CurrentTextController.of], you must provide the fromString and asString functions in the bind method to specify how to parse the text into the property's type and how to display the property's value as text.
 ///
 /// It listens for changes to the property and updates the text accordingly, and also updates the property when the text changes.
-/// You MUST call [CurrentTextController.bind] to configure the controller. If you do not, the controller will simply act as a normal [TextEditingController].
+/// You MUST call the controllers bind function to configure the controller. If you do not, the controller will simply act as a normal [TextEditingController].
 ///
 /// When used together with [CurrentFieldValidation], the controller can also:
 /// - mark a field as touched when the user edits text
@@ -57,16 +57,16 @@ import 'package:flutter/services.dart';
 ///
 ///   @override
 ///   void bindCurrentControllers() {
-///     nameController.bindString(
+///     nameController.bind(
 ///       property: viewModel.name,
 ///       lifecycleProvider: this,
 ///     );
-///     ageController.bindInt(
+///     ageController.bind(
 ///       property: viewModel.age,
 ///       lifecycleProvider: this,
 ///       defaultValue: 0,
 ///     );
-///     departureDateController.bindDateTime(
+///     departureDateController.bind(
 ///       property: viewModel.departureDate,
 ///       lifecycleProvider: this,
 ///       fromString: DateTime.parse,
@@ -128,15 +128,14 @@ typedef CurrentTextControllerFormValidatorBuilder = FormFieldValidator<String>?;
 ///
 /// You can either:
 /// - override [CurrentTextController.defaultValidationIssues] once for the app
-/// - pass a per-binding validationIssues value to [CurrentTextController.bind], [CurrentTextController.bindString],
-///   [CurrentTextController.bindInt], or [CurrentTextController.bindDateTime]
+/// - pass a per-binding validationIssues value to the bind method of the controller
 ///
 /// The builders are called the moment the validation problem occurs.
 ///
 /// ## Example
 ///
 /// ```dart
-/// ageController.bindInt(
+/// ageController.bind(
 ///   property: viewModel.age,
 ///   lifecycleProvider: this,
 ///   validationBuilder: (property, _) => property.createValidation(
@@ -553,7 +552,7 @@ class CurrentTextController<T> extends TextEditingController {
 
   /// Factory constructor to create a CurrentTextController for a String property.
   ///
-  /// **IMPORTANT**: You still must call either the [bind] or the [bindString]
+  /// **IMPORTANT**: You still must call either the [CurrentStringTextController.bind]
   /// in the [CurrentTextControllersLifecycleMixin.bindCurrentControllers] method to initialize the controller and bind it to a CurrentProperty.
   /// The factory constructor only creates an instance of the controller, but does not configure it in any way.
   static CurrentStringTextController string() =>
@@ -561,7 +560,7 @@ class CurrentTextController<T> extends TextEditingController {
 
   /// Factory constructor to create a CurrentTextController for a nullable String  property.
   ///
-  /// **IMPORTANT**: You still must call either the [bind] or the [bindString]
+  /// **IMPORTANT**: You still must call either the [CurrentNullableStringTextController.bind]
   /// in the [CurrentTextControllersLifecycleMixin.bindCurrentControllers] method to initialize the controller and bind it to a CurrentProperty.
   /// The factory constructor only creates an instance of the controller, but does not configure it in any way.
   static CurrentNullableStringTextController nullableString() =>
@@ -569,14 +568,14 @@ class CurrentTextController<T> extends TextEditingController {
 
   /// Factory constructor to create a CurrentTextController for an integer property.
   ///
-  /// **IMPORTANT**: You still must call either the [bind] or the [bindInt]
+  /// **IMPORTANT**: You still must call either the [CurrentIntTextController.bind]
   /// in the [CurrentTextControllersLifecycleMixin.bindCurrentControllers] method to initialize the controller and bind it to a CurrentProperty.
   /// The factory constructor only creates an instance of the controller, but does not configure it in any way.
   static CurrentIntTextController integer() => CurrentIntTextController._();
 
   /// Factory constructor to create a CurrentTextController for a nullable integer property.
   ///
-  /// **IMPORTANT**: You still must call either the [bind] or the [bindInt]
+  /// **IMPORTANT**: You still must call either the [CurrentNullableIntTextController.bind]
   /// in the [CurrentTextControllersLifecycleMixin.bindCurrentControllers] method to initialize the controller and bind it to a CurrentProperty.
   /// The factory constructor only creates an instance of the controller, but does not configure it in any way.
   static CurrentNullableIntTextController nullableInteger() =>
@@ -584,7 +583,7 @@ class CurrentTextController<T> extends TextEditingController {
 
   /// Factory constructor to create a CurrentTextController for a DateTime property.
   ///
-  /// **IMPORTANT**: You still must call either the [bind] or the [bindDateTime]
+  /// **IMPORTANT**: You still must call either the [CurrentDateTimeTextController.bind]
   /// in the [CurrentTextControllersLifecycleMixin.bindCurrentControllers] method to initialize the controller and bind it to a CurrentProperty.
   /// The factory constructor only creates an instance of the controller, but does not configure it in any way.
   static CurrentDateTimeTextController dateTime() =>
@@ -592,7 +591,7 @@ class CurrentTextController<T> extends TextEditingController {
 
   /// Factory constructor to create a CurrentTextController for a nullable DateTime property.
   ///
-  /// **IMPORTANT**: You still must call either the [bind] or the [bindDateTime]
+  /// **IMPORTANT**: You still must call either the [CurrentNullableDateTimeTextController.bind]
   /// in the [CurrentTextControllersLifecycleMixin.bindCurrentControllers] method to initialize the controller and bind it to a CurrentProperty.
   /// The factory constructor only creates an instance of the controller, but does not configure it in any way.
   static CurrentNullableDateTimeTextController nullableDateTime() =>
@@ -600,7 +599,7 @@ class CurrentTextController<T> extends TextEditingController {
 
   /// Factory constructor to create a CurrentTextController for a type specified by the generic parameter [T].
   ///
-  /// **IMPORTANT**: You still must call either the [bind]
+  /// **IMPORTANT**: You still must call either the [CurrentGenericTextController.bind]
   /// in the [CurrentTextControllersLifecycleMixin.bindCurrentControllers] method to initialize the controller and bind it to a CurrentProperty.
   /// The factory constructor only creates an instance of the controller, but does not configure it in any way.
   static CurrentGenericTextController<T> of<T extends Object>() =>

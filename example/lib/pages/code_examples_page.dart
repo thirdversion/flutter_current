@@ -306,7 +306,7 @@ class _MissionPageState extends CurrentState<MissionPage, MissionViewModel> {
     code: '''
 @override
 void bindCurrentControllers() {
-  missionCodeController.bindString(
+  missionCodeController.bind(
     property: viewModel.missionCode,
     lifecycleProvider: this,
     validationBuilder: (property, context) => property.createValidation(
