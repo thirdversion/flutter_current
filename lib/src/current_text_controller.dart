@@ -19,10 +19,10 @@ import 'package:flutter/services.dart';
 ///
 /// These are provided for convenience when working with common types, but you can also use [CurrentTextController.of] to create a controller for any type.
 ///
-/// When using [CurrentTextController.of], you must provide the fromString and [asString] functions in the [bind] method to specify how to parse the text into the property's type and how to display the property's value as text.
+/// When using [CurrentTextController.of], you must provide the fromString and asString functions in the [CurrentTextController.bind] method to specify how to parse the text into the property's type and how to display the property's value as text.
 ///
 /// It listens for changes to the property and updates the text accordingly, and also updates the property when the text changes.
-/// You MUST call [bind] to configure the controller. If you do not, the controller will simply act as a normal [TextEditingController].
+/// You MUST call [CurrentTextController.bind] to configure the controller. If you do not, the controller will simply act as a normal [TextEditingController].
 ///
 /// When used together with [CurrentFieldValidation], the controller can also:
 /// - mark a field as touched when the user edits text
@@ -128,8 +128,8 @@ typedef CurrentTextControllerFormValidatorBuilder = FormFieldValidator<String>?;
 ///
 /// You can either:
 /// - override [CurrentTextController.defaultValidationIssues] once for the app
-/// - pass a per-binding [validationIssues] value to [bind], [bindString],
-///   [bindInt], or [bindDateTime]
+/// - pass a per-binding validationIssues value to [CurrentTextController.bind], [CurrentTextController.bindString],
+///   [CurrentTextController.bindInt], or [CurrentTextController.bindDateTime]
 ///
 /// The builders are called the moment the validation problem occurs.
 ///

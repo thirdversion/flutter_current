@@ -16,7 +16,7 @@ abstract class CurrentViewModelBinding {
   /// Attaches this helper to its owning [CurrentViewModel].
   ///
   /// This is called automatically from the [CurrentViewModel] constructor after
-  /// all [currentProps] have been associated with the view model.
+  /// all [CurrentViewModel.currentProps] have been associated with the view model.
   void attachToViewModel();
 }
 
@@ -40,7 +40,7 @@ abstract class CurrentViewModel {
 
   /// Whether any of the properties defined in [currentProps] have a value that is different from their original value.
   ///
-  /// This can be used to determine if any changes have been made to the view model since it was last reset or since the [originalValue] of the properties were last updated to their current values.
+  /// This can be used to determine if any changes have been made to the view model since it was last reset or since the [CurrentProperty.originalValue] of the properties were last updated to their current values.
   bool get isDirty {
     for (final prop in currentProps) {
       if (prop.isDirty) return true;
@@ -643,7 +643,7 @@ extension CurrentStateChangedExtensions<T> on List<CurrentStateChanged<T>> {
 
 ///The event that is added to the Error stream.
 ///
-///Any event handlers registered with the [CurrentViewModel.addOnStateChangedListener] function will
+///Any event handlers registered with the [CurrentViewModel.addStateChangedListener] or [CurrentViewModel.addAnyStateChangedListener] functions will
 ///receive these types of events. The [metaData] property can be used to store any additional
 ///information you may want your error event handler to have access to.
 class ErrorEvent<T> {
