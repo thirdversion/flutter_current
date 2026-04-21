@@ -27,7 +27,7 @@ class _FlightFormsPageState
 
   @override
   void bindCurrentControllers() {
-    missionCodeController.bindString(
+    missionCodeController.bind(
       property: viewModel.missionCode,
       lifecycleProvider: this,
       validationBuilder: (property, _) => property.createValidation(
@@ -35,7 +35,7 @@ class _FlightFormsPageState
         validateOnPropertyChange: true,
       ),
     );
-    crewCountController.bindInt(
+    crewCountController.bind(
       property: viewModel.crewCapacity,
       lifecycleProvider: this,
       validationBuilder: (property, _) => property.createValidation(
@@ -47,11 +47,11 @@ class _FlightFormsPageState
         invalidValueIssueBuilder: _crewCapacityInvalidIssue,
       ),
     );
-    launchDateController.bindDateTime(
+    launchDateController.bind(
       property: viewModel.launchWindow,
       lifecycleProvider: this,
       fromString: _parseDate,
-      asString: (value) => value == null ? '' : _formatDate(value),
+      asString: (value) => _formatDate(value),
       validationBuilder: (property, _) => property.createValidation(
         rules: launchWindowRules(),
         validateOnPropertyChange: true,

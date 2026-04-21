@@ -94,7 +94,7 @@ class _ControllerValidationViewModel extends CurrentViewModel {
 
 class _ControllerValidationWidget
     extends CurrentWidget<_ControllerValidationViewModel> {
-  final CurrentTextController<int> ageController;
+  final CurrentIntTextController ageController;
   final CurrentTextControllerValidationIssues? validationIssues;
 
   const _ControllerValidationWidget({
@@ -115,7 +115,7 @@ class _ControllerValidationState extends CurrentState<
 
   @override
   void bindCurrentControllers() {
-    widget.ageController.bindInt(
+    widget.ageController.bind(
       property: viewModel.age,
       lifecycleProvider: this,
       validationBuilder: (_, __) => viewModel.ageValidation,
@@ -138,7 +138,7 @@ class _ControllerValidationState extends CurrentState<
 
 class _ControllerValidationFormWidget
     extends CurrentWidget<_ControllerValidationViewModel> {
-  final CurrentTextController<int> ageController;
+  final CurrentIntTextController ageController;
   final GlobalKey<FormState> formKey;
   final bool useCurrentWrapper;
   final AutovalidateMode? autovalidateMode;
@@ -163,7 +163,7 @@ class _ControllerValidationFormState extends CurrentState<
 
   @override
   void bindCurrentControllers() {
-    widget.ageController.bindInt(
+    widget.ageController.bind(
       property: viewModel.age,
       lifecycleProvider: this,
       validationBuilder: (_, __) => viewModel.ageValidation,
@@ -209,7 +209,7 @@ class _ControllerValidationFormState extends CurrentState<
 
 class _RequiredNameFieldWidget
     extends CurrentWidget<_RequiredNameFormViewModel> {
-  final CurrentTextController<String> nameController;
+  final CurrentStringTextController nameController;
   final AutovalidateMode autovalidateMode;
   final bool useFormWrapper;
   final bool useCurrentTextField;
@@ -234,7 +234,7 @@ class _RequiredNameFieldState
 
   @override
   void bindCurrentControllers() {
-    widget.nameController.bindString(
+    widget.nameController.bind(
       property: viewModel.name,
       lifecycleProvider: this,
       validationBuilder: (_, __) => viewModel.nameValidation,
@@ -301,7 +301,7 @@ class _RequiredNameFormViewModel extends CurrentViewModel {
 
 class _RequiredNameFormWidget
     extends CurrentWidget<_RequiredNameFormViewModel> {
-  final CurrentTextController<String> nameController;
+  final CurrentStringTextController nameController;
   final GlobalKey<FormState> formKey;
   final AutovalidateMode? autovalidateMode;
 
@@ -324,7 +324,7 @@ class _RequiredNameFormState
 
   @override
   void bindCurrentControllers() {
-    widget.nameController.bindString(
+    widget.nameController.bind(
       property: viewModel.name,
       lifecycleProvider: this,
       validationBuilder: (_, __) => viewModel.nameValidation,
@@ -354,9 +354,9 @@ class _RequiredNameFormState
 }
 
 class _ControllerTestWidget extends CurrentWidget<_ControllerTestViewModel> {
-  final CurrentTextController<String> nameController;
-  final CurrentTextController<int> ageController;
-  final CurrentTextController<int?> nullableAgeController;
+  final CurrentStringTextController nameController;
+  final CurrentIntTextController ageController;
+  final CurrentNullableIntTextController nullableAgeController;
   final bool bindAlternateAge;
   final int? ageDefaultValue;
 
@@ -381,19 +381,19 @@ class _ControllerTestState
 
   @override
   void bindCurrentControllers() {
-    widget.nameController.bindString(
+    widget.nameController.bind(
       property: viewModel.name,
       lifecycleProvider: this,
     );
 
-    widget.ageController.bindInt(
+    widget.ageController.bind(
       property:
           widget.bindAlternateAge ? viewModel.alternateAge : viewModel.age,
       lifecycleProvider: this,
       defaultValue: widget.ageDefaultValue,
     );
 
-    widget.nullableAgeController.bindInt(
+    widget.nullableAgeController.bind(
       property: viewModel.nullableAge,
       lifecycleProvider: this,
     );
@@ -426,11 +426,11 @@ class _ControllerTestState
 
 class _AdditionalTypesControllerTestWidget
     extends CurrentWidget<_AdditionalTypesViewModel> {
-  final CurrentTextController<String> titleController;
-  final CurrentTextController<String?> nullableTitleController;
-  final CurrentTextController<DateTime> eventDateController;
-  final CurrentTextController<DateTime?> nullableEventDateController;
-  final CurrentTextController<_TestCustomObject> customObjectController;
+  final CurrentStringTextController titleController;
+  final CurrentNullableStringTextController nullableTitleController;
+  final CurrentDateTimeTextController eventDateController;
+  final CurrentNullableDateTimeTextController nullableEventDateController;
+  final CurrentGenericTextController<_TestCustomObject> customObjectController;
 
   const _AdditionalTypesControllerTestWidget({
     required super.viewModel,
@@ -453,23 +453,23 @@ class _AdditionalTypesControllerTestState extends CurrentState<
 
   @override
   void bindCurrentControllers() {
-    widget.titleController.bindString(
+    widget.titleController.bind(
       property: viewModel.title,
       lifecycleProvider: this,
     );
 
-    widget.nullableTitleController.bindString(
+    widget.nullableTitleController.bind(
       property: viewModel.nullableTitle,
       lifecycleProvider: this,
     );
 
-    widget.eventDateController.bindDateTime(
+    widget.eventDateController.bind(
       property: viewModel.eventDate,
       lifecycleProvider: this,
       fromString: DateTime.parse,
     );
 
-    widget.nullableEventDateController.bindDateTime(
+    widget.nullableEventDateController.bind(
       property: viewModel.nullableEventDate,
       lifecycleProvider: this,
       fromString: DateTime.parse,
@@ -479,7 +479,7 @@ class _AdditionalTypesControllerTestState extends CurrentState<
       property: viewModel.customObject,
       lifecycleProvider: this,
       fromString: _TestCustomObject.parse,
-      asString: (propertyValue) => propertyValue?.serialize(),
+      asString: (propertyValue) => propertyValue.serialize(),
     );
   }
 
@@ -519,9 +519,9 @@ class _AdditionalTypesControllerTestState extends CurrentState<
 void main() {
   group('CurrentTextController', () {
     late _ControllerTestViewModel viewModel;
-    late CurrentTextController<String> nameController;
-    late CurrentTextController<int> ageController;
-    late CurrentTextController<int?> nullableAgeController;
+    late CurrentStringTextController nameController;
+    late CurrentIntTextController ageController;
+    late CurrentNullableIntTextController nullableAgeController;
 
     setUp(() {
       viewModel = _ControllerTestViewModel();
@@ -756,11 +756,11 @@ void main() {
 
   group('CurrentTextController remaining supported types', () {
     late _AdditionalTypesViewModel viewModel;
-    late CurrentTextController<String> titleController;
-    late CurrentTextController<String?> nullableTitleController;
-    late CurrentTextController<DateTime> eventDateController;
-    late CurrentTextController<DateTime?> nullableEventDateController;
-    late CurrentTextController<_TestCustomObject> customObjectController;
+    late CurrentStringTextController titleController;
+    late CurrentNullableStringTextController nullableTitleController;
+    late CurrentDateTimeTextController eventDateController;
+    late CurrentNullableDateTimeTextController nullableEventDateController;
+    late CurrentGenericTextController<_TestCustomObject> customObjectController;
 
     setUp(() {
       viewModel = _AdditionalTypesViewModel();
@@ -892,7 +892,7 @@ void main() {
 
   group('CurrentTextController validation integration', () {
     late _ControllerValidationViewModel viewModel;
-    late CurrentTextController<int> ageController;
+    late CurrentIntTextController ageController;
     late CurrentTextControllerValidationIssues japaneseIssues;
     late GlobalKey<FormState> formKey;
 
@@ -1261,7 +1261,7 @@ void main() {
 
 class _ControllerValidationFieldHarness
     extends CurrentWidget<_ControllerValidationViewModel> {
-  final CurrentTextController<int> ageController;
+  final CurrentIntTextController ageController;
   final AutovalidateMode autovalidateMode;
 
   const _ControllerValidationFieldHarness({
@@ -1282,7 +1282,7 @@ class _ControllerValidationFieldHarnessState extends CurrentState<
 
   @override
   void bindCurrentControllers() {
-    widget.ageController.bindInt(
+    widget.ageController.bind(
       property: viewModel.age,
       lifecycleProvider: this,
       validationBuilder: (_, __) => viewModel.ageValidation,

@@ -191,6 +191,244 @@ final class CurrentTextControllerValidationIssues {
       invalidValueIssueBuilder?.call(text);
 }
 
+/// A [CurrentTextController] that is bindable to a [CurrentProperty] of type [T].
+///
+/// Use [CurrentTextController.of] to create an instance of this controller.
+final class CurrentGenericTextController<T extends Object>
+    extends CurrentTextController<T> {
+  CurrentGenericTextController._() : super._();
+
+  void bind({
+    required CurrentProperty<T> property,
+    required CurrentTextControllersLifecycleMixin lifecycleProvider,
+    required T Function(String text) fromString,
+    String? Function(T propertyValue)? asString,
+    T? defaultValue,
+    CurrentFieldValidation<dynamic>? validation,
+    CurrentTextControllerValidationBuilder<T>? validationBuilder,
+    CurrentTextControllerValidationIssues? validationIssues,
+  }) {
+    String? asStringWrapper(T? propertyValue) =>
+        asString?.call(propertyValue as T) ?? propertyValue?.toString();
+
+    super._bind(
+      property: property,
+      lifecycleProvider: lifecycleProvider,
+      fromString: fromString,
+      asString: asStringWrapper,
+      defaultValue: defaultValue,
+      validation: validation,
+      validationBuilder: validationBuilder == null
+          ? null
+          : (property, context) =>
+              validationBuilder(property as CurrentProperty<T>, context),
+      validationIssues: validationIssues,
+    );
+  }
+}
+
+/// A [CurrentTextController] that can only be bound to a [CurrentProperty] of type [int].
+///
+/// Use [CurrentTextController.integer] to create an instance of this controller.
+final class CurrentIntTextController extends CurrentTextController<int> {
+  CurrentIntTextController._() : super._();
+
+  void bind({
+    required CurrentProperty<int> property,
+    required CurrentTextControllersLifecycleMixin lifecycleProvider,
+    int Function(String text)? fromString,
+    String? Function(int propertyValue)? asString,
+    int? defaultValue,
+    CurrentFieldValidation<dynamic>? validation,
+    CurrentTextControllerValidationBuilder<int>? validationBuilder,
+    CurrentTextControllerValidationIssues? validationIssues,
+  }) {
+    String? asStringWrapper(int? propertyValue) =>
+        asString?.call(propertyValue ?? 0) ?? propertyValue?.toString();
+
+    super._bind(
+      property: property,
+      lifecycleProvider: lifecycleProvider,
+      fromString: fromString ?? (text) => int.parse(text),
+      asString: asStringWrapper,
+      defaultValue: defaultValue,
+      validation: validation,
+      validationBuilder: validationBuilder == null
+          ? null
+          : (property, context) =>
+              validationBuilder(property as CurrentProperty<int>, context),
+      validationIssues: validationIssues,
+    );
+  }
+}
+
+/// A [CurrentTextController] that can only be bound to a [CurrentProperty] of type [int?].
+///
+/// Use [CurrentTextController.nullableInteger] to create an instance of this controller.
+final class CurrentNullableIntTextController
+    extends CurrentTextController<int?> {
+  CurrentNullableIntTextController._() : super._();
+
+  void bind({
+    required CurrentProperty<int?> property,
+    required CurrentTextControllersLifecycleMixin lifecycleProvider,
+    int Function(String text)? fromString,
+    String? Function(int? propertyValue)? asString,
+    int? defaultValue,
+    CurrentFieldValidation<dynamic>? validation,
+    CurrentTextControllerValidationBuilder<int?>? validationBuilder,
+    CurrentTextControllerValidationIssues? validationIssues,
+  }) {
+    super._bind(
+      property: property,
+      lifecycleProvider: lifecycleProvider,
+      fromString: fromString ?? (text) => int.parse(text),
+      asString: asString,
+      defaultValue: defaultValue,
+      validation: validation,
+      validationBuilder: validationBuilder == null
+          ? null
+          : (property, context) => validationBuilder(property, context),
+      validationIssues: validationIssues,
+    );
+  }
+}
+
+/// A [CurrentTextController] that can only be bound to a [CurrentProperty] of type [String].
+///
+/// Use [CurrentTextController.string] to create an instance of this controller.
+final class CurrentStringTextController extends CurrentTextController<String> {
+  CurrentStringTextController._() : super._();
+  void bind({
+    required CurrentProperty<String> property,
+    required CurrentTextControllersLifecycleMixin lifecycleProvider,
+    String Function(String text)? fromString,
+    String? Function(String propertyValue)? asString,
+    String? defaultValue,
+    CurrentFieldValidation<dynamic>? validation,
+    CurrentTextControllerValidationBuilder<String>? validationBuilder,
+    CurrentTextControllerValidationIssues? validationIssues,
+  }) {
+    String asStringWrapper(String? propertyValue) =>
+        asString?.call(propertyValue ?? '') ?? propertyValue ?? '';
+
+    super._bind(
+      property: property,
+      lifecycleProvider: lifecycleProvider,
+      fromString: fromString ?? (text) => text,
+      asString: asStringWrapper,
+      defaultValue: defaultValue,
+      validation: validation,
+      validationBuilder: validationBuilder == null
+          ? null
+          : (property, context) =>
+              validationBuilder(property as CurrentProperty<String>, context),
+      validationIssues: validationIssues,
+    );
+  }
+}
+
+/// A [CurrentTextController] that can only be bound to a [CurrentProperty] of type [String?].
+///
+/// Use [CurrentTextController.nullableString] to create an instance of this controller.
+final class CurrentNullableStringTextController
+    extends CurrentTextController<String?> {
+  CurrentNullableStringTextController._() : super._();
+
+  void bind({
+    required CurrentProperty<String?> property,
+    required CurrentTextControllersLifecycleMixin lifecycleProvider,
+    String Function(String text)? fromString,
+    String? Function(String? propertyValue)? asString,
+    String? defaultValue,
+    CurrentFieldValidation<dynamic>? validation,
+    CurrentTextControllerValidationBuilder<String?>? validationBuilder,
+    CurrentTextControllerValidationIssues? validationIssues,
+  }) {
+    super._bind(
+      property: property,
+      lifecycleProvider: lifecycleProvider,
+      fromString: fromString ?? (text) => text,
+      asString: asString,
+      defaultValue: defaultValue,
+      validation: validation,
+      validationBuilder: validationBuilder == null
+          ? null
+          : (property, context) => validationBuilder(property, context),
+      validationIssues: validationIssues,
+    );
+  }
+}
+
+/// A [CurrentTextController] that can only be bound to a [CurrentProperty] of type [DateTime].
+///
+/// Use [CurrentTextController.dateTime] to create an instance of this controller.
+final class CurrentDateTimeTextController
+    extends CurrentTextController<DateTime> {
+  CurrentDateTimeTextController._() : super._();
+
+  void bind({
+    required CurrentProperty<DateTime> property,
+    required CurrentTextControllersLifecycleMixin lifecycleProvider,
+    required DateTime Function(String text) fromString,
+    String? Function(DateTime propertyValue)? asString,
+    DateTime? defaultValue,
+    CurrentFieldValidation<dynamic>? validation,
+    CurrentTextControllerValidationBuilder<DateTime>? validationBuilder,
+    CurrentTextControllerValidationIssues? validationIssues,
+  }) {
+    String? asStringWrapper(DateTime? propertyValue) =>
+        asString?.call(propertyValue ?? DateTime(0)) ??
+        propertyValue?.toIso8601String();
+
+    super._bind(
+      property: property,
+      lifecycleProvider: lifecycleProvider,
+      fromString: fromString,
+      asString: asStringWrapper,
+      defaultValue: defaultValue,
+      validation: validation,
+      validationBuilder: validationBuilder == null
+          ? null
+          : (property, context) =>
+              validationBuilder(property as CurrentProperty<DateTime>, context),
+      validationIssues: validationIssues,
+    );
+  }
+}
+
+/// A [CurrentTextController] that can only be bound to a [CurrentProperty] of type [DateTime?].
+///
+/// Use [CurrentTextController.nullableDateTime] to create an instance of this controller.
+final class CurrentNullableDateTimeTextController
+    extends CurrentTextController<DateTime?> {
+  CurrentNullableDateTimeTextController._() : super._();
+
+  void bind({
+    required CurrentProperty<DateTime?> property,
+    required CurrentTextControllersLifecycleMixin lifecycleProvider,
+    required DateTime Function(String text) fromString,
+    String? Function(DateTime? propertyValue)? asString,
+    DateTime? defaultValue,
+    CurrentFieldValidation<dynamic>? validation,
+    CurrentTextControllerValidationBuilder<DateTime?>? validationBuilder,
+    CurrentTextControllerValidationIssues? validationIssues,
+  }) {
+    super._bind(
+      property: property,
+      lifecycleProvider: lifecycleProvider,
+      fromString: fromString,
+      asString: asString,
+      defaultValue: defaultValue,
+      validation: validation,
+      validationBuilder: validationBuilder == null
+          ? null
+          : (property, context) => validationBuilder(property, context),
+      validationIssues: validationIssues,
+    );
+  }
+}
+
 /// A [TextEditingController] that keeps a [CurrentProperty] and a text field in
 /// sync.
 ///
@@ -211,7 +449,7 @@ final class CurrentTextControllerValidationIssues {
 /// the gap between raw text editing and property-level validation by surfacing
 /// validation metadata for failures that occur before property-level validation,
 /// such as parse errors.
-final class CurrentTextController<T> extends TextEditingController {
+class CurrentTextController<T> extends TextEditingController {
   /// Global default issues used when a binding does not provide
   /// [CurrentTextControllerValidationIssues] explicitly.
   ///
@@ -318,54 +556,55 @@ final class CurrentTextController<T> extends TextEditingController {
   /// **IMPORTANT**: You still must call either the [bind] or the [bindString]
   /// in the [CurrentTextControllersLifecycleMixin.bindCurrentControllers] method to initialize the controller and bind it to a CurrentProperty.
   /// The factory constructor only creates an instance of the controller, but does not configure it in any way.
-  static CurrentTextController<String> string() =>
-      CurrentTextController<String>._();
+  static CurrentStringTextController string() =>
+      CurrentStringTextController._();
 
   /// Factory constructor to create a CurrentTextController for a nullable String  property.
   ///
   /// **IMPORTANT**: You still must call either the [bind] or the [bindString]
   /// in the [CurrentTextControllersLifecycleMixin.bindCurrentControllers] method to initialize the controller and bind it to a CurrentProperty.
   /// The factory constructor only creates an instance of the controller, but does not configure it in any way.
-  static CurrentTextController<String?> nullableString() =>
-      CurrentTextController<String?>._();
+  static CurrentNullableStringTextController nullableString() =>
+      CurrentNullableStringTextController._();
 
   /// Factory constructor to create a CurrentTextController for an integer property.
   ///
   /// **IMPORTANT**: You still must call either the [bind] or the [bindInt]
   /// in the [CurrentTextControllersLifecycleMixin.bindCurrentControllers] method to initialize the controller and bind it to a CurrentProperty.
   /// The factory constructor only creates an instance of the controller, but does not configure it in any way.
-  static CurrentTextController<int> integer() => CurrentTextController<int>._();
+  static CurrentIntTextController integer() => CurrentIntTextController._();
 
   /// Factory constructor to create a CurrentTextController for a nullable integer property.
   ///
   /// **IMPORTANT**: You still must call either the [bind] or the [bindInt]
   /// in the [CurrentTextControllersLifecycleMixin.bindCurrentControllers] method to initialize the controller and bind it to a CurrentProperty.
   /// The factory constructor only creates an instance of the controller, but does not configure it in any way.
-  static CurrentTextController<int?> nullableInteger() =>
-      CurrentTextController<int?>._();
+  static CurrentNullableIntTextController nullableInteger() =>
+      CurrentNullableIntTextController._();
 
   /// Factory constructor to create a CurrentTextController for a DateTime property.
   ///
   /// **IMPORTANT**: You still must call either the [bind] or the [bindDateTime]
   /// in the [CurrentTextControllersLifecycleMixin.bindCurrentControllers] method to initialize the controller and bind it to a CurrentProperty.
   /// The factory constructor only creates an instance of the controller, but does not configure it in any way.
-  static CurrentTextController<DateTime> dateTime() =>
-      CurrentTextController<DateTime>._();
+  static CurrentDateTimeTextController dateTime() =>
+      CurrentDateTimeTextController._();
 
   /// Factory constructor to create a CurrentTextController for a nullable DateTime property.
   ///
   /// **IMPORTANT**: You still must call either the [bind] or the [bindDateTime]
   /// in the [CurrentTextControllersLifecycleMixin.bindCurrentControllers] method to initialize the controller and bind it to a CurrentProperty.
   /// The factory constructor only creates an instance of the controller, but does not configure it in any way.
-  static CurrentTextController<DateTime?> nullableDateTime() =>
-      CurrentTextController<DateTime?>._();
+  static CurrentNullableDateTimeTextController nullableDateTime() =>
+      CurrentNullableDateTimeTextController._();
 
   /// Factory constructor to create a CurrentTextController for a type specified by the generic parameter [T].
   ///
   /// **IMPORTANT**: You still must call either the [bind]
   /// in the [CurrentTextControllersLifecycleMixin.bindCurrentControllers] method to initialize the controller and bind it to a CurrentProperty.
   /// The factory constructor only creates an instance of the controller, but does not configure it in any way.
-  static CurrentTextController<T> of<T>() => CurrentTextController<T>._();
+  static CurrentGenericTextController<T> of<T extends Object>() =>
+      CurrentGenericTextController<T>._();
 
   /// Initializes the CurrentTextController by binding it to a CurrentProperty and providing necessary configuration for parsing and displaying the property's value.
   ///
@@ -402,7 +641,7 @@ final class CurrentTextController<T> extends TextEditingController {
   /// If a [validation] is supplied for a different property than [property], an
   /// [ArgumentError] is thrown.
   ///
-  void bind({
+  void _bind({
     required CurrentProperty<T?> property,
     required CurrentTextControllersLifecycleMixin lifecycleProvider,
     T Function(String text)? fromString,
@@ -476,184 +715,6 @@ final class CurrentTextController<T> extends TextEditingController {
     );
 
     _setText();
-  }
-
-  /// A convenience method for initializing the controller with properties based on [CurrentProperty<String>]. This is equivalent to calling [bind] with fromString and asString configured for String properties.
-  /// If the CurrentProperty is not of type String, this method will throw an exception.
-  ///
-  /// See [bind] for details on [validation] and [validationIssues].
-  ///
-  void bindString({
-    required CurrentProperty<T> property,
-    required CurrentTextControllersLifecycleMixin lifecycleProvider,
-    String? Function(T? propertyValue)? asString,
-    CurrentFieldValidation<T>? validation,
-    CurrentTextControllerValidationBuilder<T>? validationBuilder,
-    CurrentTextControllerValidationIssues? validationIssues,
-  }) {
-    (bool isValidType, List<Type> validTypes) validateType(
-        CurrentProperty property) {
-      final validTypes = [
-        CurrentProperty<String>,
-        CurrentProperty<String?>,
-        CurrentStringProperty,
-        CurrentNullableStringProperty
-      ];
-
-      // This is done in a verbose way, duplicating the list (unfortunately) to ensure type check safety,
-      // guarding against Darts reified generics. Simply checking via `validTypes.any((type) => property.runtimeType == type)`
-      // is not guaranteed to behave correctly due to possible type erasure.
-      if (property is! CurrentProperty<String> &&
-          property is! CurrentProperty<String?> &&
-          property is! CurrentStringProperty &&
-          property is! CurrentNullableStringProperty) {
-        return (false, validTypes);
-      }
-      return (true, validTypes);
-    }
-
-    if (validateType(property) case (false, final validTypes)) {
-      throw CurrentTextControllerCurrentPropertyTypeException(
-        property,
-        'stringController',
-        validTypes,
-      );
-    }
-
-    bind(
-      property: property,
-      lifecycleProvider: lifecycleProvider,
-      asString: asString,
-      validation: validation,
-      validationBuilder: validationBuilder == null
-          ? null
-          : (property, context) =>
-              validationBuilder(property as CurrentProperty<T>, context),
-      validationIssues: validationIssues,
-    );
-  }
-
-  /// A convenience method for initializing the controller with properties based on [CurrentProperty<int>]. This is equivalent to calling [bind] with fromString and asString configured for int properties.
-  /// If the CurrentProperty is not of type int, this method will throw an exception.
-  ///
-  /// If [fromString] is omitted, [int.parse] is used.
-  ///
-  /// See [bind] for details on [defaultValue], [validation], and
-  /// [validationIssues].
-  ///
-  void bindInt({
-    required CurrentProperty<T> property,
-    required CurrentTextControllersLifecycleMixin lifecycleProvider,
-    T Function(String text)? fromString,
-    String? Function(T? propertyValue)? asString,
-    T? defaultValue,
-    CurrentFieldValidation<T>? validation,
-    CurrentTextControllerValidationBuilder<T>? validationBuilder,
-    CurrentTextControllerValidationIssues? validationIssues,
-  }) {
-    (bool isValidType, List<Type> validTypes) validateType(
-        CurrentProperty property) {
-      final validTypes = [
-        CurrentProperty<int>,
-        CurrentProperty<int?>,
-        CurrentIntProperty,
-        CurrentNullableIntProperty
-      ];
-
-      // This is done in a verbose way, duplicating the list (unfortunately) to ensure type check safety,
-      // guarding against Darts reified generics. Simply checking via `validTypes.any((type) => property.runtimeType == type)`
-      // is not guaranteed to behave correctly due to possible type erasure.
-      if (property is! CurrentProperty<int> &&
-          property is! CurrentProperty<int?> &&
-          property is! CurrentIntProperty &&
-          property is! CurrentNullableIntProperty) {
-        return (false, validTypes);
-      }
-      return (true, validTypes);
-    }
-
-    if (validateType(property) case (false, final validTypes)) {
-      throw CurrentTextControllerCurrentPropertyTypeException(
-        property,
-        'intController',
-        validTypes,
-      );
-    }
-
-    bind(
-      property: property,
-      lifecycleProvider: lifecycleProvider,
-      fromString: fromString ?? (text) => int.parse(text) as T,
-      asString: asString,
-      defaultValue: defaultValue,
-      validation: validation,
-      validationBuilder: validationBuilder == null
-          ? null
-          : (property, context) =>
-              validationBuilder(property as CurrentProperty<T>, context),
-      validationIssues: validationIssues,
-    );
-  }
-
-  /// A convenience method for initializing the controller with properties based on [CurrentProperty<DateTime>]. This is equivalent to calling [bind] with fromString and asString configured for DateTime properties.
-  /// The [property] must be of type [CurrentProperty<DateTime>], [CurrentDateTimeProperty], or [CurrentNullableDateTimeProperty]. If it is not, this method will throw an exception.
-  ///
-  /// See [bind] for details on [validation] and [validationIssues].
-  ///
-  void bindDateTime({
-    required CurrentProperty<T> property,
-    required CurrentTextControllersLifecycleMixin lifecycleProvider,
-    required T Function(String text) fromString,
-    String? Function(T? propertyValue)? asString,
-    T? defaultValue,
-    CurrentFieldValidation<T>? validation,
-    CurrentTextControllerValidationBuilder<T>? validationBuilder,
-    CurrentTextControllerValidationIssues? validationIssues,
-  }) {
-    (bool isValidType, List<Type> validTypes) validateType(
-        CurrentProperty property) {
-      final validTypes = [
-        CurrentProperty<DateTime>,
-        CurrentProperty<DateTime?>,
-        CurrentDateTimeProperty,
-        CurrentNullableDateTimeProperty
-      ];
-
-      // This is done in a verbose way, duplicating the list (unfortunately) to ensure type check safety,
-      // guarding against Darts reified generics. Simply checking via `validTypes.any((type) => property.runtimeType == type)`
-      // is not guaranteed to behave correctly due to possible type erasure.
-      if (property is! CurrentProperty<DateTime> &&
-          property is! CurrentProperty<DateTime?> &&
-          property is! CurrentDateTimeProperty &&
-          property is! CurrentNullableDateTimeProperty) {
-        return (false, validTypes);
-      }
-      return (true, validTypes);
-    }
-
-    if (validateType(property) case (false, final validTypes)) {
-      throw CurrentTextControllerCurrentPropertyTypeException(
-        property,
-        'dateController',
-        validTypes,
-      );
-    }
-
-    bind(
-      property: property,
-      lifecycleProvider: lifecycleProvider,
-      fromString: fromString,
-      asString: asString ??
-          (propertyValue) =>
-              (propertyValue as DateTime?)?.toIso8601String() ?? '',
-      defaultValue: defaultValue,
-      validation: validation,
-      validationBuilder: validationBuilder == null
-          ? null
-          : (property, context) =>
-              validationBuilder(property as CurrentProperty<T>, context),
-      validationIssues: validationIssues,
-    );
   }
 
   /// Resolves the currently visible validation error for text-field style
