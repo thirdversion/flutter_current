@@ -72,12 +72,11 @@ the core package.</p>
 <p>You can either:</p>
 <ul>
 <li>override <a href="../current/CurrentTextController/defaultValidationIssues.html">CurrentTextController.defaultValidationIssues</a> once for the app</li>
-<li>pass a per-binding validationIssues value to <a href="../current/CurrentTextController/bind.html">CurrentTextController.bind</a>, <a href="../current/CurrentTextController/bindString.html">CurrentTextController.bindString</a>,
-<a href="../current/CurrentTextController/bindInt.html">CurrentTextController.bindInt</a>, or <a href="../current/CurrentTextController/bindDateTime.html">CurrentTextController.bindDateTime</a></li>
+<li>pass a per-binding validationIssues value to the bind method of the controller</li>
 </ul>
 <p>The builders are called the moment the validation problem occurs.</p>
 <h2 id="example">Example</h2>
-<pre class="language-dart"><code class="language-dart">ageController.bindInt(
+<pre class="language-dart"><code class="language-dart">ageController.bind(
   property: viewModel.age,
   lifecycleProvider: this,
   validationBuilder: (property, _) =&gt; property.createValidation(

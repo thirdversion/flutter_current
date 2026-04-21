@@ -171,7 +171,7 @@ class _ProfilePageState extends CurrentState<ProfilePage, ProfileViewModel>
 
   @override
   void bindCurrentControllers() {
-    displayNameController.bindString(
+    displayNameController.bind(
       property: viewModel.displayName,
       lifecycleProvider: this,
       validationBuilder: (property, context) => property.createValidation(
@@ -184,7 +184,7 @@ class _ProfilePageState extends CurrentState<ProfilePage, ProfileViewModel>
       ),
     );
 
-    ageController.bindInt(
+    ageController.bind(
       property: viewModel.age,
       lifecycleProvider: this,
       validationBuilder: (property, _) => property.createValidation(

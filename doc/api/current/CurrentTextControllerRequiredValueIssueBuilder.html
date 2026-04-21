@@ -66,9 +66,9 @@
 <p><a href="../current/CurrentTextController/integer.html">CurrentTextController.integer</a>, <a href="../current/CurrentTextController/nullableInteger.html">CurrentTextController.nullableInteger</a>,</p>
 <p><a href="../current/CurrentTextController/dateTime.html">CurrentTextController.dateTime</a>, and <a href="../current/CurrentTextController/nullableDateTime.html">CurrentTextController.nullableDateTime</a></p>
 <p>These are provided for convenience when working with common types, but you can also use <a href="../current/CurrentTextController/of.html">CurrentTextController.of</a> to create a controller for any type.</p>
-<p>When using <a href="../current/CurrentTextController/of.html">CurrentTextController.of</a>, you must provide the fromString and asString functions in the <a href="../current/CurrentTextController/bind.html">CurrentTextController.bind</a> method to specify how to parse the text into the property's type and how to display the property's value as text.</p>
+<p>When using <a href="../current/CurrentTextController/of.html">CurrentTextController.of</a>, you must provide the fromString and asString functions in the bind method to specify how to parse the text into the property's type and how to display the property's value as text.</p>
 <p>It listens for changes to the property and updates the text accordingly, and also updates the property when the text changes.
-You MUST call <a href="../current/CurrentTextController/bind.html">CurrentTextController.bind</a> to configure the controller. If you do not, the controller will simply act as a normal <a href="https://api.flutter.dev/flutter/widgets/TextEditingController-class.html">TextEditingController</a>.</p>
+You MUST call the controllers bind function to configure the controller. If you do not, the controller will simply act as a normal <a href="https://api.flutter.dev/flutter/widgets/TextEditingController-class.html">TextEditingController</a>.</p>
 <p>When used together with <a href="../current/CurrentFieldValidation-class.html">CurrentFieldValidation</a>, the controller can also:</p>
 <ul>
 <li>mark a field as touched when the user edits text</li>
@@ -99,16 +99,16 @@ class _MyWidgetState extends CurrentState&lt;_MyWidgetState, MyWidgetViewModel&g
 
   @override
   void bindCurrentControllers() {
-    nameController.bindString(
+    nameController.bind(
       property: viewModel.name,
       lifecycleProvider: this,
     );
-    ageController.bindInt(
+    ageController.bind(
       property: viewModel.age,
       lifecycleProvider: this,
       defaultValue: 0,
     );
-    departureDateController.bindDateTime(
+    departureDateController.bind(
       property: viewModel.departureDate,
       lifecycleProvider: this,
       fromString: DateTime.parse,
