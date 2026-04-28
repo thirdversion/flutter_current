@@ -1,3 +1,31 @@
+## 3.0.0-beta-1
+
+- Updated the minimum Flutter SDK constraint to >=3.38.0
+- Added a new `CurrentTextController` API for two-way text/property binding, including `CurrentTextFormField`, `CurrentTextField`, `formValidator(...)`, and controller-managed validation visibility.
+- Added a new issue-based validation framework built around `CurrentValidationIssue`, `CurrentValidationState`, `CurrentFieldValidation`, `CurrentValidationGroup`, and property-owned validation registration.
+- Added `CurrentProperty` factory constructors, a direct `value` setter, improved busy/event helpers, content-aware dirty tracking for list and map properties, and a full mission-control example app that demonstrates the new APIs end-to-end.
+
+**BREAKING CHANGES**
+
+- State change subscriptions now use typed single-event listeners instead of list-based callbacks. Migrate from `addOnStateChangedListener((List<CurrentStateChanged> events) { ... })` to `addStateChangedListener<T>((T event) { ... })`, or use `addAnyStateChangedListener(...)` when you want the untyped stream.
+- `CurrentProperty` equality and `hashCode` are now identity-based. Use `equals(...)` when you want value comparison semantics.
+- `CurrentListProperty` and `CurrentMapProperty` dirty tracking now compares collection contents instead of reference identity, which can change `isDirty` behavior for existing apps.
+- `CurrentWidget` and `CurrentViewModel` lifecycle semantics changed. View model assignment is now tracked per `CurrentState`, `CurrentWidget` can optionally preserve externally owned view models with `disposeViewModel: false`. A couple years ago we opted to throw and exception if a view model was reassigned to a different widget (whether intentionally or by accident). This was to prevent very difficult to diagnose issues. However we are smarter now 🤯. We've now handed you the keys while still putting guardrails rails up to prevent self inflicted drop kicks. See the updated documentation for details on how to use the new lifecycle features and best practices around view model ownership.
+
+### Added
+
+- Added typed `CurrentProperty` factory constructors for primitive, nullable, list, and map properties.
+- Added `CurrentViewModel.isDirty`, `CurrentProperty.isDirty`, `addBusyStatusChangedListener(...)`, `addAnyStateChangedListener(...)`, `addAnyErrorEventListener(...)`, and `notifyChange(...)` helpers.
+- Added source tracking metadata to `CurrentStateChanged` events and convenience event types such as `BusyStatusChanged`.
+- Added type-safe numeric helper methods such as `addNumber`, `subtractNumber`, `multiplyNumber`, and `modNumber` for int properties.
+- Added helper binding infrastructure so property-owned integrations such as validation can attach automatically when a property is assigned to a view model. This opens the door for future property-owned integrations such as analytics, logging, or some other genius idea you have that we haven't even thought of yet (CONTRIBUTORS WELCOME!).
+
+### Example And Docs
+
+- Replaced the simple counter example with a multi-page mission-control showcase covering typed properties, validation, controller binding, collections, busy state, custom events, and code examples.
+- Updated the README with forms-and-validation guidance, including when to use `CurrentTextFormField`, native `TextFormField` plus `controller.formValidator(...)`, or `CurrentTextField`.
+- Expanded package and example test coverage around controller binding, validation flows, widget lifecycle behavior, collection semantics, and the redesigned example app.
+
 ## 2.0.2
 
 - Updated branding images and README (again).

@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 
 class MapViewModel extends CurrentViewModel {
-  final data = CurrentMapProperty<String, String>.empty();
+  final data = CurrentMapProperty<String, String>.empty(propertyName: 'data');
 
   @override
   Iterable<CurrentProperty> get currentProps => [data];
@@ -361,7 +361,7 @@ void main() {
       expect(result, equals(value));
     });
 
-    test('[] operator - has no matching key - returns value', () {
+    test('[] operator - has no matching key - returns null', () {
       const String key = 'name';
       const String value = 'Bob';
       const String missingKey = 'lastName';
@@ -372,6 +372,63 @@ void main() {
 
       expect(result, isNull);
     });
+
+    test('isDirty - map is unchanged from original value - returns false', () {
+      final data = CurrentMapProperty<String, String>({'name': 'Bob'});
+
+      expect(data.isDirty, isFalse);
+    });
+
+    test('add - emits event with property metadata', () async {
+      CurrentStateChanged? receivedEvent;
+
+      final subscription = viewModel
+          .addAnyStateChangedListener((event) => receivedEvent = event);
+
+      viewModel.data.add('name', 'Bob');
+      await Future<void>.microtask(() {});
+
+      expect(receivedEvent, isNotNull);
+      final nextValue = receivedEvent?.nextValue as MapEntry<String, String>?;
+      expect(nextValue?.key, equals('name'));
+      expect(nextValue?.value, equals('Bob'));
+      expect(receivedEvent?.previousValue, isNull);
+      expect(receivedEvent?.propertyName, equals('data'));
+      expect(
+          receivedEvent?.sourceHashCode, equals(viewModel.data.sourceHashCode));
+
+      await subscription.cancel();
+    });
+
+    test('clear - emits a concrete snapshot of previous items', () async {
+      CurrentStateChanged? receivedEvent;
+
+      final subscription = viewModel
+          .addAnyStateChangedListener((event) => receivedEvent = event);
+
+      viewModel.data
+          .addAll({'name': 'Bob', 'planet': 'Earth'}, notifyChanges: false);
+      viewModel.data.clear();
+      await Future<void>.microtask(() {});
+
+      expect(receivedEvent, isNotNull);
+      expect(receivedEvent?.previousValue,
+          equals({'name': 'Bob', 'planet': 'Earth'}));
+      expect(receivedEvent?.nextValue, equals(<String, String>{}));
+      expect(receivedEvent?.propertyName, equals('data'));
+
+      await subscription.cancel();
+    });
+
+    test('isDirty - map changes from original value - returns true', () {
+      final data = CurrentMapProperty<String, String>({'name': 'Bob'});
+      data.setViewModel(viewModel);
+
+      data.add('lastName', 'Smith', notifyChanges: false);
+
+      expect(data.isDirty, isTrue);
+    });
+
     test(
         'reset - starting map is empty - add item - should be empty after reset',
         () {

@@ -106,18 +106,20 @@ void main() {
       expect(ageOne.equals(ageTwo), isFalse);
     });
 
-    test('equals - other is CurrentProperty with same value - are equal', () {
+    test('equals - other is numeric value with same value - are equal', () {
       final ageOne = CurrentProperty<int>(10);
       const double ageTwo = 10.0;
 
       expect(ageOne.equals(ageTwo), isTrue);
     });
 
-    test('equality - other is CurrentProperty with same value - are equal', () {
+    test(
+        'equality - other is distinct CurrentProperty with same value - are not equal',
+        () {
       final ageOne = CurrentProperty<int>(10);
       final ageTwo = CurrentProperty<int>(10);
 
-      expect(ageOne == ageTwo, isTrue);
+      expect(ageOne == ageTwo, isFalse);
     });
 
     test(
@@ -129,14 +131,18 @@ void main() {
       expect(ageOne == ageTwo, isFalse);
     });
 
-    test(
-        'equality - other is same as CurrentProperty generic type argument with same value - are equal',
-        () {
+    test('equality - same instance - are equal', () {
+      final age = CurrentProperty<int>(10);
+
+      expect(age == age, isTrue);
+    });
+
+    test('equality - other is raw value with same value - are not equal', () {
       final ageOne = CurrentProperty<int>(10);
       const int ageTwo = 10;
 
       // ignore: unrelated_type_equality_checks
-      expect(ageOne == ageTwo, isTrue);
+      expect(ageOne == ageTwo, isFalse);
     });
 
     test(
@@ -157,6 +163,29 @@ void main() {
 
       // ignore: unrelated_type_equality_checks
       expect(ageOne == name, isFalse);
+    });
+
+    test('hashCode - value changes - hashCode remains stable', () {
+      final age = CurrentProperty<int>(10, isPrimitiveType: true);
+      final initialHashCode = age.hashCode;
+
+      age.set(20, notifyChange: false);
+
+      expect(age.hashCode, equals(initialHashCode));
+    });
+
+    test('equality - distinct properties can coexist as map keys', () {
+      final ageOne = CurrentProperty<int>(10);
+      final ageTwo = CurrentProperty<int>(10);
+
+      final values = {
+        ageOne: 'first',
+        ageTwo: 'second',
+      };
+
+      expect(values.length, equals(2));
+      expect(values[ageOne], equals('first'));
+      expect(values[ageTwo], equals('second'));
     });
 
     test('isNull - value is null - returns true', () {

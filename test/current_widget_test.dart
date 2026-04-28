@@ -29,6 +29,20 @@ class _TestViewModel extends CurrentViewModel {
   Iterable<CurrentProperty> get currentProps => [firstName, lastName, age];
 }
 
+class _LifecycleTrackingViewModel extends CurrentViewModel {
+  final title = CurrentStringProperty('Initial');
+  bool wasDisposed = false;
+
+  @override
+  Iterable<CurrentProperty> get currentProps => [title];
+
+  @override
+  void dispose() {
+    wasDisposed = true;
+    super.dispose();
+  }
+}
+
 class _MyWidget extends CurrentWidget<_TestViewModel> {
   final _ApplicationViewModel applicationViewModel;
   final _ApplicationSubViewModel appSubViewModel;
@@ -42,6 +56,34 @@ class _MyWidget extends CurrentWidget<_TestViewModel> {
   CurrentState<CurrentWidget<CurrentViewModel>, _TestViewModel>
       createCurrent() {
     return _MyWidgetState(viewModel);
+  }
+}
+
+class _LifecycleTrackingWidget
+    extends CurrentWidget<_LifecycleTrackingViewModel> {
+  const _LifecycleTrackingWidget({
+    required super.viewModel,
+    super.disposeViewModel,
+  });
+
+  @override
+  CurrentState<CurrentWidget<CurrentViewModel>, _LifecycleTrackingViewModel>
+      createCurrent() {
+    return _LifecycleTrackingWidgetState(viewModel);
+  }
+}
+
+class _LifecycleTrackingWidgetState extends CurrentState<
+    _LifecycleTrackingWidget, _LifecycleTrackingViewModel> {
+  _LifecycleTrackingWidgetState(super.viewModel);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Text(viewModel.title.value),
+      ),
+    );
   }
 }
 
@@ -270,8 +312,66 @@ void main() {
   });
 
   group('Exception/Edge Case Testing', () {
+    testWidgets('CurrentWidget disposes owned view model by default',
+        (tester) async {
+      final viewModel = _LifecycleTrackingViewModel();
+
+      await tester.pumpWidget(
+        _LifecycleTrackingWidget(viewModel: viewModel),
+      );
+
+      expect(viewModel.wasDisposed, isFalse);
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpAndSettle();
+
+      expect(viewModel.wasDisposed, isTrue);
+    });
+
     testWidgets(
-        'EpireWidget Test - Attemp to share View Model Instance - Throws CurrentViewModelAlreadyAssignedException',
+        'CurrentWidget can reassign and reuse a view model when disposeViewModel is false',
+        (tester) async {
+      final viewModel = _LifecycleTrackingViewModel();
+
+      await tester.pumpWidget(
+        _LifecycleTrackingWidget(
+          viewModel: viewModel,
+          disposeViewModel: false,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      viewModel.title('First Mount');
+      await tester.pumpAndSettle();
+
+      expect(find.text('First Mount'), findsOneWidget);
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpAndSettle();
+
+      expect(viewModel.wasDisposed, isFalse);
+
+      viewModel.title('Reused');
+
+      await tester.pumpWidget(
+        _LifecycleTrackingWidget(
+          viewModel: viewModel,
+          disposeViewModel: false,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('Reused'), findsOneWidget);
+
+      viewModel.title('Reassign');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Reassign'), findsOneWidget);
+    });
+
+    testWidgets(
+        'CurrentWidget Test - Attempt to share ViewModel instance - throws CurrentViewModelAlreadyAssignedException',
         (tester) async {
       late FlutterErrorDetails errorDetails;
       FlutterError.onError = (details) {

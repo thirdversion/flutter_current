@@ -22,18 +22,27 @@ abstract class CurrentValue<T> {
 ///
 ///You optionally set the [propertyName] argument to conditionally perform logic when a specific
 ///property changes. You can access the [propertyName] in any event listener registered with the
-///[CurrentViewModel.addOnStateChangedListener] function via the [propertyName] property on an [CurrentStateChanged] object.
+///[CurrentViewModel.addStateChangedListener] function via the [propertyName] property on an [CurrentStateChanged] object.
 ///
 ///If [T] is of type [List] or [Map], use either [CurrentListProperty] or [CurrentMapProperty]. Not doing so
 ///will prevent the [reset] function from performing as expected.
 ///
-///An [CurrentProperty] is callable. Calling the property updates the value. However, there are two
+///An [CurrentProperty] is callable. Calling the property updates the value. However, there are three
 ///ways to update the value of an [CurrentProperty]:
+///
+///*Directly using [value]*:
+///```dart
+/////initialize the property value to zero.
+///final age = CurrentProperty.integer();
+///
+/////update the property value to five.
+///age.value = 5;
+///```
 ///
 ///*Using [set]*:
 ///```dart
 /////initialize the property value to zero.
-///final age = createProperty<int>(0);
+///final age = CurrentProperty.integer();
 ///
 /////update the property value to five.
 ///age.set(5);
@@ -44,13 +53,15 @@ abstract class CurrentValue<T> {
 ///*Calling the property*:
 ///```dart
 /////initialize the property value to zero.
-///final age = CurrentProperty<int>(0);
+///final age = CurrentProperty.integer();
 ///
 /////update the property value to five.
 ///age(5);
 ///```
 class CurrentProperty<T> implements CurrentValue<T> {
   String? propertyName;
+
+  final int sourceHashCode = identityHashCode(Object());
 
   final bool isPrimitiveType;
 
@@ -59,8 +70,20 @@ class CurrentProperty<T> implements CurrentValue<T> {
 
   T _value;
 
+  /// Returns the current value of this [CurrentProperty].
+  /// Setting the [value] will update the value of this [CurrentProperty] and trigger a UI update if the new value is different from the current value.
+  /// If [T] is a reference type, setting the [value] to a new instance of [T] with the same properties as the current value will still trigger a UI update since the reference has changed.
+  ///
+  /// Setting the value here will not update the [originalValue]. To update the [originalValue] to the current value, use the [setOriginalValueToCurrent] function, or use the [set] function with the [setAsOriginal] argument set to true.
   @override
   T get value => _value;
+  set value(T newValue) {
+    if (_value == newValue) {
+      return;
+    }
+
+    set(newValue, notifyChange: true);
+  }
 
   /// Returns true if the value of this [CurrentProperty] is null.
   ///
@@ -69,7 +92,27 @@ class CurrentProperty<T> implements CurrentValue<T> {
   /// Returns true if the value of this [CurrentProperty] is not null.
   bool get isNotNull => !isNull;
 
+  /// Returns true if the value of this [CurrentProperty] is different from the [originalValue].
+  ///
+  /// This can be used to determine if the value has been changed since it was last reset or since the [originalValue] was last updated to the current value.
+  bool get isDirty => hasValueChanged(value, originalValue);
+
+  /// Determines whether the current value differs from the original value.
+  ///
+  /// Specialized property types can override this when their value semantics
+  /// differ from the default `==` comparison.
+  bool hasValueChanged(T currentValue, T originalValue) =>
+      currentValue != originalValue;
+
   CurrentViewModel? _viewModel;
+  final List<CurrentViewModelBinding> _registeredBindings = [];
+
+  /// Helper bindings registered directly against this property.
+  ///
+  /// Validation now uses this so bindings can attach automatically without
+  /// requiring separate registration on the view model.
+  Iterable<CurrentViewModelBinding> get registeredBindings =>
+      List.unmodifiable(_registeredBindings);
 
   /// Returns the instance of the [CurrentViewModel] this
   /// property is associated with.
@@ -91,10 +134,371 @@ class CurrentProperty<T> implements CurrentValue<T> {
     _originalValue = _value;
   }
 
-  ///Links this CurrentProperty instance with an [CurrentViewModel].
+  /// Factory constructor for initializing a [CurrentProperty] with a null value.
   ///
+  /// See [CurrentProperty] for [propertyName] usages.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final name = CurrentProperty.nullable<User>();
+  /// ```
+  ///
+  /// This is just another way to initialize a nullable CurrentProperty. You can also use the [createNullProperty] helper function.
+  /// ```dart
+  /// final name = CurrentProperty<User?>(null);
+  /// ```
+  static CurrentProperty<TNullable?> nullable<TNullable>({
+    String? propertyName,
+  }) {
+    return createNullProperty(propertyName: propertyName);
+  }
+
+  /// Factory constructor for initializing a [CurrentIntProperty].
+  ///
+  /// Can optionally provide an [initialValue] and [propertyName]. Initial value defaults to zero if not provided.
+  ///
+  /// See [CurrentProperty] for [propertyName] usages.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final age = CurrentProperty.integer();
+  /// ```
+  ///
+  /// This is just another way to initialize a CurrentIntProperty. You can also use the [CurrentIntProperty] constructor directly.
+  static CurrentIntProperty integer({
+    int initialValue = 0,
+    String? propertyName,
+  }) {
+    return CurrentIntProperty(initialValue, propertyName: propertyName);
+  }
+
+  /// Factory constructor for initializing a [CurrentNullableIntProperty].
+  ///
+  /// Can optionally provide an [initialValue] and [propertyName]. Initial value defaults to null if not provided.
+  ///
+  /// See [CurrentProperty] for [propertyName] usages.
+  ///
+  /// ## Example
+  ///
+  /// ```
+  /// final age = CurrentProperty.nullableInteger();
+  /// ```
+  ///
+  /// This is just another way to initialize a CurrentNullableIntProperty. You can also use the [CurrentNullableIntProperty] constructor directly.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final age = CurrentNullableIntProperty();
+  /// ```
+  static CurrentNullableIntProperty nullableInteger({
+    int? initialValue,
+    String? propertyName,
+  }) {
+    return CurrentNullableIntProperty(
+        value: initialValue, propertyName: propertyName);
+  }
+
+  /// Factory constructor for initializing a [CurrentDoubleProperty].
+  ///
+  /// Can optionally provide an [initialValue] and [propertyName]. Initial value defaults to zero if not provided.
+  ///
+  /// See [CurrentProperty] for [propertyName] usages.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final price = CurrentProperty.doubleProp();
+  /// ```
+  ///
+  /// This is just another way to initialize a CurrentDoubleProperty. You can also use the [CurrentDoubleProperty] constructor directly.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final price = CurrentDoubleProperty(initialValue: 9.99);
+  /// ```
+  static CurrentDoubleProperty doubleProp({
+    double initialValue = 0.0,
+    String? propertyName,
+  }) {
+    return CurrentDoubleProperty(initialValue, propertyName: propertyName);
+  }
+
+  /// Factory constructor for initializing a [CurrentNullableDoubleProperty].
+  ///
+  /// Can optionally provide an [initialValue] and [propertyName]. Initial value defaults to null if not provided.
+  ///
+  /// See [CurrentProperty] for [propertyName] usages.
+  ///
+  /// ## Example
+  ///
+  /// ```dart  /// final price = CurrentProperty.nullableDouble();
+  /// ```
+  ///
+  /// This is just another way to initialize a CurrentNullableDoubleProperty. You can also use the [CurrentNullableDoubleProperty] constructor directly.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final price = CurrentNullableDoubleProperty();
+  /// ```
+  static CurrentNullableDoubleProperty nullableDouble({
+    double? initialValue,
+    String? propertyName,
+  }) {
+    return CurrentNullableDoubleProperty(
+        value: initialValue, propertyName: propertyName);
+  }
+
+  static CurrentNullableDoubleProperty nullableDecimal({
+    double? initialValue,
+    String? propertyName,
+  }) {
+    return CurrentNullableDoubleProperty(
+        value: initialValue, propertyName: propertyName);
+  }
+
+  /// Factory constructor for initializing a [CurrentStringProperty].
+  ///
+  /// Can optionally provide an [initialValue] and [propertyName]. Initial value defaults to empty string if not provided.
+  ///
+  /// See [CurrentProperty] for [propertyName] usages.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final name = CurrentProperty.string();
+  /// ```
+  ///
+  /// This is just another way to initialize a CurrentStringProperty. You can also use the [CurrentStringProperty] constructor directly.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final name = CurrentStringProperty(initialValue: 'Bob');
+  /// ```
+  static CurrentStringProperty string({
+    String initialValue = '',
+    String? propertyName,
+  }) {
+    return CurrentStringProperty(initialValue, propertyName: propertyName);
+  }
+
+  /// Factory constructor for initializing a [CurrentNullableStringProperty].
+  ///
+  /// Can optionally provide an [initialValue] and [propertyName]. Initial value defaults to null if not provided.
+  ///
+  /// See [CurrentProperty] for [propertyName] usages.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final name = CurrentProperty.nullableString();
+  /// ```
+  ///
+  /// This is just another way to initialize a CurrentNullableStringProperty. You can also use the [CurrentNullableStringProperty] constructor directly.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final name = CurrentNullableStringProperty();
+  /// ```
+  static CurrentNullableStringProperty nullableString({
+    String? initialValue,
+    String? propertyName,
+  }) {
+    return CurrentNullableStringProperty(
+        value: initialValue, propertyName: propertyName);
+  }
+
+  /// Factory constructor for initializing a [CurrentBoolProperty].
+  ///
+  /// Can optionally provide an [initialValue] and [propertyName]. Initial value defaults to false if not provided.
+  ///
+  /// See [CurrentProperty] for [propertyName] usages.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final isVisible = CurrentProperty.boolean();
+  /// ```
+  ///
+  /// This is just another way to initialize a CurrentBoolProperty. You can also use the [CurrentBoolProperty] constructor directly.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final isVisible = CurrentBoolProperty(initialValue: true);
+  /// ```
+  static CurrentBoolProperty boolean({
+    bool initialValue = false,
+    String? propertyName,
+  }) {
+    return CurrentBoolProperty(initialValue, propertyName: propertyName);
+  }
+
+  /// Factory constructor for initializing a [CurrentNullableBoolProperty].
+  ///
+  /// Can optionally provide an [initialValue] and [propertyName]. Initial value defaults to null if not provided.
+  ///
+  /// See [CurrentProperty] for [propertyName] usages.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final isVisible = CurrentProperty.nullableBoolean();
+  /// ```
+  ///
+  /// This is just another way to initialize a CurrentNullableBoolProperty. You can also use the [CurrentNullableBoolProperty] constructor directly.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final isVisible = CurrentNullableBoolProperty();
+  /// ```
+  static CurrentNullableBoolProperty nullableBoolean({
+    bool? initialValue,
+    String? propertyName,
+  }) {
+    return CurrentNullableBoolProperty(
+        value: initialValue, propertyName: propertyName);
+  }
+
+  /// Factory constructor for initializing a [CurrentDateTimeProperty].
+  ///
+  /// Can optionally provide an [initialValue] and [propertyName]. Initial value defaults to the current date and time if not provided.
+  ///
+  /// See [CurrentProperty] for [propertyName] usages.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final createdAt = CurrentProperty.dateTime();
+  /// ```
+  ///
+  /// This is just another way to initialize a [CurrentDateTimeProperty]. You can also use the [CurrentDateTimeProperty] constructor directly.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final createdAt = CurrentDateTimeProperty(initialValue: DateTime(2024, 1, 1));
+  /// ```
+  static CurrentDateTimeProperty dateTime({
+    DateTime? initialValue,
+    String? propertyName,
+  }) {
+    return CurrentDateTimeProperty(initialValue ?? DateTime.now(),
+        propertyName: propertyName);
+  }
+
+  /// Factory constructor for initializing a [CurrentNullableDateTimeProperty].
+  ///
+  /// Can optionally provide an [initialValue] and [propertyName]. Initial value defaults to null if not provided.
+  ///
+  /// See [CurrentProperty] for [propertyName] usages.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final createdAt = CurrentProperty.nullableDateTime();
+  /// ```
+  ///
+  /// This is just another way to initialize a [CurrentNullableDateTimeProperty]. You can also use the [CurrentNullableDateTimeProperty] constructor directly.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final createdAt = CurrentNullableDateTimeProperty();
+  /// ```
+  static CurrentNullableDateTimeProperty nullableDateTime({
+    DateTime? initialValue,
+    String? propertyName,
+  }) {
+    return CurrentNullableDateTimeProperty(
+        value: initialValue, propertyName: propertyName);
+  }
+
+  /// Factory constructor for initializing a [CurrentListProperty].
+  ///
+  /// Can optionally provide an [initialValue] and [propertyName]. Initial value defaults to an empty list if not provided.
+  ///
+  /// See [CurrentProperty] for [propertyName] usages.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final items = CurrentProperty.list<String>();
+  /// ```
+  ///
+  /// This is just another way to initialize a [CurrentListProperty]. You can also use the [CurrentListProperty] constructor directly.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final items = CurrentListProperty<String>(['item1', 'item2']);
+  /// ```
+  static CurrentListProperty<TItem> list<TItem>({
+    List<TItem>? initialValue,
+    String? propertyName,
+  }) {
+    return CurrentListProperty<TItem>(initialValue ?? <TItem>[],
+        propertyName: propertyName);
+  }
+
+  /// Factory constructor for initializing a [CurrentMapProperty].
+  ///
+  /// Can optionally provide an [initialValue] and [propertyName]. Initial value defaults to an empty map if not provided.
+  ///
+  /// See [CurrentProperty] for [propertyName] usages.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final items = CurrentProperty.map<String, int>();
+  /// ```
+  ///
+  /// This is just another way to initialize a [CurrentMapProperty]. You can also use the [CurrentMapProperty] constructor directly.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final items = CurrentMapProperty<String, int>({'item1': 1, 'item2': 2});
+  /// ```
+  static CurrentMapProperty<TKey, TValue> map<TKey, TValue>({
+    Map<TKey, TValue>? initialValue,
+    String? propertyName,
+  }) {
+    return CurrentMapProperty<TKey, TValue>(initialValue ?? <TKey, TValue>{},
+        propertyName: propertyName);
+  }
+
+  ///Links this [CurrentProperty] instance with an [CurrentViewModel].
   void setViewModel(CurrentViewModel viewModel) {
     _viewModel = viewModel;
+
+    for (final binding in _registeredBindings) {
+      binding.attachToViewModel();
+    }
+  }
+
+  /// Registers a helper binding against this property.
+  ///
+  /// If the property is already attached to a view model, the binding is
+  /// attached immediately. Otherwise it will attach the next time
+  /// [setViewModel] runs.
+  void registerBinding(CurrentViewModelBinding binding) {
+    if (_registeredBindings.contains(binding)) {
+      return;
+    }
+
+    _registeredBindings.add(binding);
+
+    if (_viewModel != null) {
+      binding.attachToViewModel();
+    }
   }
 
   /// Updates the underlying [value] for this CurrentProperty.
@@ -104,7 +508,6 @@ class CurrentProperty<T> implements CurrentValue<T> {
   ///
   /// If [setAsOriginal] is true, updating the value will also set the [originalValue] to the
   /// current value. See also [setOriginalValueToCurrent] and [reset]
-  ///
   void call(T value, {bool notifyChange = true, bool setAsOriginal = false}) {
     set(value, notifyChange: notifyChange, setAsOriginal: setAsOriginal);
   }
@@ -143,7 +546,12 @@ class CurrentProperty<T> implements CurrentValue<T> {
     _value = value;
     if (notifyChange && previousValue != value) {
       viewModel.notifyChanges([
-        CurrentStateChanged(value, previousValue, propertyName: propertyName)
+        CurrentStateChanged(
+          value,
+          previousValue,
+          propertyName: propertyName,
+          sourceHashCode: sourceHashCode,
+        )
       ]);
     }
 
@@ -166,13 +574,13 @@ class CurrentProperty<T> implements CurrentValue<T> {
   ///so the [value] will be reset to a deep copy of the [originalValue].
   ///
   ///If [T] is a primitiveType, setting [isPrimitiveType] to true will suppress the warning.
-  ///Consider using the typed CurrentProperty classes (eg: [CurrentIntProperty], [CurrentStringProperty])
+  ///Consider using the typed [CurrentProperty] classes (eg: [CurrentIntProperty], [CurrentStringProperty])
   ///in place of the generic [CurrentProperty] class for primitives.
   ///
   ///## Usage
   ///
   ///```dart
-  ///final age = CurrentProperty<int>(10); //age.value is 10
+  ///final age = CurrentIntProperty(10); //age.value is 10
   ///
   ///age(20); //age.value is 20
   ///age(25); //age.value is 25
@@ -201,6 +609,7 @@ class CurrentProperty<T> implements CurrentValue<T> {
           _originalValue,
           currentValue,
           propertyName: propertyName,
+          sourceHashCode: sourceHashCode,
         )
       ]);
     }
@@ -209,17 +618,20 @@ class CurrentProperty<T> implements CurrentValue<T> {
   @override
   String toString() => _value?.toString() ?? '';
 
-  ///Checks if [other] is equal to the [value] of this CurrentProperty
+  ///Checks if [other] is equal to the [value] of this CurrentProperty.
+  ///
+  /// This is a value-comparison convenience method and is intentionally
+  /// different from [operator ==], which uses property identity.
   ///
   ///### Usage
   ///
   ///```dart
-  ///final age = CurrentProperty<int>(10);
+  ///final age = CurrentIntProperty(10);
   ///
   ///age.equals(10); //returns true
   ///
   ///
-  ///final ageTwo = CurrentProperty<int>(10);
+  ///final ageTwo = CurrentIntProperty(10);
   ///
   ///age.equals(ageTwo); //returns true
   ///```
@@ -232,11 +644,10 @@ class CurrentProperty<T> implements CurrentValue<T> {
   }
 
   @override
-  // ignore: non_nullable_equals_parameter
-  bool operator ==(dynamic other) => equals(other);
+  bool operator ==(Object other) => identical(this, other);
 
   @override
-  int get hashCode => _value.hashCode;
+  int get hashCode => sourceHashCode;
 }
 
 ///Short hand helper function for initializing an [CurrentProperty].

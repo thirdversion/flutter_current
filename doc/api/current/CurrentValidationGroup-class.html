@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the CurrentValidationGroup class from the current library, for the Dart programming language.">
+  <title>CurrentValidationGroup class - current library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">current</a></li>
+    <li><a href="../current/">current.dart</a></li>
+    <li class="self-crumb">CurrentValidationGroup class</li>
+  </ol>
+  <div class="self-name">CurrentValidationGroup</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="current&#47;current-library-sidebar.html"
+    data-below-sidebar="current&#47;CurrentValidationGroup-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">CurrentValidationGroup</span> class 
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>Aggregates multiple <a href="../current/CurrentFieldValidation-class.html">CurrentFieldValidation</a> instances.</p>
+<p>This is intended for form-level workflows where multiple fields need to be
+validated together. The group itself does not own any values; it simply
+coordinates the validators that are passed to it.</p>
+<h2 id="example">Example</h2>
+<pre class="language-dart"><code class="language-dart">final firstNameValidation = firstName.createValidation(
+  rules: [
+    (value) =&gt; value.isEmpty
+        ? const CurrentValidationIssue(
+            'profile.firstName.required',
+            fallbackMessage: 'First name is required',
+          )
+        : null,
+  ],
+);
+
+final ageValidation = age.createValidation(
+  rules: [
+    (value) =&gt; value &lt; 18
+        ? const CurrentValidationIssue(
+            'profile.age.adultRequired',
+            fallbackMessage: 'Must be an adult',
+          )
+        : null,
+  ],
+);
+
+final validationGroup = CurrentValidationGroup([
+  firstNameValidation,
+  ageValidation,
+]);
+
+final canSubmit = validationGroup.validateAll();
+</code></pre>
+</section>
+
+
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="CurrentValidationGroup.new" class="callable">
+          <span class="name"><a href="../current/CurrentValidationGroup/CurrentValidationGroup.html">CurrentValidationGroup</a></span><span class="signature">(<span class="parameter" id="-param-validations"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../current/CurrentFieldValidation-class.html">CurrentFieldValidation</a></span>&gt;</span></span> <span class="parameter-name">validations</span></span>)</span>
+        </dt>
+        <dd>
+          Creates a group from the provided <code>validations</code>.
+        </dd>
+        <dt id="CurrentValidationGroup.forProperties" class="callable">
+          <span class="name"><a href="../current/CurrentValidationGroup/CurrentValidationGroup.forProperties.html">CurrentValidationGroup.forProperties</a></span><span class="signature">(<span class="parameter" id="forProperties-param-properties"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../current/CurrentProperty-class.html">CurrentProperty</a></span>&gt;</span></span> <span class="parameter-name">properties</span></span>)</span>
+        </dt>
+        <dd>
+          Creates a group from properties that already have registered validators.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="firstIssue" class="property">
+  <span class="name"><a href="../current/CurrentValidationGroup/firstIssue.html">firstIssue</a></span>
+  <span class="signature">&#8594; <a href="../current/CurrentValidationIssue-class.html">CurrentValidationIssue</a>?</span>
+  
+
+</dt>
+<dd>
+  The first issue currently reported by the group, if any.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="hasIssues" class="property">
+  <span class="name"><a href="../current/CurrentValidationGroup/hasIssues.html">hasIssues</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Whether any validator in the group currently has an issue.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="isValid" class="property">
+  <span class="name"><a href="../current/CurrentValidationGroup/isValid.html">isValid</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Whether every validator in the group is currently valid.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="validations" class="property">
+  <span class="name"><a href="../current/CurrentValidationGroup/validations.html">validations</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../current/CurrentFieldValidation-class.html">CurrentFieldValidation</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  The validators tracked by this group.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="resetAll" class="callable">
+  <span class="name"><a href="../current/CurrentValidationGroup/resetAll.html">resetAll</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Resets every validator in the group back to the untouched state.
+  
+
+</dd>
+
+        <dt id="resolveFirstIssueText" class="callable">
+  <span class="name"><a href="../current/CurrentValidationGroup/resolveFirstIssueText.html">resolveFirstIssueText</a></span><span class="signature">(<wbr>{<span class="parameter" id="resolveFirstIssueText-param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a>?</span> <span class="parameter-name">context</span>, </span><span class="parameter" id="resolveFirstIssueText-param-resolver"><span class="type-annotation"><a href="../current/CurrentValidationIssueTextResolver.html">CurrentValidationIssueTextResolver</a>?</span> <span class="parameter-name">resolver</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Resolves the first issue currently reported by the group, if any.
+  
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="validateAll" class="callable">
+  <span class="name"><a href="../current/CurrentValidationGroup/validateAll.html">validateAll</a></span><span class="signature">(<wbr>{<span class="parameter" id="validateAll-param-markTouched"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">markTouched</span> = <span class="default-value">true</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Validates every field in the group.
+  
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">current</a></li>
+    <li><a href="../current/">current</a></li>
+    <li class="self-crumb">CurrentValidationGroup class</li>
+</ol>
+
+    <h5>current library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    current
+      3.0.0-beta-1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="current API docs, for the Dart programming language.">
+  <title>current - Dart API docs</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="static-assets/github.css?v1">
+  <link rel="stylesheet" href="static-assets/styles.css?v1">
+  <link rel="icon" href="static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="https://github.com/thirdversion/flutter_current">current package</a></li>
+  </ol>
+  <div class="self-name">current</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div id="dartdoc-main-content" class="main-content">
+      
+<section class="desc markdown">
+  <p><a href="https://github.com/thirdversion/flutter_current/actions/workflows/validate_library.yml"><img src="https://github.com/thirdversion/flutter_current/actions/workflows/validate_library.yml/badge.svg" alt="CI: Library"></a>
+<a href="https://github.com/thirdversion/flutter_current/actions/workflows/validate_examples.yml"><img src="https://github.com/thirdversion/flutter_current/actions/workflows/validate_examples.yml/badge.svg" alt="CI: Examples"></a>
+<a href="https://github.com/thirdversion/flutter_current/actions/workflows/validate_docs.yml"><img src="https://github.com/thirdversion/flutter_current/actions/workflows/validate_docs.yml/badge.svg" alt="CI: API Docs"></a></p>
+<a href="https://pub.dev/packages/current">
+<div align="center">
+<img src="https://github.com/thirdversion/flutter_current/blob/main/images/CurrentLogoSM.png?raw=true" alt="Current Logo">
+</div>
+</a>
+<h1 align="center">Flutter Current</h1>
+<h3 align="center">A simple, lightweight state management library for Flutter</h3>
+<h2 id="features">Features</h2>
+<ul>
+<li>Typed reactive properties for primitives, nullable values, lists, and maps.</li>
+<li>View-model-driven widgets with <code>CurrentWidget</code> and <code>CurrentState</code>.</li>
+<li>Application-wide shared state with <code>Current</code>.</li>
+<li>Issue-based validation that keeps localization in the widget layer.</li>
+<li>Text input binding with <code>CurrentTextController</code>, <code>CurrentTextFormField</code>, and <code>CurrentTextField</code> for form and non-form flows.</li>
+<li>Built-in busy state, change notifications, and event listeners for async flows.</li>
+</ul>
+<h2 id="getting-started">Getting Started</h2>
+<p>In your Flutter project, add the dependency to your <code>pubspec.yaml</code>.</p>
+<pre class="language-yaml"><code class="language-yaml">dependencies:
+  current: ^3.0.0-beta-1
+</code></pre>
+<p><strong>Tip:</strong> Consider installing the <a href="https://marketplace.visualstudio.com/items?itemName=ThirdVersionTechnologyLtd.current-flutter-snippets">Current Flutter Snippets</a> extension in Visual Studio Code to make creating Current classes easier.</p>
+<h2 id="quick-start">Quick Start</h2>
+<p>A small counter is still the fastest way to see the core pattern: keep state in a <code>CurrentViewModel</code>, list reactive properties in <code>currentProps</code>, and render that view model through a <code>CurrentWidget</code>.</p>
+<h3 id="counter_view_modeldart">counter_view_model.dart</h3>
+<pre class="language-dart"><code class="language-dart">import 'package:current/current.dart';
+
+class CounterViewModel extends CurrentViewModel {
+  final count = CurrentProperty.integer(
+    initialValue: 0,
+    propertyName: 'count',
+  );
+
+  void incrementCounter() {
+    count.increment();
+  }
+
+  @override
+  Iterable&lt;CurrentProperty&gt; get currentProps =&gt; [count];
+}
+</code></pre>
+<h3 id="counter_pagedart">counter_page.dart</h3>
+<pre class="language-dart"><code class="language-dart">import 'package:current/current.dart';
+import 'package:flutter/material.dart';
+
+class CounterPage extends CurrentWidget&lt;CounterViewModel&gt; {
+  const CounterPage({super.key, required super.viewModel});
+
+  @override
+  CurrentState&lt;CounterPage, CounterViewModel&gt; createCurrent() {
+    return _CounterPageState(viewModel);
+  }
+}
+
+class _CounterPageState extends CurrentState&lt;CounterPage, CounterViewModel&gt; {
+  _CounterPageState(super.viewModel);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Current Example')),
+      body: Center(
+        child: Text('Count: ${viewModel.count.value}'),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: viewModel.incrementCounter,
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+</code></pre>
+<h3 id="maindart">main.dart</h3>
+<pre class="language-dart"><code class="language-dart">import 'package:flutter/material.dart';
+
+void main() =&gt; runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Current State Example',
+      home: CounterPage(
+        viewModel: CounterViewModel(),
+      ),
+    );
+  }
+}
+</code></pre>
+<p>This keeps business logic out of the widget tree without introducing a second state object. When any property in <code>currentProps</code> changes, the matching <code>CurrentState</code> rebuilds automatically.</p>
+<h2 id="forms-and-validation">Forms And Validation</h2>
+<p>Current validation is issue-based. Rules return <code>CurrentValidationIssue</code>, not display strings. That keeps validation logic locale-agnostic and lets widgets resolve the final text using whatever localization system the app already uses.</p>
+<h3 id="profile_view_modeldart">profile_view_model.dart</h3>
+<pre class="language-dart"><code class="language-dart">import 'package:current/current.dart';
+
+class ProfileViewModel extends CurrentViewModel {
+  final displayName = CurrentProperty.string(
+    initialValue: '',
+    propertyName: 'displayName',
+  );
+
+  final age = CurrentProperty.integer(
+    initialValue: 0,
+    propertyName: 'age',
+  );
+
+  CurrentValidationGroup? _profileValidation;
+  CurrentValidationGroup get profileValidation =&gt;
+      _profileValidation ??= CurrentValidationGroup.forProperties([
+        displayName,
+        age,
+      ]);
+
+  @override
+  Iterable&lt;CurrentProperty&gt; get currentProps =&gt; [displayName, age];
+}
+</code></pre>
+<h3 id="profile_pagedart">profile_page.dart</h3>
+<pre class="language-dart"><code class="language-dart">import 'package:current/current.dart';
+import 'package:flutter/material.dart';
+
+class ProfilePage extends CurrentWidget&lt;ProfileViewModel&gt; {
+  const ProfilePage({super.key, required super.viewModel});
+
+  @override
+  CurrentState&lt;ProfilePage, ProfileViewModel&gt; createCurrent() {
+    return _ProfilePageState(viewModel);
+  }
+}
+
+class _ProfilePageState extends CurrentState&lt;ProfilePage, ProfileViewModel&gt;
+    with CurrentTextControllersLifecycleMixin {
+      
+  _ProfilePageState(super.viewModel);
+
+  final _formKey = GlobalKey&lt;FormState&gt;();
+  final displayNameController = CurrentTextController.string();
+  final ageController = CurrentTextController.integer();
+
+  @override
+  void bindCurrentControllers() {
+    displayNameController.bind(
+      property: viewModel.displayName,
+      lifecycleProvider: this,
+      validationBuilder: (property, context) =&gt; property.createValidation(
+        rules: [
+          (value) =&gt; value.trim().isEmpty
+              ? CurrentValidationIssue.message(AppLocalizations.of(context)!.displayNameRequired)
+              : null,
+        ],
+        validateOnPropertyChange: true,
+      ),
+    );
+
+    ageController.bind(
+      property: viewModel.age,
+      lifecycleProvider: this,
+      validationBuilder: (property, _) =&gt; property.createValidation(
+        rules: [
+          (value) =&gt; value &lt; 18
+              ? const CurrentValidationIssue(
+                  'profile.age.minimum', // error code if localization is based on codes
+                  arguments: {'minimumAge': 18},
+                  fallbackMessage: 'Must be at least 18',
+                )
+              : null,
+        ],
+        validateOnPropertyChange: true,
+      ),
+      validationIssues: CurrentTextControllerValidationIssues(
+        invalidValueIssueBuilder: _invalidAgeIssue,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+      key: _formKey,
+      child: Column(
+        children: [
+          CurrentTextFormField&lt;String&gt;(
+            controller: displayNameController,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            decoration: const InputDecoration(labelText: 'Display name'),
+          ),
+          CurrentTextFormField&lt;int&gt;(
+            controller: ageController,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            validationTextResolver: _resolveIssueText,
+            decoration: const InputDecoration(labelText: 'Age'),
+          ),
+          FilledButton(
+            onPressed: () {
+              if (_formKey.currentState?.validate() ?? false) {
+                // Submit the form.
+              }
+            },
+            child: const Text('Save profile'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static String? _resolveIssueText(CurrentValidationIssue issue) {
+    switch (issue.code) {
+      case 'profile.age.minimum':
+        return 'Must be at least ${issue.arguments['minimumAge']} years old.';
+      case 'profile.age.invalid':
+        return 'Enter a valid whole number.';
+      default:
+        return issue.fallbackMessage;
+    }
+  }
+
+  static CurrentValidationIssue _invalidAgeIssue(String value) {
+    return const CurrentValidationIssue.invalidValue(
+      code: 'profile.age.invalid',
+      fallbackMessage: 'Enter a valid whole number.',
+    );
+  }
+}
+</code></pre>
+<h3 id="choosing-a-field-widget">Choosing a field widget</h3>
+<p>Current exposes three field-integration paths. Pick the one that matches who owns your widget tree and validation UX.</p>
+<ul>
+<li>Use <code>CurrentTextFormField</code> when you are already inside a <code>Form</code> and want the shortest Current-specific wrapper.</li>
+<li>Use native <code>TextFormField</code> with <code>controller.formValidator(...)</code> when your app already has its own field wrapper or design-system component and you only want Current to provide binding plus validation bridging.</li>
+<li>Use <code>CurrentTextField</code> when you are not using Flutter <code>Form</code> widgets but still want Current-managed error visibility with <code>AutovalidateMode</code>-style behavior.</li>
+</ul>
+<pre class="language-dart"><code class="language-dart">CurrentTextFormField&lt;String&gt;(
+  controller: displayNameController,
+  autovalidateMode: AutovalidateMode.onUserInteraction,
+  validationTextResolver: _resolveIssueText,
+  decoration: const InputDecoration(labelText: 'Display name'),
+);
+
+TextFormField(
+  controller: ageController,
+  autovalidateMode: AutovalidateMode.onUserInteraction,
+  validator: ageController.formValidator(
+    context: context,
+    resolver: _resolveIssueText,
+  ),
+  decoration: const InputDecoration(labelText: 'Age'),
+);
+
+CurrentTextField&lt;String&gt;(
+  controller: displayNameController,
+  autovalidateMode: AutovalidateMode.onUserInteractionIfError,
+  validationTextResolver: _resolveIssueText,
+  decoration: const InputDecoration(labelText: 'Quick search'),
+);
+</code></pre>
+<p>Key points:</p>
+<ul>
+<li>Register validation once, either by calling <code>createValidation()</code> directly or by supplying <code>validationBuilder</code> when binding a controller.</li>
+<li>Use <code>CurrentValidationGroup.forProperties([...])</code> when you want grouped validation without separately listing validators.</li>
+<li>Use <code>CurrentTextFormField</code> for the shortest <code>Form</code> integration, native <code>TextFormField</code> with <code>controller.formValidator(...)</code> when your widget layer already exists, and <code>CurrentTextField</code> when you want Current-managed validation without a <code>Form</code>.</li>
+<li>Let widgets resolve issue text either through a resolver or through <code>BuildContext</code> when your localization API requires it.</li>
+<li>Use <code>CurrentTextControllerValidationIssues</code> for controller-generated parse or required-value failures.</li>
+<li>Validation rules can live in the widget, the view model, or in a separate plain-Dart helper file when that keeps a larger form easier to read.</li>
+</ul>
+<h2 id="application-wide-state-management">Application Wide State Management</h2>
+<p>Use <code>Current</code> when you want a shared <code>CurrentViewModel</code> anywhere below a subtree, or across the whole app.</p>
+<h3 id="application_view_modeldart">application_view_model.dart</h3>
+<pre class="language-dart"><code class="language-dart">import 'package:current/current.dart';
+
+class ApplicationViewModel extends CurrentViewModel {
+  final userName = CurrentProperty.nullableString(
+    propertyName: 'userName',
+  );
+  final signedIn = CurrentProperty.boolean(
+    propertyName: 'signedIn',
+  );
+
+  void signIn(String name) {
+    userName.value = name;
+    signedIn.value = true;
+  }
+
+  @override
+  Iterable&lt;CurrentProperty&gt; get currentProps =&gt; [userName, signedIn];
+}
+</code></pre>
+<h3 id="maindart-2">main.dart</h3>
+<pre class="language-dart"><code class="language-dart">import 'package:current/current.dart';
+import 'package:flutter/material.dart';
+
+void main() =&gt; runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Current(
+        ApplicationViewModel(),
+        onAppStateChanged: () =&gt;
+            DateTime.now().microsecondsSinceEpoch.toString(),
+        child: Builder(
+          builder: (context) {
+            final appViewModel = Current.viewModelOf&lt;ApplicationViewModel&gt;(context);
+            final userName = appViewModel.userName.value;
+
+            return Column(
+              children: [
+                Text('User: ${userName ?? 'Guest'}'),
+                TextButton(
+                  onPressed: () =&gt; appViewModel.signIn('Taylor'),
+                  child: const Text('Sign In'),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+</code></pre>
+<p><code>onAppStateChanged</code> must return a unique string each time shared state changes. For production apps, a UUID generator is a common choice.</p>
+<h2 id="explore-the-example-app">Explore The Example App</h2>
+<p>The repository includes a larger showcase app in <a href="example/README.md">example/README.md</a>. It demonstrates typed properties, form validation, controller binding, collection properties, busy state, custom events, and reference snippets in a single responsive mission-control UI.</p>
+<h2 id="contributing">Contributing</h2>
+<p>This is an open source project, and contributions are welcome. Please feel free to <a href="https://github.com/thirdversion/flutter_current/issues/new/choose">create a new issue</a> if you encounter any problems, or <a href="https://github.com/thirdversion/flutter_current/pulls">submit a pull request</a>. For community contribution guidelines, please review the <a href="CODE_OF_CONDUCT.md">Code of Conduct</a>.</p>
+<p>If submitting a pull request, please ensure the following standards are met:</p>
+<ol>
+<li>Code files must be well formatted with <code>dart format .</code>.</li>
+<li>Tests must pass with <code>flutter test</code>. New test cases to validate your changes are highly recommended.</li>
+<li>Implementations must not add unnecessary project dependencies.</li>
+<li>Project must contain zero warnings. Running <code>flutter analyze</code> must return zero issues.</li>
+<li>Keep docstrings and README guidance up to date when public APIs change.</li>
+</ol>
+<h2 id="additional-information">Additional information</h2>
+<p>This package has <strong>ZERO</strong> third-party package dependencies.</p>
+<p>You can find the full API documentation <a href="https://pub.dev/documentation/current/latest/">here</a>.</p>
+<br>
+<a href="https://thirdversion.ca">
+  <div align="center">
+    <img src="https://github.com/thirdversion/flutter_current/blob/main/images/LogoBlackMD.png?raw=true" alt="Third Version Technology Logo">
+    <br>
+    © 2026 Third Version Technology Ltd
+  </div>
+</a>
+</section>
+
+
+      <section class="summary">
+          <h2>Libraries</h2>
+        <dl>
+          <dt id="current">
+  <span class="name"><a href="current/">current</a></span> 
+
+</dt>
+<dd>A simple yet powerful state management library for Flutter.
+</dd>
+
+        </dl>
+      </section>
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="https://github.com/thirdversion/flutter_current">current package</a></li>
+</ol>
+
+    <h5 class="hidden-xs"><span class="package-name">current</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Libraries</li>
+      <li><a href="current/">current</a></li>
+</ol>
+
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div>
+</main>
+<footer>
+  <span class="no-break">
+    current
+      3.0.0-beta-1
+  </span>
+  
+</footer>
+
+
+<script src="static-assets/highlight.pack.js?v1"></script>
+<script src="static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+
