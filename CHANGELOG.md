@@ -1,3 +1,13 @@
+## 3.0.0-beta-2
+
+- Further simplified examples in README.
+- Add topics to pubspec.yaml for better discoverability on pub.dev.
+
+**BREAKING CHANGE**
+
+- The `CurrentApp` no longer requires or accepts a String unique key, while the `Current` widget no longer requires or accepts an onAppStateChanged callback. These were used to force UI builds on root-level app state changes. This has been replaced with a more
+idiomatic implementation using `ChangeNotifier` in conjuction with the existing `InheritedWidget` implementation, so the UI will now automatically update on app state changes without any extra work on your part. Please refer to earlier comment about being smarter now 🤯.
+
 ## 3.0.0-beta-1
 
 - Updated the minimum Flutter SDK constraint to >=3.38.0
@@ -11,8 +21,6 @@
 - `CurrentProperty` equality and `hashCode` are now identity-based. Use `equals(...)` when you want value comparison semantics.
 - `CurrentListProperty` and `CurrentMapProperty` dirty tracking now compares collection contents instead of reference identity, which can change `isDirty` behavior for existing apps.
 - `CurrentWidget` and `CurrentViewModel` lifecycle semantics changed. View model assignment is now tracked per `CurrentState`, `CurrentWidget` can optionally preserve externally owned view models with `disposeViewModel: false`. A couple years ago we opted to throw and exception if a view model was reassigned to a different widget (whether intentionally or by accident). This was to prevent very difficult to diagnose issues. However we are smarter now 🤯. We've now handed you the keys while still putting guardrails rails up to prevent self inflicted drop kicks. See the updated documentation for details on how to use the new lifecycle features and best practices around view model ownership.
-- The `CurrentApp` widget no longer requires or accepts a String unique key, while the `Current` widget no longer requires or accepts an onAppStateChanged callback. These were used to force UI builds on root-level app state changes. This has been replaced with a more
-idiomatic implementation using `ChangeNotifier` in conjuction with the existing `InheritedWidget` implementation, so the UI will now automatically update on app state changes without any extra work on your part. Please refer to earlier comment about being smarter now 🤯.
 
 ### Added
 
