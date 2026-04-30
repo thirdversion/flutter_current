@@ -12,10 +12,15 @@ class CodeExamplesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
-    final compact = width < 860;
+    final isMobile = width < 500;
+    final isTablet = width < 860;
 
     return SingleChildScrollView(
-      padding: EdgeInsets.all(compact ? 20 : 28),
+      padding: EdgeInsets.all(isMobile
+          ? 12
+          : isTablet
+              ? 14
+              : 20),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1040),
@@ -23,51 +28,66 @@ class CodeExamplesPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               MissionPanel(
+                padding: EdgeInsets.all(isMobile ? 12 : 14),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Code Examples',
-                      style: Theme.of(context).textTheme.headlineMedium,
+                      style: isMobile
+                          ? Theme.of(context).textTheme.titleLarge
+                          : Theme.of(context).textTheme.headlineMedium,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Small, focused snippets covering common Current patterns.',
+                      style: (isMobile
+                              ? Theme.of(context).textTheme.bodySmall
+                              : Theme.of(context).textTheme.bodyMedium)
+                          ?.copyWith(
+                        color: SpaceMissionTheme.textMuted,
+                      ),
                     ),
                     const SizedBox(height: 10),
-                    Text(
-                      'This module translates the mission-control demos back into code. The snippets are intentionally small, but they cover the common patterns you need to get productive with Current quickly.',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: SpaceMissionTheme.textMuted,
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Wrap(
+                        spacing: isMobile ? 6 : 10,
+                        runSpacing: 6,
+                        children: const [
+                          StatusPill(
+                            label: 'View model basics',
+                            icon: Icons.memory_outlined,
+                            compact: true,
                           ),
-                    ),
-                    const SizedBox(height: 18),
-                    Wrap(
-                      spacing: 12,
-                      runSpacing: 12,
-                      children: const [
-                        StatusPill(
-                          label: 'View model basics',
-                          icon: Icons.memory_outlined,
-                        ),
-                        StatusPill(
-                          label: 'Forms + validation',
-                          icon: Icons.fact_check_outlined,
-                          color: SpaceMissionTheme.highlight,
-                        ),
-                        StatusPill(
-                          label: 'Events + collections',
-                          icon: Icons.route_outlined,
-                          color: SpaceMissionTheme.warning,
-                        ),
-                      ],
+                          StatusPill(
+                            label: 'Forms + validation',
+                            icon: Icons.fact_check_outlined,
+                            color: SpaceMissionTheme.highlight,
+                            compact: true,
+                          ),
+                          StatusPill(
+                            label: 'Events',
+                            icon: Icons.route_outlined,
+                            color: SpaceMissionTheme.warning,
+                            compact: true,
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 14),
               Column(
                 children: _snippetSections
                     .map(
                       (snippet) => Padding(
-                        padding: const EdgeInsets.only(bottom: 18),
-                        child: _SnippetCard(snippet: snippet),
+                        padding: EdgeInsets.only(bottom: isMobile ? 10 : 12),
+                        child: _SnippetCard(
+                          snippet: snippet,
+                          compact: isMobile,
+                        ),
                       ),
                     )
                     .toList(),
@@ -81,70 +101,98 @@ class CodeExamplesPage extends StatelessWidget {
 }
 
 class _SnippetCard extends StatelessWidget {
-  const _SnippetCard({required this.snippet});
+  const _SnippetCard({
+    required this.snippet,
+    this.compact = false,
+  });
 
   final _SnippetSection snippet;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     final appViewModel = Current.viewModelOf<ApplicationViewModel>(context);
 
     return MissionPanel(
+      padding: EdgeInsets.all(compact ? 12 : 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(compact ? 8 : 10),
                 decoration: BoxDecoration(
                   color: snippet.color.withValues(alpha: 0.14),
-                  borderRadius: BorderRadius.circular(18),
+                  borderRadius: BorderRadius.circular(compact ? 12 : 16),
                 ),
-                child: Icon(snippet.icon, color: snippet.color),
+                child: Icon(
+                  snippet.icon,
+                  size: compact ? 18 : 20,
+                  color: snippet.color,
+                ),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       snippet.title,
-                      style: Theme.of(context).textTheme.titleLarge,
+                      style: compact
+                          ? Theme.of(context).textTheme.titleSmall
+                          : Theme.of(context).textTheme.titleMedium,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     Text(
                       snippet.subtitle,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: SpaceMissionTheme.textMuted,
-                          ),
+                      style: (compact
+                              ? Theme.of(context).textTheme.bodySmall
+                              : Theme.of(context).textTheme.bodyMedium)
+                          ?.copyWith(
+                        color: SpaceMissionTheme.textMuted,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           Text(
             snippet.explanation,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: SpaceMissionTheme.textMuted,
-                ),
+            style: (compact
+                    ? Theme.of(context).textTheme.bodySmall
+                    : Theme.of(context).textTheme.bodyMedium)
+                ?.copyWith(
+              color: SpaceMissionTheme.textMuted,
+            ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           ...snippet.takeaways.map(
             (takeaway) => Padding(
-              padding: const EdgeInsets.only(bottom: 10),
+              padding: EdgeInsets.only(bottom: compact ? 6 : 8),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Icon(
                     Icons.arrow_outward,
-                    size: 16,
+                    size: compact ? 12 : 14,
                     color: snippet.color,
                   ),
-                  const SizedBox(width: 10),
-                  Expanded(child: Text(takeaway)),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      takeaway,
+                      style: compact
+                          ? Theme.of(context).textTheme.bodySmall
+                          : Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ),
                 ],
               ),
             ),

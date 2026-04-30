@@ -14,7 +14,8 @@ class MissionOverviewPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final appViewModel = Current.viewModelOf<ApplicationViewModel>(context);
     final width = MediaQuery.sizeOf(context).width;
-    final compact = width < 960;
+    final isMobile = width < 500;
+    final isTablet = width < 960;
     final textTheme = Theme.of(context).textTheme;
 
     final cards = [
@@ -76,157 +77,256 @@ class MissionOverviewPage extends StatelessWidget {
     ];
 
     return SingleChildScrollView(
-      padding: EdgeInsets.all(compact ? 20 : 28),
+      padding: EdgeInsets.all(isMobile
+          ? 12
+          : isTablet
+              ? 16
+              : 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           MissionPanel(
-            padding: EdgeInsets.all(compact ? 22 : 30),
-            child: compact
+            padding: EdgeInsets.all(isMobile
+                ? 14
+                : isTablet
+                    ? 18
+                    : 24),
+            child: isMobile
                 ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const CurrentBrandMark(expanded: true, height: 54),
-                      const SizedBox(height: 18),
+                      const CurrentBrandMark(expanded: true, height: 40),
+                      const SizedBox(height: 12),
                       Text(
                         'Orbit every Current feature from one mission deck.',
-                        style: textTheme.displaySmall,
+                        style: textTheme.titleLarge,
                       ),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 10),
                       Text(
-                        'This example replaces the starter counter with a space mission dashboard that shows how Current handles state, forms, validation, collections, events, and async feedback in a real-feeling interface.',
-                        style: textTheme.bodyLarge?.copyWith(
+                        'This example shows how Current handles state, forms, validation, collections, and events.',
+                        style: textTheme.bodySmall?.copyWith(
                           color: SpaceMissionTheme.textMuted,
                         ),
                       ),
-                      const SizedBox(height: 18),
-                      FilledButton.icon(
-                        onPressed: () => appViewModel
-                            .selectSection(MissionSection.flightForms),
-                        icon: const Icon(Icons.fact_check_outlined),
-                        label: const Text('Open the launch approval flow'),
-                      ),
-                    ],
-                  )
-                : Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const CurrentBrandMark(expanded: true, height: 82),
-                      const SizedBox(width: 28),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Orbit every Current feature from one mission deck.',
-                              style: textTheme.displaySmall,
-                            ),
-                            const SizedBox(height: 14),
-                            Text(
-                              'Current keeps Flutter state readable without sacrificing power. This mission-control example shows the library at production scale: typed properties, validation metadata, text binding, collection semantics, event streams, busy states, and reset workflows.',
-                              style: textTheme.bodyLarge?.copyWith(
-                                color: SpaceMissionTheme.textMuted,
-                              ),
-                            ),
-                            const SizedBox(height: 22),
-                            Wrap(
-                              spacing: 12,
-                              runSpacing: 12,
-                              children: const [
-                                StatusPill(
-                                  label: '6 mission modules',
-                                  icon: Icons.dashboard_customize_outlined,
-                                ),
-                                StatusPill(
-                                  label: 'Validation + text binding',
-                                  icon: Icons.rule_folder_outlined,
-                                  color: SpaceMissionTheme.highlight,
-                                ),
-                                StatusPill(
-                                  label: 'Zero third-party state layer',
-                                  icon: Icons.layers_clear_outlined,
-                                  color: SpaceMissionTheme.warning,
-                                ),
-                              ],
-                            ),
-                          ],
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton.icon(
+                          onPressed: () => appViewModel
+                              .selectSection(MissionSection.flightForms),
+                          icon: const Icon(Icons.fact_check_outlined),
+                          label: const Text('Launch approval'),
                         ),
                       ),
                     ],
-                  ),
-          ),
-          const SizedBox(height: 22),
-          Wrap(
-            spacing: 18,
-            runSpacing: 18,
-            children: cards
-                .map(
-                  (card) => SizedBox(
-                    width: compact ? double.infinity : 360,
-                    child: MissionPanel(
-                      child: Column(
+                  )
+                : isTablet
+                    ? Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: SpaceMissionTheme.accentStrong
-                                      .withValues(alpha: 0.14),
-                                  borderRadius: BorderRadius.circular(18),
-                                ),
-                                child: Icon(card.section.icon,
-                                    color: SpaceMissionTheme.accent),
-                              ),
-                              const SizedBox(width: 14),
-                              Expanded(
-                                child: Text(card.title,
-                                    style: textTheme.titleLarge),
-                              ),
-                            ],
-                          ),
+                          const CurrentBrandMark(expanded: true, height: 48),
                           const SizedBox(height: 14),
                           Text(
-                            card.description,
+                            'Orbit every Current feature from one mission deck.',
+                            style: textTheme.headlineSmall,
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            'This example replaces the starter counter with a space mission dashboard that shows how Current handles state, forms, validation, collections, events, and async feedback.',
                             style: textTheme.bodyMedium?.copyWith(
                               color: SpaceMissionTheme.textMuted,
                             ),
                           ),
-                          const SizedBox(height: 16),
-                          ...card.bulletPoints.map(
-                            (bullet) => Padding(
-                              padding: const EdgeInsets.only(bottom: 10),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Padding(
-                                    padding: EdgeInsets.only(top: 5),
-                                    child: Icon(
-                                      Icons.arrow_outward,
-                                      size: 14,
+                          const SizedBox(height: 14),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: const [
+                              StatusPill(
+                                label: '5 modules',
+                                icon: Icons.dashboard_customize_outlined,
+                              ),
+                              StatusPill(
+                                label: 'Validation + binding',
+                                icon: Icons.rule_folder_outlined,
+                                color: SpaceMissionTheme.highlight,
+                              ),
+                              StatusPill(
+                                label: 'Pure state',
+                                icon: Icons.layers_clear_outlined,
+                                color: SpaceMissionTheme.warning,
+                              ),
+                            ],
+                          ),
+                        ],
+                      )
+                    : Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const CurrentBrandMark(expanded: true, height: 64),
+                          const SizedBox(width: 20),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Orbit every Current feature from one mission deck.',
+                                  style: textTheme.displaySmall,
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  'Current keeps Flutter state readable without sacrificing power. This mission-control example shows the library at production scale: typed properties, validation metadata, text binding, collection semantics, event streams, busy states, and reset workflows.',
+                                  style: textTheme.bodyLarge?.copyWith(
+                                    color: SpaceMissionTheme.textMuted,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Wrap(
+                                  spacing: 10,
+                                  runSpacing: 10,
+                                  children: const [
+                                    StatusPill(
+                                      label: '6 mission modules',
+                                      icon: Icons.dashboard_customize_outlined,
+                                    ),
+                                    StatusPill(
+                                      label: 'Validation + text binding',
+                                      icon: Icons.rule_folder_outlined,
                                       color: SpaceMissionTheme.highlight,
                                     ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Expanded(child: Text(bullet)),
-                                ],
-                              ),
+                                    StatusPill(
+                                      label: 'Zero third-party state layer',
+                                      icon: Icons.layers_clear_outlined,
+                                      color: SpaceMissionTheme.warning,
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          FilledButton.tonalIcon(
-                            onPressed: () =>
-                                appViewModel.selectSection(card.section),
-                            icon: Icon(card.section.icon),
-                            label: Text('Open ${card.section.title}'),
                           ),
                         ],
                       ),
-                    ),
-                  ),
-                )
-                .toList(),
+          ),
+          SizedBox(
+              height: isMobile
+                  ? 12
+                  : isTablet
+                      ? 14
+                      : 18),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final cardWidth = isMobile
+                  ? double.infinity
+                  : isTablet
+                      ? (constraints.maxWidth - 12) / 2
+                      : 380.0;
+
+              return Wrap(
+                spacing: isMobile ? 12 : 14,
+                runSpacing: isMobile ? 12 : 14,
+                children: cards
+                    .map(
+                      (card) => SizedBox(
+                        width: cardWidth,
+                        child: MissionPanel(
+                          padding: EdgeInsets.all(isMobile ? 12 : 14),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.all(isMobile ? 8 : 10),
+                                    decoration: BoxDecoration(
+                                      color: SpaceMissionTheme.accentStrong
+                                          .withValues(alpha: 0.14),
+                                      borderRadius: BorderRadius.circular(
+                                          isMobile ? 14 : 16),
+                                    ),
+                                    child: Icon(
+                                      card.section.icon,
+                                      size: isMobile ? 18 : 20,
+                                      color: SpaceMissionTheme.accent,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      card.title,
+                                      style: isMobile
+                                          ? textTheme.titleSmall
+                                          : textTheme.titleMedium,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                card.description,
+                                style: (isMobile
+                                        ? textTheme.bodySmall
+                                        : textTheme.bodyMedium)
+                                    ?.copyWith(
+                                  color: SpaceMissionTheme.textMuted,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              ...card.bulletPoints.map(
+                                (bullet) => Padding(
+                                  padding: const EdgeInsets.only(bottom: 6),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Padding(
+                                        padding: EdgeInsets.only(top: 2),
+                                        child: Icon(
+                                          Icons.arrow_outward,
+                                          size: 12,
+                                          color: SpaceMissionTheme.highlight,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Expanded(
+                                        child: Text(
+                                          bullet,
+                                          style: isMobile
+                                              ? textTheme.bodySmall
+                                              : textTheme.bodySmall,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              SizedBox(
+                                width: double.infinity,
+                                child: FilledButton.tonalIcon(
+                                  onPressed: () =>
+                                      appViewModel.selectSection(card.section),
+                                  icon: Icon(
+                                    card.section.icon,
+                                    size: isMobile ? 18 : 20,
+                                  ),
+                                  label: Text(
+                                    isMobile
+                                        ? card.section.title
+                                        : 'Open ${card.section.title}',
+                                    style: TextStyle(
+                                      fontSize: isMobile ? 12 : 13,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                    .toList(),
+              );
+            },
           ),
         ],
       ),
