@@ -138,7 +138,9 @@ class ProfileViewModel extends CurrentViewModel {
   
   CurrentFieldValidation<int> ageValidation(CurrentIntegerProperty age) {
     return age.createValidation(rules: [_userIsAdult()]);
-CurrentValidationRule<int> _userIsAdult() {
+  }
+
+  CurrentValidationRule<int> _userIsAdult() {
     return (value) => value < 18
         ? const CurrentValidationIssue(
             'profile.age.minimum', // error code if localization is based on codes
