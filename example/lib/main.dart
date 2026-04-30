@@ -1,7 +1,6 @@
 import 'package:current/current.dart';
 import 'package:current_counter_example/space_mission_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart';
 
 import 'application_view_model.dart';
 import 'components/mission_control_shell.dart';
@@ -24,7 +23,6 @@ class MyApp extends StatelessWidget {
       theme: SpaceMissionTheme.themeData,
       home: Current<ApplicationViewModel>(
         viewModel,
-        onAppStateChanged: () => const Uuid().v1(),
         child: MissionControlShell(viewModel: viewModel),
       ),
     );

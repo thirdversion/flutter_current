@@ -138,9 +138,7 @@ class ProfileViewModel extends CurrentViewModel {
   
   CurrentFieldValidation<int> ageValidation(CurrentIntegerProperty age) {
     return age.createValidation(rules: [_userIsAdult()]);
-  }
-
-  CurrentValidationRule<int> _userIsAdult() {
+CurrentValidationRule<int> _userIsAdult() {
     return (value) => value < 18
         ? const CurrentValidationIssue(
             'profile.age.minimum', // error code if localization is based on codes
@@ -334,8 +332,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       home: Current(
         ApplicationViewModel(),
-        onAppStateChanged: () =>
-            DateTime.now().microsecondsSinceEpoch.toString(),
         child: Builder(
           builder: (context) {
             final appViewModel = Current.viewModelOf<ApplicationViewModel>(context);
@@ -357,8 +353,6 @@ class MyApp extends StatelessWidget {
   }
 }
 ```
-
-`onAppStateChanged` must return a unique string each time shared state changes. For production apps, a UUID generator is a common choice.
 
 ## Explore The Example App
 
