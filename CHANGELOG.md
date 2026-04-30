@@ -11,8 +11,7 @@
 
 **BREAKING CHANGE**
 
-- The `CurrentApp` no longer requires or accepts a String unique key, while the `Current` widget no longer requires or accepts an onAppStateChanged callback. These were used to force UI builds on root-level app state changes. This has been replaced with a more
-  idiomatic implementation using `ChangeNotifier` in conjuction with the existing `InheritedWidget` implementation, so the UI will now automatically update on app state changes without any extra work on your part. Please refer to earlier comment about being smarter now 🤯.
+- The `CurrentApp` no longer requires or accepts a String unique key, while the `Current` widget no longer requires or accepts an onAppStateChanged callback. These were used to force UI builds on root-level app state changes. This has been replaced with a more idiomatic implementation using `ChangeNotifier` in conjuction with the existing `InheritedWidget` implementation, so the UI will now automatically update on app state changes without any extra work on your part. Please refer to earlier comment about being smarter now 🤯.
 
 ## 3.0.0-beta-1
 
