@@ -29,6 +29,10 @@ The example is configured for Android, iOS, macOS, Linux, Windows, and web. You 
 - Open Launch Events if you want to inspect busy-state handling and custom event listeners.
 - Open Code Examples if you want short snippets before reading the package README.
 
+## AI Notice
+
+This example app was created largely by AI. Not because we are lazy, but this allowed us to prove that Current's APIs are intuitive and discoverable enough to be used by an AI with no prior knowledge of the package. What this also means however is the example app may contain unconventional patterns or approaches that an AI might take. If you have any feedback on how the example app is structured or how the APIs are used, please let us know!
+
 ## Related Documentation
 
 - Package overview and API usage: [../README.md](../README.md)
