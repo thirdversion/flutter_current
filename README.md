@@ -26,7 +26,7 @@ In your Flutter project, add the dependency to your `pubspec.yaml`.
 
 ```yaml
 dependencies:
-  current: ^3.0.0-beta-1
+  current: ^3.0.0-beta-2
 ```
 
 **Tip:** Consider installing the [Current Flutter Snippets](https://marketplace.visualstudio.com/items?itemName=ThirdVersionTechnologyLtd.current-flutter-snippets) extension in Visual Studio Code to make creating Current classes easier.
@@ -75,7 +75,7 @@ class _CounterPageState extends CurrentState<CounterPage, CounterViewModel> {
     return Scaffold(
       appBar: AppBar(title: const Text('Current Example')),
       body: Center(
-        child: Text('Count: ${viewModel.count.value}'),
+        child: Text('Count: ${viewModel.count}'),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: viewModel.incrementCounter,
@@ -181,6 +181,10 @@ class _ProfilePageState extends CurrentState<ProfilePage, ProfileViewModel>
 
   @override
   void bindCurrentControllers() {
+    // Bind each controller to its property, with an optional validation builder.
+    // Once the controller is bound and assigned to a CurrentTextFormField, 
+    // value parsing, validation, state updates, and error visibility are automatically handled for you.
+
     displayNameController.bind(
       property: viewModel.displayName,
       lifecycleProvider: this,
@@ -193,7 +197,7 @@ class _ProfilePageState extends CurrentState<ProfilePage, ProfileViewModel>
       lifecycleProvider: this,
       validationBuilder: (property, _) => viewModel.ageValidation(property),
       validationIssues: CurrentTextControllerValidationIssues(
-        invalidValueIssueBuilder: _invalidAgeIssue, // Custom message for invalid int values
+        invalidValueIssueBuilder: _invalidAgeIssue, // Optional custom message for invalid values
       ),
     );
   }
@@ -330,8 +334,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       home: Current(
         ApplicationViewModel(),
-        onAppStateChanged: () =>
-            DateTime.now().microsecondsSinceEpoch.toString(),
         child: Builder(
           builder: (context) {
             final appViewModel = Current.viewModelOf<ApplicationViewModel>(context);
@@ -353,8 +355,6 @@ class MyApp extends StatelessWidget {
   }
 }
 ```
-
-`onAppStateChanged` must return a unique string each time shared state changes. For production apps, a UUID generator is a common choice.
 
 ## Explore The Example App
 

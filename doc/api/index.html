@@ -46,11 +46,11 @@
   <p><a href="https://github.com/thirdversion/flutter_current/actions/workflows/validate_library.yml"><img src="https://github.com/thirdversion/flutter_current/actions/workflows/validate_library.yml/badge.svg" alt="CI: Library"></a>
 <a href="https://github.com/thirdversion/flutter_current/actions/workflows/validate_examples.yml"><img src="https://github.com/thirdversion/flutter_current/actions/workflows/validate_examples.yml/badge.svg" alt="CI: Examples"></a>
 <a href="https://github.com/thirdversion/flutter_current/actions/workflows/validate_docs.yml"><img src="https://github.com/thirdversion/flutter_current/actions/workflows/validate_docs.yml/badge.svg" alt="CI: API Docs"></a></p>
+<p align="center">
 <a href="https://pub.dev/packages/current">
-<div align="center">
-<img src="https://github.com/thirdversion/flutter_current/blob/main/images/CurrentLogoSM.png?raw=true" alt="Current Logo">
-</div>
+<img src="https://raw.githubusercontent.com/thirdversion/flutter_current/main/images/CurrentLogoSM.png" alt="Current Logo">
 </a>
+</p>
 <h1 align="center">Flutter Current</h1>
 <h3 align="center">A simple, lightweight state management library for Flutter</h3>
 <h2 id="features">Features</h2>
@@ -74,13 +74,10 @@
 <pre class="language-dart"><code class="language-dart">import 'package:current/current.dart';
 
 class CounterViewModel extends CurrentViewModel {
-  final count = CurrentProperty.integer(
-    initialValue: 0,
-    propertyName: 'count',
-  );
+  final count = CurrentProperty.integer();
 
   void incrementCounter() {
-    count.increment();
+    count.value += 1;
   }
 
   @override
@@ -108,7 +105,7 @@ class _CounterPageState extends CurrentState&lt;CounterPage, CounterViewModel&gt
     return Scaffold(
       appBar: AppBar(title: const Text('Current Example')),
       body: Center(
-        child: Text('Count: ${viewModel.count.value}'),
+        child: Text('Count: ${viewModel.count}'),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: viewModel.incrementCounter,
@@ -144,22 +141,33 @@ class MyApp extends StatelessWidget {
 <pre class="language-dart"><code class="language-dart">import 'package:current/current.dart';
 
 class ProfileViewModel extends CurrentViewModel {
-  final displayName = CurrentProperty.string(
-    initialValue: '',
-    propertyName: 'displayName',
-  );
+  final displayName = CurrentProperty.string();
+  final age = CurrentProperty.integer();
 
-  final age = CurrentProperty.integer(
-    initialValue: 0,
-    propertyName: 'age',
-  );
+  // Can define your validation rules in the view model
+  // or in a separate validation focused file if that keeps things cleaner and/or easier to test.
 
-  CurrentValidationGroup? _profileValidation;
-  CurrentValidationGroup get profileValidation =&gt;
-      _profileValidation ??= CurrentValidationGroup.forProperties([
-        displayName,
-        age,
-      ]);
+  CurrentFieldValidation&lt;String&gt; displayNameValidation(CurrentStringProperty displayName, AppLocalizations intl) {
+    return displayName.createValidation(rules: [_displayNameNotEmpty(intl)]);
+  }
+
+  CurrentValidationRule&lt;String&gt; _displayNameNotEmpty(AppLocalizations intl) {
+    return (value) =&gt; value.trim().isEmpty
+        ? CurrentValidationIssue.message(intl.displayNameRequired)
+        : null;
+  }
+  
+  CurrentFieldValidation&lt;int&gt; ageValidation(CurrentIntegerProperty age) {
+    return age.createValidation(rules: [_userIsAdult()]);
+CurrentValidationRule&lt;int&gt; _userIsAdult() {
+    return (value) =&gt; value &lt; 18
+        ? const CurrentValidationIssue(
+            'profile.age.minimum', // error code if localization is based on codes
+            arguments: {'minimumAge': 18},
+            fallbackMessage: 'Must be at least 18',
+          )
+        : null;
+  }
 
   @override
   Iterable&lt;CurrentProperty&gt; get currentProps =&gt; [displayName, age];
@@ -189,36 +197,23 @@ class _ProfilePageState extends CurrentState&lt;ProfilePage, ProfileViewModel&gt
 
   @override
   void bindCurrentControllers() {
+    // Bind each controller to its property, with an optional validation builder.
+    // Once the controller is bound and assigned to a CurrentTextFormField, 
+    // value parsing, validation, state updates, and error visibility are automatically handled for you.
+
     displayNameController.bind(
       property: viewModel.displayName,
       lifecycleProvider: this,
-      validationBuilder: (property, context) =&gt; property.createValidation(
-        rules: [
-          (value) =&gt; value.trim().isEmpty
-              ? CurrentValidationIssue.message(AppLocalizations.of(context)!.displayNameRequired)
-              : null,
-        ],
-        validateOnPropertyChange: true,
-      ),
+      validationBuilder: (property, context) =&gt; 
+        viewModel.displayNameValidation(property, AppLocalizations.of(context)),
     );
 
     ageController.bind(
       property: viewModel.age,
       lifecycleProvider: this,
-      validationBuilder: (property, _) =&gt; property.createValidation(
-        rules: [
-          (value) =&gt; value &lt; 18
-              ? const CurrentValidationIssue(
-                  'profile.age.minimum', // error code if localization is based on codes
-                  arguments: {'minimumAge': 18},
-                  fallbackMessage: 'Must be at least 18',
-                )
-              : null,
-        ],
-        validateOnPropertyChange: true,
-      ),
+      validationBuilder: (property, _) =&gt; viewModel.ageValidation(property),
       validationIssues: CurrentTextControllerValidationIssues(
-        invalidValueIssueBuilder: _invalidAgeIssue,
+        invalidValueIssueBuilder: _invalidAgeIssue, // Optional custom message for invalid values
       ),
     );
   }
@@ -318,12 +313,8 @@ CurrentTextField&lt;String&gt;(
 <pre class="language-dart"><code class="language-dart">import 'package:current/current.dart';
 
 class ApplicationViewModel extends CurrentViewModel {
-  final userName = CurrentProperty.nullableString(
-    propertyName: 'userName',
-  );
-  final signedIn = CurrentProperty.boolean(
-    propertyName: 'signedIn',
-  );
+  final userName = CurrentProperty.nullableString();
+  final signedIn = CurrentProperty.boolean();
 
   void signIn(String name) {
     userName.value = name;
@@ -348,8 +339,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       home: Current(
         ApplicationViewModel(),
-        onAppStateChanged: () =&gt;
-            DateTime.now().microsecondsSinceEpoch.toString(),
         child: Builder(
           builder: (context) {
             final appViewModel = Current.viewModelOf&lt;ApplicationViewModel&gt;(context);
@@ -371,7 +360,6 @@ class MyApp extends StatelessWidget {
   }
 }
 </code></pre>
-<p><code>onAppStateChanged</code> must return a unique string each time shared state changes. For production apps, a UUID generator is a common choice.</p>
 <h2 id="explore-the-example-app">Explore The Example App</h2>
 <p>The repository includes a larger showcase app in <a href="example/README.md">example/README.md</a>. It demonstrates typed properties, form validation, controller binding, collection properties, busy state, custom events, and reference snippets in a single responsive mission-control UI.</p>
 <h2 id="contributing">Contributing</h2>
@@ -388,13 +376,12 @@ class MyApp extends StatelessWidget {
 <p>This package has <strong>ZERO</strong> third-party package dependencies.</p>
 <p>You can find the full API documentation <a href="https://pub.dev/documentation/current/latest/">here</a>.</p>
 <br>
-<a href="https://thirdversion.ca">
-  <div align="center">
-    <img src="https://github.com/thirdversion/flutter_current/blob/main/images/LogoBlackMD.png?raw=true" alt="Third Version Technology Logo">
-    <br>
-    © 2026 Third Version Technology Ltd
-  </div>
-</a>
+<p align="center">
+  <a href="https://thirdversion.ca">
+    <img src="https://raw.githubusercontent.com/thirdversion/flutter_current/main/images/LogoBlackMD.png" alt="Third Version Technology Logo">
+  </a>
+</p>
+<p align="center">© 2026 Third Version Technology Ltd</p>
 </section>
 
 

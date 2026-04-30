@@ -2,7 +2,6 @@ import 'package:current/current.dart';
 import 'package:current/src/current_exceptions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'dart:math' as math;
 
 class _ApplicationViewModel extends CurrentViewModel {
   final changed = CurrentProperty<bool>(false, propertyName: 'changed');
@@ -94,15 +93,12 @@ class _MyWidgetState extends CurrentState<_MyWidget, _TestViewModel> {
   Widget build(BuildContext context) {
     return Current<_ApplicationViewModel>(
       widget.applicationViewModel,
-      onAppStateChanged: () => math.Random().nextInt(1000000).toString(),
       child: MaterialApp(
         home: Scaffold(
           body: Builder(
             builder: (outerContext) {
               return Current(
                 widget.appSubViewModel,
-                onAppStateChanged: () =>
-                    math.Random().nextInt(1000000).toString(),
                 child: Builder(builder: (innerContext) {
                   return Center(
                     child: Column(
@@ -113,9 +109,9 @@ class _MyWidgetState extends CurrentState<_MyWidget, _TestViewModel> {
                           viewModel.age.value.toString(),
                         ),
                         Text(
-                            '${Current.of<_ApplicationViewModel>(outerContext).viewModel().changed}'),
+                            '${Current.of<_ApplicationViewModel>(outerContext).viewModel.changed}'),
                         Text(
-                            '${Current.of<_ApplicationSubViewModel>(innerContext).viewModel().viewModelName}')
+                            '${Current.of<_ApplicationSubViewModel>(innerContext).viewModel.viewModelName}')
                       ],
                     ),
                   );

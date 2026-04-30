@@ -13,7 +13,6 @@ dependencies:
     sdk: flutter
   current:
     path: ../
-  uuid: 4.5.3
 
   cupertino_icons: ^1.0.2
   url_launcher: ^6.3.2
