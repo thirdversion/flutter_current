@@ -8,8 +8,8 @@
   </a>
 </p>
 
-<p align="center" style="font-size: 24px;"><strong>Flutter Current</strong></p>
-<p align="center">A simple, lightweight state management library for Flutter</p>
+<p align="center" style="font-size: 42px;"><strong>Flutter Current</strong></p>
+<p align="center" style="font-size: 18px;">A simple, lightweight state management library for Flutter</p>
 
 ## Features
 
