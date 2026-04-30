@@ -41,13 +41,10 @@ A small counter is still the fastest way to see the core pattern: keep state in 
 import 'package:current/current.dart';
 
 class CounterViewModel extends CurrentViewModel {
-  final count = CurrentProperty.integer(
-    initialValue: 0,
-    propertyName: 'count',
-  );
+  final count = CurrentProperty.integer();
 
   void incrementCounter() {
-    count.increment();
+    count.value += 1;
   }
 
   @override
@@ -123,22 +120,35 @@ Current validation is issue-based. Rules return `CurrentValidationIssue`, not di
 import 'package:current/current.dart';
 
 class ProfileViewModel extends CurrentViewModel {
-  final displayName = CurrentProperty.string(
-    initialValue: '',
-    propertyName: 'displayName',
-  );
+  final displayName = CurrentProperty.string();
+  final age = CurrentProperty.integer();
 
-  final age = CurrentProperty.integer(
-    initialValue: 0,
-    propertyName: 'age',
-  );
+  // Can define your validation rules in the view model
+  // or in a separate validation focused file if that keeps things cleaner and/or easier to test.
 
-  CurrentValidationGroup? _profileValidation;
-  CurrentValidationGroup get profileValidation =>
-      _profileValidation ??= CurrentValidationGroup.forProperties([
-        displayName,
-        age,
-      ]);
+  CurrentFieldValidation<String> displayNameValidation(CurrentStringProperty displayName, AppLocalizations intl) {
+    return displayName.createValidation(rules: [_displayNameNotEmpty(intl)]);
+  }
+
+  CurrentValidationRule<String> _displayNameNotEmpty(AppLocalizations intl) {
+    return (value) => value.trim().isEmpty
+        ? CurrentValidationIssue.message(intl.displayNameRequired)
+        : null;
+  }
+  
+  CurrentFieldValidation<int> ageValidation(CurrentIntegerProperty age) {
+    return age.createValidation(rules: [_userIsAdult()]);
+  }
+
+  CurrentValidationRule<int> _userIsAdult() {
+    return (value) => value < 18
+        ? const CurrentValidationIssue(
+            'profile.age.minimum', // error code if localization is based on codes
+            arguments: {'minimumAge': 18},
+            fallbackMessage: 'Must be at least 18',
+          )
+        : null;
+  }
 
   @override
   Iterable<CurrentProperty> get currentProps => [displayName, age];
@@ -174,33 +184,16 @@ class _ProfilePageState extends CurrentState<ProfilePage, ProfileViewModel>
     displayNameController.bind(
       property: viewModel.displayName,
       lifecycleProvider: this,
-      validationBuilder: (property, context) => property.createValidation(
-        rules: [
-          (value) => value.trim().isEmpty
-              ? CurrentValidationIssue.message(AppLocalizations.of(context)!.displayNameRequired)
-              : null,
-        ],
-        validateOnPropertyChange: true,
-      ),
+      validationBuilder: (property, context) => 
+        viewModel.displayNameValidation(property, AppLocalizations.of(context)),
     );
 
     ageController.bind(
       property: viewModel.age,
       lifecycleProvider: this,
-      validationBuilder: (property, _) => property.createValidation(
-        rules: [
-          (value) => value < 18
-              ? const CurrentValidationIssue(
-                  'profile.age.minimum', // error code if localization is based on codes
-                  arguments: {'minimumAge': 18},
-                  fallbackMessage: 'Must be at least 18',
-                )
-              : null,
-        ],
-        validateOnPropertyChange: true,
-      ),
+      validationBuilder: (property, _) => viewModel.ageValidation(property),
       validationIssues: CurrentTextControllerValidationIssues(
-        invalidValueIssueBuilder: _invalidAgeIssue,
+        invalidValueIssueBuilder: _invalidAgeIssue, // Custom message for invalid int values
       ),
     );
   }
@@ -308,12 +301,8 @@ Use `Current` when you want a shared `CurrentViewModel` anywhere below a subtree
 import 'package:current/current.dart';
 
 class ApplicationViewModel extends CurrentViewModel {
-  final userName = CurrentProperty.nullableString(
-    propertyName: 'userName',
-  );
-  final signedIn = CurrentProperty.boolean(
-    propertyName: 'signedIn',
-  );
+  final userName = CurrentProperty.nullableString();
+  final signedIn = CurrentProperty.boolean();
 
   void signIn(String name) {
     userName.value = name;
