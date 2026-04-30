@@ -55,8 +55,6 @@
     
 <section class="desc markdown">
   <p>This widget is not intended to be created manually and is used by the <a href="../current/Current-class.html">Current</a> widget.</p>
-<p><code>_uuid</code> is used to track whether or not this widget should notify its children that they need to
-rebuild.</p>
 <p><a href="../current/CurrentApp/viewModel.html">viewModel</a> should contain any properties or functions that any child below this widget need
 access to.</p>
 </section>
@@ -93,7 +91,7 @@ access to.</p>
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="CurrentApp.new" class="callable">
-          <span class="name"><a href="../current/CurrentApp/CurrentApp.html">CurrentApp</a></span><span class="signature">(<span class="parameter" id="-param-_uuid"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">_uuid</span>, {</span><span class="parameter" id="-param-key"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/foundation/Key-class.html">Key</a>?</span> <span class="parameter-name">key</span>, </span><span class="parameter" id="-param-child"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a></span> <span class="parameter-name">child</span>, </span><span class="parameter" id="-param-viewModel"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">viewModel</span>()</span>})</span>
+          <span class="name"><a href="../current/CurrentApp/CurrentApp.html">CurrentApp</a></span><span class="signature">({<span class="parameter" id="-param-key"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/foundation/Key-class.html">Key</a>?</span> <span class="parameter-name">key</span>, </span><span class="parameter" id="-param-child"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a></span> <span class="parameter-name">child</span>, </span><span class="parameter" id="-param-viewModel"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">viewModel</span></span>})</span>
         </dt>
         <dd>
           
@@ -157,7 +155,7 @@ access to.</p>
 
         <dt id="viewModel" class="property">
   <span class="name"><a href="../current/CurrentApp/viewModel.html">viewModel</a></span>
-  <span class="signature">&#8594; T Function<span class="signature">()</span></span>
+  <span class="signature">&#8594; T</span>
   
 
 </dt>

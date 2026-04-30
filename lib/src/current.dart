@@ -88,7 +88,6 @@ class Current<T extends CurrentViewModel> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ListenableBuilder handles the 'addListener' and 'setState' for you
     return ListenableBuilder(
       listenable: viewModel,
       builder: (context, _) {

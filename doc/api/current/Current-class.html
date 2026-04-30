@@ -58,38 +58,28 @@
 entire application itself.</p>
 <p>The <a href="../current/Current/viewModel.html">viewModel</a> should contain any state or functionality that is required by one or more child
 widgets. See <a href="../current/Current/viewModelOf.html">viewModelOf</a> for information on accessing the view model.</p>
-<p><a href="../current/Current/onAppStateChanged.html">onAppStateChanged</a> is required and should return a unique <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a> value each time it is called.
-This is used to determine whether the <a href="../current/CurrentApp-class.html">CurrentApp</a> inherited widget needs to be updated, therefore
-updating all it's child widgets. Consider using the <a href="https://pub.dev/packages/uuid">Uuid</a> package.</p>
-<p><em>If you are implementing your own unique string mechanism, know that if it generates the same value
-twice in a row, your second change will not be reflected in the application until a new, unique
-value is generated.</em></p>
 <h3 id="example-using-uuid">Example Using Uuid</h3>
-<pre class="language-dart"><code class="language-dart">import 'package:uuid/uuid.dart';
-
+<pre class="language-dart"><code class="language-dart">
 Current(
  myViewModel,
  child: HomePage(),
- onAppStateChanged: () =&gt; Uuid().v1(),
 )
 </code></pre>
 <h3 id="nested--scoped-currents">Nested / Scoped Currents</h3>
 <pre class="language-dart"><code class="language-dart">Current(
  MyApplicationViewModel(),
- onAppStateChanged: () =&gt; Uuid().v1(),
  child: MaterialApp(
   title: 'My App',
   home: Scaffold(
     backgroundColor: Current.viewModelOf&lt;MyApplicationViewModel&gt;().backgroundColor.value,
     child: Current(
       MyHomePageViewModel(),
-      onAppStateChanged: () =&gt; Uuid().v1(),
-      child: Builder(builder: (innerContext){
+      child: Builder(builder: (innerContext) {
         return Center(
           child: Text(${Current.viewModelOf&lt;MyHomePageViewModel&gt;().title.value})
         );
       }),
-    )
+   )
   )
  )
 )
@@ -107,7 +97,7 @@ Current(
       <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
         <li><a href="https://api.flutter.dev/flutter/foundation/DiagnosticableTree-class.html">DiagnosticableTree</a></li>
         <li><a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a></li>
-        <li><a href="https://api.flutter.dev/flutter/widgets/StatefulWidget-class.html">StatefulWidget</a></li>
+        <li><a href="https://api.flutter.dev/flutter/widgets/StatelessWidget-class.html">StatelessWidget</a></li>
       <li>Current</li>
     </ul>
   </dd>
@@ -128,7 +118,7 @@ Current(
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="Current.new" class="callable">
-          <span class="name"><a href="../current/Current/Current.html">Current</a></span><span class="signature">(<span class="parameter" id="-param-viewModel"><span class="type-annotation">T</span> <span class="parameter-name">viewModel</span>, {</span><span class="parameter" id="-param-key"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/foundation/Key-class.html">Key</a>?</span> <span class="parameter-name">key</span>, </span><span class="parameter" id="-param-child"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a></span> <span class="parameter-name">child</span>, </span><span class="parameter" id="-param-onAppStateChanged"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">onAppStateChanged</span>(), </span><span class="parameter" id="-param-debugPrintStateChanges"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">debugPrintStateChanges</span> = <span class="default-value">false</span></span>})</span>
+          <span class="name"><a href="../current/Current/Current.html">Current</a></span><span class="signature">(<span class="parameter" id="-param-viewModel"><span class="type-annotation">T</span> <span class="parameter-name">viewModel</span>, {</span><span class="parameter" id="-param-child"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a></span> <span class="parameter-name">child</span>, </span><span class="parameter" id="-param-key"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/foundation/Key-class.html">Key</a>?</span> <span class="parameter-name">key</span></span>})</span>
         </dt>
         <dd>
           
@@ -145,18 +135,6 @@ Current(
         <dt id="child" class="property">
   <span class="name"><a href="../current/Current/child.html">child</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a></span>
-  
-
-</dt>
-<dd>
-  
-  <div class="features"><span class="feature">final</span></div>
-
-</dd>
-
-        <dt id="debugPrintStateChanges" class="property">
-  <span class="name"><a href="../current/Current/debugPrintStateChanges.html">debugPrintStateChanges</a></span>
-  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
   
 
 </dt>
@@ -187,18 +165,6 @@ Current(
 <dd class="inherited">
   Controls how one widget replaces another widget in the tree.
   <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
-
-</dd>
-
-        <dt id="onAppStateChanged" class="property">
-  <span class="name"><a href="../current/Current/onAppStateChanged.html">onAppStateChanged</a></span>
-  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a> Function<span class="signature">()</span></span>
-  
-
-</dt>
-<dd>
-  
-  <div class="features"><span class="feature">final</span></div>
 
 </dd>
 
@@ -235,29 +201,29 @@ Current(
       id="instance-methods">
     <h2>Methods</h2>
     <dl class="callables">
-        <dt id="createElement" class="callable inherited">
-  <span class="name"><a href="https://api.flutter.dev/flutter/widgets/StatefulWidget/createElement.html">createElement</a></span><span class="signature">(<wbr>)
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/widgets/StatefulElement-class.html">StatefulElement</a></span>
-  </span>
-  
-
-</dt>
-<dd class="inherited">
-  Creates a <a href="https://api.flutter.dev/flutter/widgets/StatefulElement-class.html">StatefulElement</a> to manage this widget's location in the tree.
-  <div class="features"><span class="feature">inherited</span></div>
-
-</dd>
-
-        <dt id="createState" class="callable">
-  <span class="name"><a href="../current/Current/createState.html">createState</a></span><span class="signature">(<wbr>)
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/widgets/State-class.html">State</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../current/Current-class.html">Current</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../current/CurrentViewModel-class.html">CurrentViewModel</a></span>&gt;</span></span>&gt;</span></span>
+        <dt id="build" class="callable">
+  <span class="name"><a href="../current/Current/build.html">build</a></span><span class="signature">(<wbr><span class="parameter" id="build-param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a></span> <span class="parameter-name">context</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a></span>
   </span>
   
 
 </dt>
 <dd>
-  Creates the mutable state for this widget at a given location in the tree.
+  Describes the part of the user interface represented by this widget.
   <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="createElement" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/widgets/StatelessWidget/createElement.html">createElement</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/widgets/StatelessElement-class.html">StatelessElement</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Creates a <a href="https://api.flutter.dev/flutter/widgets/StatelessElement-class.html">StatelessElement</a> to manage this widget's location in the tree.
+  <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 

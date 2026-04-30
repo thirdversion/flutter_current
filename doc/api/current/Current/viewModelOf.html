@@ -76,7 +76,7 @@ below this one in the widget tree. (Example: from a child widget):</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static T viewModelOf&lt;T extends CurrentViewModel&gt;(BuildContext context) {
   final CurrentApp&lt;T&gt; result = of(context);
-  return result.viewModel();
+  return result.viewModel;
 }</code></pre>
 </section>
 

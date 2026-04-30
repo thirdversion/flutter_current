@@ -65,6 +65,26 @@ is changed and call the states build function, updating the UI.</p>
 </section>
 
 
+    <section>
+      <dl class="dl-horizontal">
+        
+
+        
+        
+  <dt>Mixed-in types</dt>
+  <dd>
+    <ul class="comma-separated clazz-relationships">
+        <li><a href="https://api.flutter.dev/flutter/foundation/ChangeNotifier-class.html">ChangeNotifier</a></li>
+    </ul>
+  </dd>
+
+
+        
+        
+
+
+      </dl>
+    </section>
 
     
   <section class="summary offset-anchor" id="constructors">
@@ -169,6 +189,18 @@ has assigned itself to all <a href="../current/CurrentViewModel/currentProps.htm
 
 </dd>
 
+        <dt id="hasListeners" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/foundation/ChangeNotifier/hasListeners.html">hasListeners</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Whether any listeners are currently registered.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="isDirty" class="property">
   <span class="name"><a href="../current/CurrentViewModel/isDirty.html">isDirty</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
@@ -241,6 +273,19 @@ has assigned itself to all <a href="../current/CurrentViewModel/currentProps.htm
 
 </dd>
 
+        <dt id="addListener" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/foundation/ChangeNotifier/addListener.html">addListener</a></span><span class="signature">(<wbr><span class="parameter" id="addListener-param-listener"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-ui/VoidCallback.html">VoidCallback</a></span> <span class="parameter-name">listener</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Register a closure to be called when the object changes.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="addOnErrorEventListener" class="callable">
   <span class="name"><a href="../current/CurrentViewModel/addOnErrorEventListener.html">addOnErrorEventListener</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="../current/ErrorEvent-class.html">ErrorEvent</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="addOnErrorEventListener-param-onError"><span class="type-annotation">void</span> <span class="parameter-name">onError</span>(<span class="parameter" id="param-event"><span class="type-annotation">T</span> <span class="parameter-name">event</span></span>), {</span><span class="parameter" id="addOnErrorEventListener-param-onInternalError"><span class="type-annotation">void</span> <span class="parameter-name">onInternalError</span>(<span class="parameter" id="param-error"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">error</span>, </span><span class="parameter" id="param-stackTrace"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/StackTrace-class.html">StackTrace</a></span> <span class="parameter-name">stackTrace</span></span>)?</span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/StreamSubscription-class.html">StreamSubscription</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
@@ -302,7 +347,7 @@ has assigned itself to all <a href="../current/CurrentViewModel/currentProps.htm
 </dt>
 <dd>
   Closes the state and error streams and removes any listeners associated with those streams
-  
+  <div class="features"><span class="feature">override</span></div>
 
 </dd>
 
@@ -384,6 +429,19 @@ has assigned itself to all <a href="../current/CurrentViewModel/currentProps.htm
 
 </dd>
 
+        <dt id="notifyListeners" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/foundation/ChangeNotifier/notifyListeners.html">notifyListeners</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Call all the registered listeners.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="releaseFrom" class="callable">
   <span class="name"><a href="../current/CurrentViewModel/releaseFrom.html">releaseFrom</a></span><span class="signature">(<wbr><span class="parameter" id="releaseFrom-param-widgetHash"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">widgetHash</span></span>)
     <span class="returntype parameter">&#8594; void</span>
@@ -395,6 +453,20 @@ has assigned itself to all <a href="../current/CurrentViewModel/currentProps.htm
   Releases the current <a href="../current/CurrentState-class.html">CurrentState</a> assignment when it matches the
 provided state identifier.
   
+
+</dd>
+
+        <dt id="removeListener" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/foundation/ChangeNotifier/removeListener.html">removeListener</a></span><span class="signature">(<wbr><span class="parameter" id="removeListener-param-listener"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-ui/VoidCallback.html">VoidCallback</a></span> <span class="parameter-name">listener</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Remove a previously registered closure from the list of closures that are
+notified when the object changes.
+  <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
