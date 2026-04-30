@@ -389,7 +389,7 @@ This package has **ZERO** third-party package dependencies.
 
 You can find the full API documentation [here](https://pub.dev/documentation/current/latest/).
 
-</br>
+<br />
 
 <p align="center">
   <a href="https://thirdversion.ca">
