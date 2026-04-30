@@ -2,11 +2,11 @@
 [![CI: Examples](https://github.com/thirdversion/flutter_current/actions/workflows/validate_examples.yml/badge.svg)](https://github.com/thirdversion/flutter_current/actions/workflows/validate_examples.yml)
 [![CI: API Docs](https://github.com/thirdversion/flutter_current/actions/workflows/validate_docs.yml/badge.svg)](https://github.com/thirdversion/flutter_current/actions/workflows/validate_docs.yml)
 
-<a href="https://pub.dev/packages/current">
-  <div align="center">
-    <img src="https://github.com/thirdversion/flutter_current/blob/main/images/CurrentLogoSM.png?raw=true" alt="Current Logo" />
-  </div>
-</a>
+<p align="center">
+  <a href="https://pub.dev/packages/current">
+    <img src="https://raw.githubusercontent.com/thirdversion/flutter_current/main/images/CurrentLogoSM.png" alt="Current Logo" />
+  </a>
+</p>
 
 <h1 align="center">Flutter Current</h1>
 <h3 align="center">A simple, lightweight state management library for Flutter</h3>
@@ -41,13 +41,10 @@ A small counter is still the fastest way to see the core pattern: keep state in 
 import 'package:current/current.dart';
 
 class CounterViewModel extends CurrentViewModel {
-  final count = CurrentProperty.integer(
-    initialValue: 0,
-    propertyName: 'count',
-  );
+  final count = CurrentProperty.integer();
 
   void incrementCounter() {
-    count.increment();
+    count.value += 1;
   }
 
   @override
@@ -123,22 +120,35 @@ Current validation is issue-based. Rules return `CurrentValidationIssue`, not di
 import 'package:current/current.dart';
 
 class ProfileViewModel extends CurrentViewModel {
-  final displayName = CurrentProperty.string(
-    initialValue: '',
-    propertyName: 'displayName',
-  );
+  final displayName = CurrentProperty.string();
+  final age = CurrentProperty.integer();
 
-  final age = CurrentProperty.integer(
-    initialValue: 0,
-    propertyName: 'age',
-  );
+  // Can define your validation rules in the view model
+  // or in a separate validation focused file if that keeps things cleaner and/or easier to test.
 
-  CurrentValidationGroup? _profileValidation;
-  CurrentValidationGroup get profileValidation =>
-      _profileValidation ??= CurrentValidationGroup.forProperties([
-        displayName,
-        age,
-      ]);
+  CurrentFieldValidation<String> displayNameValidation(CurrentStringProperty displayName, AppLocalizations intl) {
+    return displayName.createValidation(rules: [_displayNameNotEmpty(intl)]);
+  }
+
+  CurrentValidationRule<String> _displayNameNotEmpty(AppLocalizations intl) {
+    return (value) => value.trim().isEmpty
+        ? CurrentValidationIssue.message(intl.displayNameRequired)
+        : null;
+  }
+  
+  CurrentFieldValidation<int> ageValidation(CurrentIntegerProperty age) {
+    return age.createValidation(rules: [_userIsAdult()]);
+  }
+
+  CurrentValidationRule<int> _userIsAdult() {
+    return (value) => value < 18
+        ? const CurrentValidationIssue(
+            'profile.age.minimum', // error code if localization is based on codes
+            arguments: {'minimumAge': 18},
+            fallbackMessage: 'Must be at least 18',
+          )
+        : null;
+  }
 
   @override
   Iterable<CurrentProperty> get currentProps => [displayName, age];
@@ -174,33 +184,16 @@ class _ProfilePageState extends CurrentState<ProfilePage, ProfileViewModel>
     displayNameController.bind(
       property: viewModel.displayName,
       lifecycleProvider: this,
-      validationBuilder: (property, context) => property.createValidation(
-        rules: [
-          (value) => value.trim().isEmpty
-              ? CurrentValidationIssue.message(AppLocalizations.of(context)!.displayNameRequired)
-              : null,
-        ],
-        validateOnPropertyChange: true,
-      ),
+      validationBuilder: (property, context) => 
+        viewModel.displayNameValidation(property, AppLocalizations.of(context)),
     );
 
     ageController.bind(
       property: viewModel.age,
       lifecycleProvider: this,
-      validationBuilder: (property, _) => property.createValidation(
-        rules: [
-          (value) => value < 18
-              ? const CurrentValidationIssue(
-                  'profile.age.minimum', // error code if localization is based on codes
-                  arguments: {'minimumAge': 18},
-                  fallbackMessage: 'Must be at least 18',
-                )
-              : null,
-        ],
-        validateOnPropertyChange: true,
-      ),
+      validationBuilder: (property, _) => viewModel.ageValidation(property),
       validationIssues: CurrentTextControllerValidationIssues(
-        invalidValueIssueBuilder: _invalidAgeIssue,
+        invalidValueIssueBuilder: _invalidAgeIssue, // Custom message for invalid int values
       ),
     );
   }
@@ -308,12 +301,8 @@ Use `Current` when you want a shared `CurrentViewModel` anywhere below a subtree
 import 'package:current/current.dart';
 
 class ApplicationViewModel extends CurrentViewModel {
-  final userName = CurrentProperty.nullableString(
-    propertyName: 'userName',
-  );
-  final signedIn = CurrentProperty.boolean(
-    propertyName: 'signedIn',
-  );
+  final userName = CurrentProperty.nullableString();
+  final signedIn = CurrentProperty.boolean();
 
   void signIn(String name) {
     userName.value = name;
@@ -391,10 +380,10 @@ You can find the full API documentation [here](https://pub.dev/documentation/cur
 
 <br />
 
-<a href="https://thirdversion.ca">
-  <div align="center">
-    <img src="https://github.com/thirdversion/flutter_current/blob/main/images/LogoBlackMD.png?raw=true" alt="Third Version Technology Logo" />
-    <br />
-    © 2026 Third Version Technology Ltd
-  </div>
-</a>
+<p align="center">
+  <a href="https://thirdversion.ca">
+    <img src="https://raw.githubusercontent.com/thirdversion/flutter_current/main/images/LogoBlackMD.png" alt="Third Version Technology Logo" />
+  </a>
+</p>
+
+<p align="center">© 2026 Third Version Technology Ltd</p>
