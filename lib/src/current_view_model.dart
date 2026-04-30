@@ -29,7 +29,7 @@ abstract class CurrentViewModelBinding {
 ///Update events are automatically emitted whenever the value of an [CurrentProperty] is changed.
 ///The [CurrentState] the ViewModel is bound to will update itself each time an [CurrentProperty] value
 ///is changed and call the states build function, updating the UI.
-abstract class CurrentViewModel {
+abstract class CurrentViewModel with ChangeNotifier {
   final StreamController<CurrentStateChanged> _stateController =
       StreamController.broadcast();
 
@@ -270,6 +270,8 @@ abstract class CurrentViewModel {
     for (final event in events) {
       _stateController.add(event);
     }
+
+    notifyListeners();
   }
 
   /// Inform the bound [CurrentState] that the state of the UI needs to be updated with a single event.
@@ -333,6 +335,8 @@ abstract class CurrentViewModel {
     }
 
     _errorController.add(event);
+
+    notifyListeners();
   }
 
   ///Explicitly updates the current busy status of the view model.
@@ -458,8 +462,10 @@ abstract class CurrentViewModel {
   }
 
   ///Closes the state and error streams and removes any listeners associated with those streams
+  @override
   @mustCallSuper
   void dispose() {
+    super.dispose();
     for (var sub in _subscriptions) {
       sub.cancel();
     }

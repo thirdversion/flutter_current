@@ -1,29 +1,21 @@
 import 'package:current/current.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 ///This widget is not intended to be created manually and is used by the [Current] widget.
 ///
-///[_uuid] is used to track whether or not this widget should notify its children that they need to
-///rebuild.
-///
 ///[viewModel] should contain any properties or functions that any child below this widget need
 ///access to.
 class CurrentApp<T extends CurrentViewModel> extends InheritedWidget {
-  const CurrentApp(
-    this._uuid, {
+  const CurrentApp({
     super.key,
     required super.child,
     required this.viewModel,
   });
 
-  final String? _uuid;
-  final T Function() viewModel;
+  final T viewModel;
 
   @override
-  bool updateShouldNotify(covariant CurrentApp oldWidget) {
-    return oldWidget._uuid != _uuid;
-  }
+  bool updateShouldNotify(covariant CurrentApp oldWidget) => true;
 }
 
 ///Used to provide shared state and functions across specific scopes of your application, or the
@@ -32,23 +24,13 @@ class CurrentApp<T extends CurrentViewModel> extends InheritedWidget {
 ///The [viewModel] should contain any state or functionality that is required by one or more child
 ///widgets. See [viewModelOf] for information on accessing the view model.
 ///
-///[onAppStateChanged] is required and should return a unique [String] value each time it is called.
-///This is used to determine whether the [CurrentApp] inherited widget needs to be updated, therefore
-///updating all it's child widgets. Consider using the [Uuid](https://pub.dev/packages/uuid) package.
-///
-///*If you are implementing your own unique string mechanism, know that if it generates the same value
-///twice in a row, your second change will not be reflected in the application until a new, unique
-///value is generated.*
-///
 ///### Example Using Uuid
 ///
 ///```dart
-///import 'package:uuid/uuid.dart';
 ///
 ///Current(
 ///  myViewModel,
 ///  child: HomePage(),
-///  onAppStateChanged: () => Uuid().v1(),
 ///)
 ///```
 ///
@@ -57,41 +39,28 @@ class CurrentApp<T extends CurrentViewModel> extends InheritedWidget {
 ///```dart
 ///Current(
 ///  MyApplicationViewModel(),
-///  onAppStateChanged: () => Uuid().v1(),
 ///  child: MaterialApp(
 ///   title: 'My App',
 ///   home: Scaffold(
 ///     backgroundColor: Current.viewModelOf<MyApplicationViewModel>().backgroundColor.value,
 ///     child: Current(
 ///       MyHomePageViewModel(),
-///       onAppStateChanged: () => Uuid().v1(),
-///       child: Builder(builder: (innerContext){
+///       child: Builder(builder: (innerContext) {
 ///         return Center(
 ///           child: Text(${Current.viewModelOf<MyHomePageViewModel>().title.value})
 ///         );
 ///       }),
-///     )
+///    )
 ///   )
 ///  )
 ///)
 ///
 ///```
-class Current<T extends CurrentViewModel> extends StatefulWidget {
+class Current<T extends CurrentViewModel> extends StatelessWidget {
   final T viewModel;
   final Widget child;
-  final String Function() onAppStateChanged;
-  final bool debugPrintStateChanges;
 
-  const Current(
-    this.viewModel, {
-    super.key,
-    required this.child,
-    required this.onAppStateChanged,
-    this.debugPrintStateChanges = false,
-  });
-
-  @override
-  State<Current> createState() => _CurrentState<T>();
+  const Current(this.viewModel, {required this.child, super.key});
 
   ///Gets the instance of the [CurrentApp] that matches the generic type argument [T].
   ///
@@ -114,37 +83,20 @@ class Current<T extends CurrentViewModel> extends StatefulWidget {
   ///```
   static T viewModelOf<T extends CurrentViewModel>(BuildContext context) {
     final CurrentApp<T> result = of(context);
-    return result.viewModel();
-  }
-}
-
-class _CurrentState<T extends CurrentViewModel> extends State<Current> {
-  String? _applicationStateId;
-
-  @override
-  void initState() {
-    widget.viewModel.addStateChangedListener<CurrentStateChanged>((event) {
-      if (widget.debugPrintStateChanges && kDebugMode) {
-        // ignore: avoid_print
-        print(event);
-      }
-      if (mounted) {
-        setState(() {
-          _applicationStateId = widget.onAppStateChanged();
-        });
-      }
-    });
-    super.initState();
+    return result.viewModel;
   }
 
   @override
   Widget build(BuildContext context) {
-    return CurrentApp<T>(
-      _applicationStateId,
-      viewModel: <E extends CurrentViewModel>() => widget.viewModel as E,
-      child: Builder(builder: (context) {
-        return widget.child;
-      }),
+    // ListenableBuilder handles the 'addListener' and 'setState' for you
+    return ListenableBuilder(
+      listenable: viewModel,
+      builder: (context, _) {
+        return CurrentApp<T>(
+          viewModel: viewModel,
+          child: child,
+        );
+      },
     );
   }
 }
