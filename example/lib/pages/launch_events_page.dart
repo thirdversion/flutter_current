@@ -1,5 +1,5 @@
 import 'package:current/current.dart';
-import 'package:current_counter_example/space_mission_theme.dart';
+import 'package:mission_control_example/space_mission_theme.dart';
 import 'package:flutter/material.dart';
 
 import '../components/mission_control_theme.dart';

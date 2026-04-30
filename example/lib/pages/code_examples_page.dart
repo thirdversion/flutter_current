@@ -1,9 +1,9 @@
 import 'package:current/current.dart';
-import 'package:current_counter_example/application_view_model.dart';
-import 'package:current_counter_example/components/mission_control_theme.dart';
-import 'package:current_counter_example/components/mission_section.dart';
-import 'package:current_counter_example/extensions.dart';
-import 'package:current_counter_example/space_mission_theme.dart';
+import 'package:mission_control_example/application_view_model.dart';
+import 'package:mission_control_example/components/mission_control_theme.dart';
+import 'package:mission_control_example/components/mission_section.dart';
+import 'package:mission_control_example/extensions.dart';
+import 'package:mission_control_example/space_mission_theme.dart';
 import 'package:flutter/material.dart';
 
 class CodeExamplesPage extends StatelessWidget {
