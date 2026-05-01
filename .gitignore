@@ -28,3 +28,5 @@ migrate_working_dir/
 .packages
 build/
 /pubspec.lock
+**/node_modules/
+**/out/
