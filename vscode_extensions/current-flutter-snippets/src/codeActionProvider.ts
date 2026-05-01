@@ -155,6 +155,39 @@ export class CurrentCodeActionProvider implements vscode.CodeActionProvider {
       }
     }
 
+    // Find CurrentState without CurrentTextControllersLifecycleMixin
+    const stateMatch = line.text.match(
+      /class\s+(\w+)\s+extends\s+CurrentState\s*</,
+    );
+
+    if (stateMatch) {
+      const stateClassName = stateMatch[1];
+      const fullText = document.getText();
+
+      // Find the class declaration line(s) to check for the mixin
+      // We need to look from the start of the class to the opening brace
+      const classStartIdx = fullText.indexOf(`class ${stateClassName}`);
+      const braceIdx = fullText.indexOf("{", classStartIdx);
+      const classDeclaration = fullText.substring(classStartIdx, braceIdx);
+
+      const hasMixin = classDeclaration.includes(
+        "CurrentTextControllersLifecycleMixin",
+      );
+
+      if (!hasMixin) {
+        const action = new vscode.CodeAction(
+          `Add CurrentTextController support to '${stateClassName}'`,
+          vscode.CodeActionKind.RefactorRewrite,
+        );
+        action.command = {
+          command: "current-flutter-snippets.addTextControllerSupport",
+          title: "Add TextController Support",
+          arguments: [document, stateClassName, range.start.line],
+        };
+        actions.push(action);
+      }
+    }
+
     return actions.length > 0 ? actions : undefined;
   }
 

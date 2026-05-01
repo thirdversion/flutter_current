@@ -447,10 +447,10 @@ class _${widgetClassName}State extends CurrentState<${widgetClassName}, ${viewMo
       "current-flutter-snippets.bindCurrentController",
       async (document: vscode.TextDocument, controllerName: string) => {
         const fullText = document.getText();
-        
+
         let defaultPropertyName = controllerName.replace(/Controller$/i, "");
         if (defaultPropertyName === controllerName) {
-            defaultPropertyName = "";
+          defaultPropertyName = "";
         }
 
         const propertyName = await vscode.window.showInputBox({
@@ -465,39 +465,138 @@ class _${widgetClassName}State extends CurrentState<${widgetClassName}, ${viewMo
         const edit = new vscode.WorkspaceEdit();
         const bindStatement = `\n    ${controllerName}.bind(property: viewModel.${propertyName}, lifecycleProvider: this);`;
 
-        const bindMethodMatch = fullText.match(/void\s+bindCurrentControllers\s*\(\)\s*\{/);
+        const bindMethodMatch = fullText.match(
+          /void\s+bindCurrentControllers\s*\(\)\s*\{/,
+        );
 
         if (bindMethodMatch) {
-            // Method exists, insert inside it
-            const insertIndex = bindMethodMatch.index! + bindMethodMatch[0].length;
-            edit.insert(document.uri, document.positionAt(insertIndex), bindStatement);
-            
-            try {
-                await vscode.workspace.applyEdit(edit);
-                vscode.window.showInformationMessage(`Current: Bound '${controllerName}'.`);
-            } catch (error) {
-                vscode.window.showErrorMessage(`Current: Failed to bind controller: ${error}`);
-            }
+          // Method exists, insert inside it
+          const insertIndex =
+            bindMethodMatch.index! + bindMethodMatch[0].length;
+          edit.insert(
+            document.uri,
+            document.positionAt(insertIndex),
+            bindStatement,
+          );
+
+          try {
+            await vscode.workspace.applyEdit(edit);
+            vscode.window.showInformationMessage(
+              `Current: Bound '${controllerName}'.`,
+            );
+          } catch (error) {
+            vscode.window.showErrorMessage(
+              `Current: Failed to bind controller: ${error}`,
+            );
+          }
         } else {
-            // Method doesn't exist, we should create it
-            // Look for the build method or any place inside the state class
-            const buildMethodMatch = fullText.match(/@override\s+Widget\s+build\s*\(/);
-            if (buildMethodMatch) {
-                const insertIndex = buildMethodMatch.index!;
-                const bindMethod = `  @override\n  void bindCurrentControllers() {${bindStatement}\n  }\n\n  `;
-                edit.insert(document.uri, document.positionAt(insertIndex), bindMethod);
-                
-                try {
-                    await vscode.workspace.applyEdit(edit);
-                    vscode.window.showInformationMessage(
-                        `Current: Bound '${controllerName}'. Note: Ensure you add 'with CurrentTextControllersLifecycleMixin' to your CurrentState class.`,
-                    );
-                } catch (error) {
-                    vscode.window.showErrorMessage(`Current: Failed to bind controller: ${error}`);
-                }
-            } else {
-                vscode.window.showErrorMessage("Current: Could not find a suitable place to insert 'bindCurrentControllers'. Please bind it manually.");
+          // Method doesn't exist, we should create it
+          // Look for the build method or any place inside the state class
+          const buildMethodMatch = fullText.match(
+            /@override\s+Widget\s+build\s*\(/,
+          );
+          if (buildMethodMatch) {
+            const insertIndex = buildMethodMatch.index!;
+            const bindMethod = `  @override\n  void bindCurrentControllers() {${bindStatement}\n  }\n\n  `;
+            edit.insert(
+              document.uri,
+              document.positionAt(insertIndex),
+              bindMethod,
+            );
+
+            try {
+              await vscode.workspace.applyEdit(edit);
+              vscode.window.showInformationMessage(
+                `Current: Bound '${controllerName}'. Note: Ensure you add 'with CurrentTextControllersLifecycleMixin' to your CurrentState class.`,
+              );
+            } catch (error) {
+              vscode.window.showErrorMessage(
+                `Current: Failed to bind controller: ${error}`,
+              );
             }
+          } else {
+            vscode.window.showErrorMessage(
+              "Current: Could not find a suitable place to insert 'bindCurrentControllers'. Please bind it manually.",
+            );
+          }
+        }
+      },
+    ),
+  );
+
+  // Register the Add TextController Support Command
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "current-flutter-snippets.addTextControllerSupport",
+      async (
+        document: vscode.TextDocument,
+        className: string,
+        startLine: number,
+      ) => {
+        const fullText = document.getText();
+        const edit = new vscode.WorkspaceEdit();
+        let editApplied = false;
+
+        // Find the class declaration to add the mixin
+        const classStartIdx = fullText.indexOf(`class ${className}`);
+        if (classStartIdx !== -1) {
+          const braceIdx = fullText.indexOf("{", classStartIdx);
+          if (braceIdx !== -1) {
+            const classDeclaration = fullText.substring(
+              classStartIdx,
+              braceIdx,
+            );
+
+            if (
+              !classDeclaration.includes("CurrentTextControllersLifecycleMixin")
+            ) {
+              let mixinInsertText = "";
+              if (classDeclaration.includes("with ")) {
+                // If it already has mixins, append ours
+                // But need to be careful about spacing. The safest is to just add it at the end of the existing 'with' list, right before the brace.
+                mixinInsertText = ", CurrentTextControllersLifecycleMixin ";
+              } else {
+                mixinInsertText = " with CurrentTextControllersLifecycleMixin ";
+              }
+
+              // Insert just before the brace
+              edit.insert(
+                document.uri,
+                document.positionAt(braceIdx),
+                mixinInsertText,
+              );
+              editApplied = true;
+            }
+          }
+        }
+
+        // 2. Add bindCurrentControllers() if it doesn't exist
+        if (!fullText.match(/void\s+bindCurrentControllers\s*\(\)\s*\{/)) {
+          const buildMethodMatch = fullText.match(
+            /@override\s+Widget\s+build\s*\(/,
+          );
+          if (buildMethodMatch && buildMethodMatch.index !== undefined) {
+            const bindMethod = `  @override\n  void bindCurrentControllers() {}\n\n`;
+            edit.insert(
+              document.uri,
+              document.positionAt(buildMethodMatch.index),
+              bindMethod,
+            );
+            editApplied = true;
+          }
+        }
+
+        if (editApplied) {
+          try {
+            await vscode.workspace.applyEdit(edit);
+            vscode.window.showInformationMessage(
+              `Current: Added TextController support to '${className}'.`,
+            );
+          } catch (error) {
+            vscode.window.showErrorMessage(
+              `Current: Failed to add TextController support: ${error}`,
+            );
+          }
         }
       },
     ),

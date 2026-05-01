@@ -47,6 +47,10 @@
       {
         "command": "current-flutter-snippets.bindCurrentController",
         "title": "Bind Controller"
+      },
+      {
+        "command": "current-flutter-snippets.addTextControllerSupport",
+        "title": "Add TextController Support"
       }
     ],
 
