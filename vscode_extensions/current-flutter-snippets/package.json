@@ -16,7 +16,8 @@
   ],
   "main": "./out/extension.js",
   "activationEvents": [
-    "onCommand:current-flutter-snippets.generateCurrentFiles"
+    "onCommand:current-flutter-snippets.generateCurrentFiles",
+    "onLanguage:dart"
   ],
   "contributes": {
     "snippets": [
@@ -28,10 +29,15 @@
     "commands": [
       {
         "command": "current-flutter-snippets.generateCurrentFiles",
-        "title": "Current: New Widget and ViewModel",
+        "title": "Current: Generate Widget & ViewModel Files",
         "category": "Current"
+      },
+      {
+        "command": "current-flutter-snippets.executeConvert",
+        "title": "Convert to CurrentWidget"
       }
     ],
+
     "menus": {
       "explorer/context": [
         {
