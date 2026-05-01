@@ -1,6 +1,6 @@
 # Current Flutter Snippets
 
-This extension contains Flutter code snippets for the [Current State Management package](https://pub.dev/packages/current).
+This extension contains Flutter code snippets, commmands and Quick Fix actions for the [Current State Management package](https://pub.dev/packages/current).
 
 ## Snippets
 
@@ -11,17 +11,28 @@ This extension contains Flutter code snippets for the [Current State Management 
 
 ## Requirements
 
-Dart version 3.0.0 or greater.
+Flutter version 3.38.0 or greater.
 
-Flutter version 3.0.0 or greater.
-
-A reference to Current version 2.0.0 or greater in your pubspec.yaml.
+Minimum supported Current version 2.0.0, however 3.0.0 or greater is recommended to get the most out of this extension as many of the new features of this extension require Current 3.0.0.
 
 ## Reporting issues
 
 If you discover any issues with this extension please file an issue on the [Current](https://github.com/thirdversion/flutter_current/issues) repository.
 
 ## Release Notes
+
+### 2.0.0
+
+- Updated extension name and description to better reflect available features
+- Minor updates to existing snippets so the cursor ends up in a more intuitive place after insertion
+- Added new Command Palette command to create a new CurrentWidget and View Model. Will prompt you for a file name and design language (material or cupertino). If you are using Current 3.0.0 or greater, will also be presented with an option to create a CurrentWidget with CurrentTextController support.
+- Added a Context Menu option when right-clicking on a folder in the VS Explorer pane to create new CurrentWidget and ViewModel files in that folder.
+- Added several VS Quick Code Actions have been added. These can be activated using your Quick Fix keyboard shortcut and your cursor is:
+  1. On a CurrentProperty, add the property to the CurrentViewModel's `currentProps` list.
+  1. On the `currentProps` list in a CurrentViewModel, add any missing CurrentProperty fields to the list.
+  1. On a regular StatefulWidget or StatelessWidget, convert it to a CurrentWidget.
+  1. On a CurrentState class declaration, add the `CurrentTextControllersLifecycleMixin` to the class declaration and add the necessary lifecycle method overrides. (Requires Current 3.0.0 or greater)
+  1. On a CurrentTextController, bind the controller to a property and add to the bindCurrentControllers method automatically. (Requires Current 3.0.0 or greater)
 
 ### 1.0.0
 

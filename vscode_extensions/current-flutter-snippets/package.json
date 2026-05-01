@@ -1,9 +1,9 @@
 {
   "name": "current-flutter-snippets",
-  "displayName": "Current Flutter Snippets",
-  "description": "Helpful code snippets for the Flutter Current State Management package to quickly create Current Widgets and CurrentViewModels.",
+  "displayName": "Flutter Current",
+  "description": "Code snippets, commands, and code actions to speed up development workflow when using the Current state management package for Flutter.",
   "publisher": "ThirdVersionTechnologyLtd",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/thirdversion/flutter_current"
@@ -53,7 +53,6 @@
         "title": "Add TextController Support"
       }
     ],
-
     "menus": {
       "explorer/context": [
         {
