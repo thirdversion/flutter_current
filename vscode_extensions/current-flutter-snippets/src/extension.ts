@@ -66,6 +66,13 @@ export function activate(context: vscode.ExtensionContext) {
         className: string,
         isStateful: boolean,
       ) => {
+        const workspaceFolder = vscode.workspace.getWorkspaceFolder(
+          document.uri,
+        );
+        const isV3 = workspaceFolder
+          ? await isCurrentV3Plus(workspaceFolder.uri)
+          : false;
+
         const featureName = await vscode.window.showInputBox({
           prompt: "Enter the feature name in snake_case",
           value: toSnakeCase(className),
@@ -74,6 +81,20 @@ export function activate(context: vscode.ExtensionContext) {
         if (!featureName) {
           return;
         }
+
+        let widgetType: string | undefined = "Current Widget";
+
+        if (isV3) {
+          widgetType = await vscode.window.showQuickPick(
+            ["Current Widget", "Current Widget + CurrentTextFields"],
+            { placeHolder: "Select the type of Current Widget to generate" },
+          );
+          if (!widgetType) {
+            return;
+          }
+        }
+
+        const isTextFields = widgetType === "Current Widget + CurrentTextFields";
 
         const viewModelClassName = `${toPascalCase(featureName)}ViewModel`;
         const viewModelFileName = `${featureName}_view_model.dart`;
@@ -107,8 +128,17 @@ class ${viewModelClassName} extends CurrentViewModel {
       _${widgetClassName}State(viewModel);
 }
 
-class _${widgetClassName}State extends CurrentState<${widgetClassName}, ${viewModelClassName}> {
-  _${widgetClassName}State(super.viewModel);
+class _${widgetClassName}State extends CurrentState<${widgetClassName}, ${viewModelClassName}>${
+          isTextFields ? " with CurrentTextControllersLifecycleMixin" : ""
+        } {
+  _${widgetClassName}State(super.viewModel);${
+          isTextFields
+            ? `
+
+  @override
+  void bindCurrentControllers() {}`
+            : ""
+        }
 
   @override
   Widget build(BuildContext context) {
