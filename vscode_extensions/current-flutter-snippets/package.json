@@ -51,6 +51,10 @@
       {
         "command": "current-flutter-snippets.addTextControllerSupport",
         "title": "Add TextController Support"
+      },
+      {
+        "command": "current-flutter-snippets.scaffoldEmptyFile",
+        "title": "Scaffold CurrentWidget and ViewModel"
       }
     ],
     "menus": {

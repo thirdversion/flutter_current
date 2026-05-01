@@ -176,8 +176,12 @@ export class CurrentCodeActionProvider implements vscode.CodeActionProvider {
       );
 
       if (!hasMixin) {
-        const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
-        const isV3 = workspaceFolder ? await isCurrentV3Plus(workspaceFolder.uri) : false;
+        const workspaceFolder = vscode.workspace.getWorkspaceFolder(
+          document.uri,
+        );
+        const isV3 = workspaceFolder
+          ? await isCurrentV3Plus(workspaceFolder.uri)
+          : false;
 
         if (isV3) {
           const action = new vscode.CodeAction(
@@ -192,6 +196,21 @@ export class CurrentCodeActionProvider implements vscode.CodeActionProvider {
           actions.push(action);
         }
       }
+    }
+
+    // Check if the file is empty to scaffold CurrentWidget and ViewModel
+    const documentText = document.getText().trim();
+    if (documentText === "") {
+      const action = new vscode.CodeAction(
+        "Scaffold CurrentWidget and ViewModel",
+        vscode.CodeActionKind.RefactorRewrite,
+      );
+      action.command = {
+        command: "current-flutter-snippets.scaffoldEmptyFile",
+        title: "Scaffold CurrentWidget and ViewModel",
+        arguments: [document],
+      };
+      actions.push(action);
     }
 
     return actions.length > 0 ? actions : undefined;

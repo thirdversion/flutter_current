@@ -28,6 +28,7 @@ If you discover any issues with this extension please file an issue on the [Curr
 - Added new Command Palette command to create a new CurrentWidget and View Model. Will prompt you for a file name and design language (material or cupertino). If you are using Current 3.0.0 or greater, will also be presented with an option to create a CurrentWidget with CurrentTextController support.
 - Added a Context Menu option when right-clicking on a folder in the VS Explorer pane to create new CurrentWidget and ViewModel files in that folder.
 - Added several VS Quick Code Actions have been added. These can be activated using your Quick Fix keyboard shortcut and your cursor is:
+  1. On an empty .dart file, scaffold a new CurrentWidget and CurrentViewModel with the necessary boilerplate to get started.
   1. On a CurrentProperty, add the property to the CurrentViewModel's `currentProps` list.
   1. On the `currentProps` list in a CurrentViewModel, add any missing CurrentProperty fields to the list.
   1. On a regular StatefulWidget or StatelessWidget, convert it to a CurrentWidget.
