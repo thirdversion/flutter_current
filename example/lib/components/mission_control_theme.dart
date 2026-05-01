@@ -1,5 +1,5 @@
-import 'package:current_counter_example/components/space_backdrop_painter.dart';
-import 'package:current_counter_example/space_mission_theme.dart';
+import 'package:mission_control_example/components/space_backdrop_painter.dart';
+import 'package:mission_control_example/space_mission_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/link.dart';
 
@@ -148,16 +148,20 @@ class StatusPill extends StatelessWidget {
     required this.label,
     this.icon,
     this.color = SpaceMissionTheme.accent,
+    this.compact = false,
   });
 
   final String label;
   final IconData? icon;
   final Color color;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      padding: compact
+          ? const EdgeInsets.symmetric(horizontal: 10, vertical: 6)
+          : const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(999),
@@ -167,14 +171,15 @@ class StatusPill extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(icon, size: 16, color: color),
-            const SizedBox(width: 8),
+            Icon(icon, size: compact ? 14 : 16, color: color),
+            SizedBox(width: compact ? 4 : 8),
           ],
           Text(
             label,
             style: TextStyle(
               color: color,
               fontWeight: FontWeight.w700,
+              fontSize: compact ? 11 : 12,
             ),
           ),
         ],

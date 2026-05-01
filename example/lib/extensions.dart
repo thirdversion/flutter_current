@@ -1,4 +1,4 @@
-import 'package:current_counter_example/components/mission_section.dart';
+import 'package:mission_control_example/components/mission_section.dart';
 import 'package:flutter/material.dart';
 
 extension MissionSectionMetadata on MissionSection {

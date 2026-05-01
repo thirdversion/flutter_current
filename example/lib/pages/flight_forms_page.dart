@@ -1,5 +1,5 @@
 import 'package:current/current.dart';
-import 'package:current_counter_example/space_mission_theme.dart';
+import 'package:mission_control_example/space_mission_theme.dart';
 import 'package:flutter/material.dart';
 
 import '../components/mission_control_theme.dart';
@@ -66,69 +66,87 @@ class _FlightFormsPageState
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
-    final compact = width < 1120;
+    final isMobile = width < 500;
+    final isTablet = width < 1120;
     final group = viewModel.validationGroup;
     final readyForLaunch = group.isValid && !group.hasIssues;
     final firstIssueText = group.resolveFirstIssueText(
       resolver: _resolveValidationText,
     );
     final panels = [
-      _buildFormPanel(context, readyForLaunch),
-      _buildStatePanel(context, group),
+      _buildFormPanel(context, readyForLaunch, isMobile),
+      _buildStatePanel(context, group, isMobile),
     ];
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(28),
+      padding: EdgeInsets.all(isMobile
+          ? 12
+          : isTablet
+              ? 14
+              : 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           MissionPanel(
+            padding: EdgeInsets.all(isMobile ? 12 : 14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Flight Forms',
-                    style: Theme.of(context).textTheme.headlineMedium),
-                const SizedBox(height: 10),
                 Text(
-                  'This launch authorization flow is the hero Current 3.0.0 demo: CurrentTextController keeps text fields synchronized with CurrentProperty values, while CurrentValidation tracks touched state, parse failures, and aggregate launch readiness.',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: SpaceMissionTheme.textMuted,
-                      ),
+                  'Flight Forms',
+                  style: isMobile
+                      ? Theme.of(context).textTheme.titleLarge
+                      : Theme.of(context).textTheme.headlineMedium,
                 ),
-                const SizedBox(height: 18),
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: [
-                    StatusPill(
-                      label: readyForLaunch
-                          ? 'Launch-ready'
-                          : 'Awaiting validation',
-                      icon: readyForLaunch
-                          ? Icons.check_circle_outline
-                          : Icons.pending_actions_outlined,
-                      color: readyForLaunch
-                          ? SpaceMissionTheme.highlight
-                          : SpaceMissionTheme.warning,
-                    ),
-                    StatusPill(
-                      label: 'First issue: ${firstIssueText ?? 'None'}',
-                      icon: Icons.rule_outlined,
-                      color: group.hasIssues
-                          ? SpaceMissionTheme.danger
-                          : SpaceMissionTheme.accent,
-                    ),
-                  ],
+                const SizedBox(height: 8),
+                Text(
+                  'CurrentTextController + CurrentValidation power launch approval with live parsing and aggregate readiness.',
+                  style: (isMobile
+                          ? Theme.of(context).textTheme.bodySmall
+                          : Theme.of(context).textTheme.bodyMedium)
+                      ?.copyWith(
+                    color: SpaceMissionTheme.textMuted,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      StatusPill(
+                        label: readyForLaunch
+                            ? 'Launch-ready'
+                            : 'Awaiting validation',
+                        icon: readyForLaunch
+                            ? Icons.check_circle_outline
+                            : Icons.pending_actions_outlined,
+                        color: readyForLaunch
+                            ? SpaceMissionTheme.highlight
+                            : SpaceMissionTheme.warning,
+                        compact: isMobile,
+                      ),
+                      StatusPill(
+                        label: 'Issue: ${firstIssueText ?? 'None'}',
+                        icon: Icons.rule_outlined,
+                        color: group.hasIssues
+                            ? SpaceMissionTheme.danger
+                            : SpaceMissionTheme.accent,
+                        compact: isMobile,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 20),
-          compact
+          SizedBox(height: isMobile ? 10 : 14),
+          isTablet
               ? Column(
                   children: [
                     panels[0],
-                    const SizedBox(height: 18),
+                    SizedBox(height: isMobile ? 10 : 14),
                     panels[1],
                   ],
                 )
@@ -136,7 +154,7 @@ class _FlightFormsPageState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(child: panels[0]),
-                    const SizedBox(width: 18),
+                    const SizedBox(width: 14),
                     Expanded(child: panels[1]),
                   ],
                 ),
@@ -145,43 +163,63 @@ class _FlightFormsPageState
     );
   }
 
-  Widget _buildFormPanel(BuildContext context, bool readyForLaunch) {
+  Widget _buildFormPanel(
+      BuildContext context, bool readyForLaunch, bool isMobile) {
+    final inputDecoration = InputDecoration(
+      isDense: isMobile,
+      contentPadding: isMobile
+          ? const EdgeInsets.symmetric(horizontal: 12, vertical: 10)
+          : null,
+    );
+
     return MissionPanel(
+      padding: EdgeInsets.all(isMobile ? 12 : 14),
       child: Form(
         key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Launch authorization input',
-                style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 8),
             Text(
-              'This panel intentionally shows both field integration styles: the wrapper widget and a plain TextFormField using controller.formValidator(...).',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: SpaceMissionTheme.textMuted,
-                  ),
+              'Launch authorization',
+              style: isMobile
+                  ? Theme.of(context).textTheme.titleSmall
+                  : Theme.of(context).textTheme.titleLarge,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 6),
             Text(
-              'CurrentTextFormField wrapper',
-              style: Theme.of(context).textTheme.titleMedium,
+              'Both CurrentTextFormField and native TextFormField + controller are shown.',
+              style: (isMobile
+                      ? Theme.of(context).textTheme.bodySmall
+                      : Theme.of(context).textTheme.bodyMedium)
+                  ?.copyWith(
+                color: SpaceMissionTheme.textMuted,
+              ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
+            Text(
+              'Mission code',
+              style: isMobile
+                  ? Theme.of(context).textTheme.labelMedium
+                  : Theme.of(context).textTheme.titleSmall,
+            ),
+            const SizedBox(height: 6),
             CurrentTextFormField<String>(
               controller: missionCodeController,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               validationTextResolver: _resolveValidationText,
-              decoration: const InputDecoration(
+              decoration: inputDecoration.copyWith(
                 labelText: 'Mission code',
-                helperText: 'Try a value like ARTEMIS-2',
+                helperText: isMobile ? null : 'Try ARTEMIS-2',
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             Text(
-              'Native TextFormField + CurrentTextController',
-              style: Theme.of(context).textTheme.titleMedium,
+              'Crew capacity',
+              style: isMobile
+                  ? Theme.of(context).textTheme.labelMedium
+                  : Theme.of(context).textTheme.titleSmall,
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 6),
             TextFormField(
               controller: crewCountController,
               autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -190,86 +228,145 @@ class _FlightFormsPageState
                 resolver: _resolveValidationText,
               ),
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
+              decoration: inputDecoration.copyWith(
                 labelText: 'Crew capacity',
-                helperText: 'Digits only. Validation requires 2-8 crew.',
+                helperText: isMobile ? null : 'Requires 2-8',
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             Text(
-              'CurrentTextFormField wrapper',
-              style: Theme.of(context).textTheme.titleMedium,
+              'Launch window',
+              style: isMobile
+                  ? Theme.of(context).textTheme.labelMedium
+                  : Theme.of(context).textTheme.titleSmall,
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 6),
             CurrentTextFormField<DateTime>(
               controller: launchDateController,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               validationTextResolver: _resolveValidationText,
-              decoration: const InputDecoration(
+              decoration: inputDecoration.copyWith(
                 labelText: 'Launch window',
-                helperText: 'YYYY-MM-DD',
+                helperText: isMobile ? null : 'YYYY-MM-DD',
               ),
             ),
-            const SizedBox(height: 18),
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: [
-                FilledButton.icon(
-                  onPressed: () {
-                    final formIsValid =
-                        _formKey.currentState?.validate() ?? true;
+            const SizedBox(height: 14),
+            if (isMobile)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  FilledButton.icon(
+                    onPressed: () {
+                      final formIsValid =
+                          _formKey.currentState?.validate() ?? true;
 
-                    if (!formIsValid) {
-                      viewModel.submissionStatus.value =
-                          'Launch package still has open validation issues.';
-                    }
+                      if (!formIsValid) {
+                        viewModel.submissionStatus.value =
+                            'Launch package still has open validation issues.';
+                      }
 
-                    final approved = formIsValid && viewModel.authorizeLaunch();
+                      final approved =
+                          formIsValid && viewModel.authorizeLaunch();
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          approved
-                              ? 'Launch package approved. CurrentValidationGroup is clear.'
-                              : _firstVisibleFormError(context) ??
-                                  viewModel.validationGroup
-                                      .resolveFirstIssueText(
-                                    resolver: _resolveValidationText,
-                                  ) ??
-                                  viewModel.submissionStatus.value,
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            approved
+                                ? 'Launch approved. Ready to proceed.'
+                                : _firstVisibleFormError(context) ??
+                                    viewModel.validationGroup
+                                        .resolveFirstIssueText(
+                                      resolver: _resolveValidationText,
+                                    ) ??
+                                    viewModel.submissionStatus.value,
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.rocket_launch_outlined),
-                  label: const Text('Authorize launch'),
-                ),
-                FilledButton.tonalIcon(
-                  onPressed: viewModel.loadSampleManifest,
-                  icon: const Icon(Icons.playlist_add_check_circle_outlined),
-                  label: const Text('Load sample manifest'),
-                ),
-                OutlinedButton.icon(
-                  onPressed: () {
-                    _formKey.currentState?.reset();
-                    viewModel.resetMissionPlan();
-                  },
-                  icon: const Icon(Icons.restart_alt_outlined),
-                  label: const Text('Reset form'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
+                      );
+                    },
+                    icon: const Icon(Icons.rocket_launch_outlined),
+                    label: const Text('Authorize launch'),
+                  ),
+                  const SizedBox(height: 8),
+                  FilledButton.tonalIcon(
+                    onPressed: viewModel.loadSampleManifest,
+                    icon: const Icon(Icons.playlist_add_check_circle_outlined),
+                    label: const Text('Load sample'),
+                  ),
+                  const SizedBox(height: 8),
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      _formKey.currentState?.reset();
+                      viewModel.resetMissionPlan();
+                    },
+                    icon: const Icon(Icons.restart_alt_outlined),
+                    label: const Text('Reset'),
+                  ),
+                ],
+              )
+            else
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  FilledButton.icon(
+                    onPressed: () {
+                      final formIsValid =
+                          _formKey.currentState?.validate() ?? true;
+
+                      if (!formIsValid) {
+                        viewModel.submissionStatus.value =
+                            'Launch package still has open validation issues.';
+                      }
+
+                      final approved =
+                          formIsValid && viewModel.authorizeLaunch();
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            approved
+                                ? 'Launch package approved. CurrentValidationGroup is clear.'
+                                : _firstVisibleFormError(context) ??
+                                    viewModel.validationGroup
+                                        .resolveFirstIssueText(
+                                      resolver: _resolveValidationText,
+                                    ) ??
+                                    viewModel.submissionStatus.value,
+                          ),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.rocket_launch_outlined),
+                    label: const Text('Authorize launch'),
+                  ),
+                  FilledButton.tonalIcon(
+                    onPressed: viewModel.loadSampleManifest,
+                    icon: const Icon(Icons.playlist_add_check_circle_outlined),
+                    label: const Text('Load sample manifest'),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      _formKey.currentState?.reset();
+                      viewModel.resetMissionPlan();
+                    },
+                    icon: const Icon(Icons.restart_alt_outlined),
+                    label: const Text('Reset form'),
+                  ),
+                ],
+              ),
+            const SizedBox(height: 12),
             Text(
               readyForLaunch
-                  ? 'All validation rules are satisfied. The launch package can proceed.'
-                  : 'CurrentValidation metadata blocks submission until each field passes.',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: readyForLaunch
-                        ? SpaceMissionTheme.highlight
-                        : SpaceMissionTheme.textMuted,
-                  ),
+                  ? 'All validation rules satisfied. Launch approved.'
+                  : 'Validation metadata blocks submission until all fields pass.',
+              style: (isMobile
+                      ? Theme.of(context).textTheme.bodySmall
+                      : Theme.of(context).textTheme.bodyMedium)
+                  ?.copyWith(
+                color: readyForLaunch
+                    ? SpaceMissionTheme.highlight
+                    : SpaceMissionTheme.textMuted,
+              ),
             ),
           ],
         ),
@@ -277,70 +374,94 @@ class _FlightFormsPageState
     );
   }
 
-  Widget _buildStatePanel(BuildContext context, CurrentValidationGroup group) {
+  Widget _buildStatePanel(
+      BuildContext context, CurrentValidationGroup group, bool isMobile) {
     final textTheme = Theme.of(context).textTheme;
 
     return MissionPanel(
+      padding: EdgeInsets.all(isMobile ? 12 : 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Live Current state', style: textTheme.titleLarge),
-          const SizedBox(height: 16),
-          _ValueLine(
-              label: 'missionCode.value',
-              value: viewModel.missionCode.value.isEmpty
-                  ? '<empty>'
-                  : viewModel.missionCode.value),
-          _ValueLine(
-              label: 'crewCapacity.value',
-              value: '${viewModel.crewCapacity.value}'),
-          _ValueLine(
-              label: 'launchWindow.value',
-              value: _formatDate(viewModel.launchWindow.value)),
-          _ValueLine(
-              label: 'submissionStatus.value',
-              value: viewModel.submissionStatus.value),
-          const Divider(height: 32),
-          Text('Validation telemetry', style: textTheme.titleMedium),
+          Text(
+            'Live Current state',
+            style: isMobile ? textTheme.titleSmall : textTheme.titleLarge,
+          ),
           const SizedBox(height: 12),
+          _ValueLine(
+            label: 'missionCode',
+            value: viewModel.missionCode.value.isEmpty
+                ? '<empty>'
+                : viewModel.missionCode.value,
+            compact: isMobile,
+          ),
+          _ValueLine(
+            label: 'crewCapacity',
+            value: '${viewModel.crewCapacity.value}',
+            compact: isMobile,
+          ),
+          _ValueLine(
+            label: 'launchWindow',
+            value: _formatDate(viewModel.launchWindow.value),
+            compact: isMobile,
+          ),
+          _ValueLine(
+            label: 'status',
+            value: viewModel.submissionStatus.value,
+            compact: isMobile,
+          ),
+          const Divider(height: 24),
+          Text(
+            'Validation telemetry',
+            style: isMobile ? textTheme.titleSmall : textTheme.titleMedium,
+          ),
+          const SizedBox(height: 10),
           _ValidationTile(
             title: 'Mission code',
             validation: viewModel.missionCode.validation,
+            compact: isMobile,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           _ValidationTile(
             title: 'Crew capacity',
             validation: viewModel.crewCapacity.validation,
+            compact: isMobile,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           _ValidationTile(
             title: 'Launch window',
             validation: viewModel.launchWindow.validation,
+            compact: isMobile,
           ),
-          const Divider(height: 32),
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: [
-              StatusPill(
-                label: group.isValid ? 'Group valid' : 'Group invalid',
-                icon: group.isValid
-                    ? Icons.verified_outlined
-                    : Icons.warning_amber_outlined,
-                color: group.isValid
-                    ? SpaceMissionTheme.highlight
-                    : SpaceMissionTheme.warning,
-              ),
-              StatusPill(
-                label: group.hasIssues ? 'Issues present' : 'No active issues',
-                icon: group.hasIssues
-                    ? Icons.report_problem_outlined
-                    : Icons.checklist_rtl_outlined,
-                color: group.hasIssues
-                    ? SpaceMissionTheme.danger
-                    : SpaceMissionTheme.accent,
-              ),
-            ],
+          const Divider(height: 24),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Wrap(
+              spacing: isMobile ? 6 : 10,
+              runSpacing: 6,
+              children: [
+                StatusPill(
+                  label: group.isValid ? 'Valid' : 'Invalid',
+                  icon: group.isValid
+                      ? Icons.verified_outlined
+                      : Icons.warning_amber_outlined,
+                  color: group.isValid
+                      ? SpaceMissionTheme.highlight
+                      : SpaceMissionTheme.warning,
+                  compact: isMobile,
+                ),
+                StatusPill(
+                  label: group.hasIssues ? 'Issues' : 'Clear',
+                  icon: group.hasIssues
+                      ? Icons.report_problem_outlined
+                      : Icons.checklist_rtl_outlined,
+                  color: group.hasIssues
+                      ? SpaceMissionTheme.danger
+                      : SpaceMissionTheme.accent,
+                  compact: isMobile,
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -424,20 +545,49 @@ class _FlightFormsPageState
 }
 
 class _ValueLine extends StatelessWidget {
-  const _ValueLine({required this.label, required this.value});
+  const _ValueLine({
+    required this.label,
+    required this.value,
+    this.compact = false,
+  });
 
   final String label;
   final String value;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
+    if (compact) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: SpaceMissionTheme.textMuted,
+                  ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              value,
+              style: Theme.of(context).textTheme.bodySmall,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 150,
+            width: 130,
             child: Text(
               label,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -461,10 +611,12 @@ class _ValidationTile extends StatelessWidget {
   const _ValidationTile({
     required this.title,
     required this.validation,
+    this.compact = false,
   });
 
   final String title;
   final CurrentFieldValidation<dynamic> validation;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -475,43 +627,55 @@ class _ValidationTile extends StatelessWidget {
             : SpaceMissionTheme.accent;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(compact ? 10 : 12),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(compact ? 14 : 16),
         border: Border.all(color: color.withValues(alpha: 0.35)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: [
-              StatusPill(
-                label: validation.isTouched ? 'Touched' : 'Untouched',
-                icon: Icons.touch_app_outlined,
-                color: color,
-              ),
-              StatusPill(
-                label: validation.hasValidated
-                    ? 'Validated'
-                    : 'Awaiting validation',
-                icon: Icons.rule_outlined,
-                color: color,
-              ),
-            ],
+          Text(
+            title,
+            style: compact
+                ? Theme.of(context).textTheme.titleSmall
+                : Theme.of(context).textTheme.titleMedium,
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 6),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Wrap(
+              spacing: compact ? 4 : 8,
+              runSpacing: 4,
+              children: [
+                StatusPill(
+                  label: validation.isTouched ? 'Touched' : 'Untouched',
+                  icon: Icons.touch_app_outlined,
+                  color: color,
+                  compact: compact,
+                ),
+                StatusPill(
+                  label: validation.hasValidated ? 'Validated' : 'Awaiting',
+                  icon: Icons.rule_outlined,
+                  color: color,
+                  compact: compact,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 6),
           Text(
             validation.resolveIssueText(
                   resolver: _FlightFormsPageState._resolveValidationText,
                 ) ??
                 'No active issue.',
-            style:
-                Theme.of(context).textTheme.bodyMedium?.copyWith(color: color),
+            style: (compact
+                    ? Theme.of(context).textTheme.bodySmall
+                    : Theme.of(context).textTheme.bodyMedium)
+                ?.copyWith(color: color),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),

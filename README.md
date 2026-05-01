@@ -26,7 +26,7 @@ In your Flutter project, add the dependency to your `pubspec.yaml`.
 
 ```yaml
 dependencies:
-  current: ^3.0.0-beta-2
+  current: ^3.0.0-beta-3
 ```
 
 **Tip:** Consider installing the [Current Flutter Snippets](https://marketplace.visualstudio.com/items?itemName=ThirdVersionTechnologyLtd.current-flutter-snippets) extension in Visual Studio Code to make creating Current classes easier.
@@ -135,7 +135,7 @@ class ProfileViewModel extends CurrentViewModel {
         ? CurrentValidationIssue.message(intl.displayNameRequired)
         : null;
   }
-  
+
   CurrentFieldValidation<int> ageValidation(CurrentIntegerProperty age) {
     return age.createValidation(rules: [_userIsAdult()]);
   }
@@ -172,7 +172,7 @@ class ProfilePage extends CurrentWidget<ProfileViewModel> {
 
 class _ProfilePageState extends CurrentState<ProfilePage, ProfileViewModel>
     with CurrentTextControllersLifecycleMixin {
-      
+
   _ProfilePageState(super.viewModel);
 
   final _formKey = GlobalKey<FormState>();
@@ -182,13 +182,13 @@ class _ProfilePageState extends CurrentState<ProfilePage, ProfileViewModel>
   @override
   void bindCurrentControllers() {
     // Bind each controller to its property, with an optional validation builder.
-    // Once the controller is bound and assigned to a CurrentTextFormField, 
+    // Once the controller is bound and assigned to a CurrentTextFormField,
     // value parsing, validation, state updates, and error visibility are automatically handled for you.
 
     displayNameController.bind(
       property: viewModel.displayName,
       lifecycleProvider: this,
-      validationBuilder: (property, context) => 
+      validationBuilder: (property, context) =>
         viewModel.displayNameValidation(property, AppLocalizations.of(context)),
     );
 

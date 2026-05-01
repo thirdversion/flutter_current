@@ -1,5 +1,5 @@
 import 'dart:math' as math;
-import 'package:current_counter_example/space_mission_theme.dart';
+import 'package:mission_control_example/space_mission_theme.dart';
 import 'package:flutter/material.dart';
 
 class SpaceBackdropPainter extends CustomPainter {
