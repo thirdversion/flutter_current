@@ -1,3 +1,7 @@
+## 3.0.0-beta-4
+
+- Update README to reflect the VS Code extenion name change and to highlight the new features of the extension such as Quick Fix actions and Command Palette commands.
+
 ## 3.0.0-beta-3
 
 - Update the example app name to reflect the new mission control theme.
