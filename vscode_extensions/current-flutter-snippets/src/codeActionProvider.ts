@@ -10,6 +10,9 @@ export class CurrentCodeActionProvider implements vscode.CodeActionProvider {
     range: vscode.Range | vscode.Selection,
   ): vscode.CodeAction[] | undefined {
     const line = document.lineAt(range.start.line);
+    const actions: vscode.CodeAction[] = [];
+
+    // 1. Detect Widget Conversion
     const match = line.text.match(
       /class\s+(\w+)\s+extends\s+(StatelessWidget|StatefulWidget)/,
     );
@@ -18,8 +21,6 @@ export class CurrentCodeActionProvider implements vscode.CodeActionProvider {
       const className = match[1];
       const isStateful = match[2] === "StatefulWidget";
 
-      // This is everything that needs to be replace.
-      // For now this is all or nothing.
       const fullRange = this.findFullWidgetRange(
         document,
         range.start.line,
@@ -36,10 +37,57 @@ export class CurrentCodeActionProvider implements vscode.CodeActionProvider {
         title: "Convert to CurrentWidget",
         arguments: [document, fullRange, className, isStateful],
       };
-      return [action];
+      actions.push(action);
     }
 
-    return undefined;
+    // 2. Detect CurrentProperty (check current line and 2 lines above to handle multi-line declarations)
+    let propertyMatch: RegExpMatchArray | null = null;
+    let propertyName: string | undefined;
+
+    for (let i = 0; i <= 2; i++) {
+      const lineIndex = range.start.line - i;
+      if (lineIndex < 0) {
+        break;
+      }
+      const checkLine = document.lineAt(lineIndex).text;
+      propertyMatch = checkLine.match(
+        /(?:final|var|late)?\s+(\w+)\s*(?::\s*[^=]+)?\s*=\s*(?:const\s+)?(?:Current(?:Nullable)?(?:Int|Double|String|Bool|DateTime|List|Map)?Property(?:\.\w+)?|create(?:Null)?Property)\s*[<(]/,
+      );
+      if (propertyMatch) {
+        propertyName = propertyMatch[1];
+        break;
+      }
+    }
+
+    if (propertyName) {
+      // Find currentProps getter
+      const fullText = document.getText();
+      const currentPropsMatch = fullText.match(
+        /get\s+currentProps\s*=>\s*\[([\s\S]*?)\]/,
+      );
+
+      if (currentPropsMatch) {
+        const currentPropsText = currentPropsMatch[1];
+        const isAlreadyAdded = new RegExp(`\\b${propertyName}\\b`).test(
+          currentPropsText,
+        );
+
+        if (!isAlreadyAdded) {
+          const action = new vscode.CodeAction(
+            `Add '${propertyName}' to currentProps`,
+            vscode.CodeActionKind.RefactorRewrite,
+          );
+          action.command = {
+            command: "current-flutter-snippets.addToCurrentProps",
+            title: "Add to currentProps",
+            arguments: [document, propertyName],
+          };
+          actions.push(action);
+        }
+      }
+    }
+
+    return actions.length > 0 ? actions : undefined;
   }
 
   // This is used to find everything we need to replace, including the StatefulWidget and its State class if it exists
