@@ -15,7 +15,7 @@ void main() {
     await tester.tap(find.text('Flight Forms').last);
     await tester.pumpAndSettle();
 
-    expect(find.text('Launch authorization input'), findsOneWidget);
+    expect(find.text('Launch authorization'), findsOneWidget);
     expect(find.text('Authorize launch'), findsOneWidget);
     expect(find.byType(TextField), findsNWidgets(3));
   });
