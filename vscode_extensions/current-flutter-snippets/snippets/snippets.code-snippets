@@ -18,7 +18,7 @@
       "",
       "\t@override",
       "\tWidget build(BuildContext context) {",
-      "\t\tthrow UnimplementedError();",
+      "\t\t${0:return const Placeholder();}",
       "\t}",
       "}"
     ],
@@ -31,10 +31,10 @@
       "import 'package:current/current.dart';",
       "",
       "class $1 extends CurrentViewModel {",
-      "\t//TODO: add Current Properties",
+      "\t${0://TODO: add Current Properties}",
       "",
       "\t@override",
-      "\tIterable<CurrentProperty> get currentProps => throw UnimplementedError('TODO: implement currentProps for $1');",
+      "\tIterable<CurrentProperty> get currentProps => []; // TODO: add Current Properties to this list",
       "}"
     ],
     "description": "Create a new Current ViewModel"

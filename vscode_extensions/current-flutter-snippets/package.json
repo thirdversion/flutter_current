@@ -1,9 +1,9 @@
 {
   "name": "current-flutter-snippets",
-  "displayName": "Current Flutter Snippets",
-  "description": "Helpful code snippets for the Flutter Current State Management package to quickly create Current Widgets and CurrentViewModels.",
+  "displayName": "Flutter Current",
+  "description": "Code snippets, commands, and code actions to speed up development workflow when using the Current state management package for Flutter.",
   "publisher": "ThirdVersionTechnologyLtd",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/thirdversion/flutter_current"
@@ -14,13 +14,77 @@
   "categories": [
     "Snippets"
   ],
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "onCommand:current-flutter-snippets.generateCurrentFiles",
+    "onLanguage:dart"
+  ],
   "contributes": {
     "snippets": [
       {
         "language": "dart",
         "path": "./snippets/snippets.code-snippets"
       }
-    ]
+    ],
+    "commands": [
+      {
+        "command": "current-flutter-snippets.generateCurrentFiles",
+        "title": "Current: Generate Widget & ViewModel Files",
+        "category": "Current"
+      },
+      {
+        "command": "current-flutter-snippets.executeConvert",
+        "title": "Convert to CurrentWidget"
+      },
+      {
+        "command": "current-flutter-snippets.addToCurrentProps",
+        "title": "Add to currentProps"
+      },
+      {
+        "command": "current-flutter-snippets.addAllMissingToCurrentProps",
+        "title": "Add all missing properties to currentProps"
+      },
+      {
+        "command": "current-flutter-snippets.bindCurrentController",
+        "title": "Bind Controller"
+      },
+      {
+        "command": "current-flutter-snippets.addTextControllerSupport",
+        "title": "Add TextController Support"
+      },
+      {
+        "command": "current-flutter-snippets.scaffoldEmptyFile",
+        "title": "Scaffold CurrentWidget and ViewModel"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "current-flutter-snippets.generateCurrentFiles",
+          "group": "navigation",
+          "when": "explorerResourceIsFolder"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.70.0",
+    "@types/glob": "^7.2.0",
+    "@types/node": "16.x",
+    "@typescript-eslint/eslint-plugin": "^5.31.0",
+    "@typescript-eslint/parser": "^5.31.0",
+    "eslint": "^8.20.0",
+    "glob": "^8.0.3",
+    "typescript": "^4.7.4",
+    "@vscode/test-electron": "^2.1.5"
   },
   "icon": "assets/icon.png"
 }
