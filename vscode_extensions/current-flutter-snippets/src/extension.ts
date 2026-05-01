@@ -120,14 +120,50 @@ export function activate(context: vscode.ExtensionContext) {
         viewModelFileName,
       );
 
-      const viewModelContent = `import 'package:current/current.dart';\n\nclass ${viewModelClassName} extends CurrentViewModel {\n\t//TODO: add Current Properties\n\n\t@override\n\tIterable<CurrentProperty> get currentProps => []; // TODO: add Current Properties to this list\n}`;
+      const viewModelContent = `import 'package:current/current.dart';
 
-      let widgetContent = "";
-      if (widgetType === "Regular Current Widget") {
-        widgetContent = `import 'package:current/current.dart';\n${flutterImport}\n\nimport '${viewModelFileName}';\n\nclass ${widgetClassName} extends CurrentWidget<${viewModelClassName}> {\n\tconst ${widgetClassName}({required super.viewModel, super.key,});\n\n\t@override\n\tCurrentState<CurrentWidget<CurrentViewModel>, ${viewModelClassName}> createCurrent() => _${widgetClassName}State(viewModel);\n\n}\n\nclass _${widgetClassName}State extends CurrentState<${widgetClassName}, ${viewModelClassName}> {\n\t_${widgetClassName}State(super.viewModel);\n\n\t@override\n\tWidget build(BuildContext context) {\n\t\treturn const Placeholder();\n\t}\n}`;
-      } else {
-        widgetContent = `import 'package:current/current.dart';\n${flutterImport}\n\nimport '${viewModelFileName}';\n\nclass ${widgetClassName} extends CurrentWidget<${viewModelClassName}> {\n\tconst ${widgetClassName}({required super.viewModel, super.key,});\n\n\t@override\n\tCurrentState<CurrentWidget<CurrentViewModel>, ${viewModelClassName}> createCurrent() => _${widgetClassName}State(viewModel);\n\n}\n\nclass _${widgetClassName}State extends CurrentState<${widgetClassName}, ${viewModelClassName}> with CurrentTextControllersLifecycleMixin {\n\t_${widgetClassName}State(super.viewModel);\n\n\t@override\n\tvoid bindCurrentControllers() {}\n\n\t@override\n\tWidget build(BuildContext context) {\n\t\treturn const Placeholder();\n\t}\n}`;
-      }
+class ${viewModelClassName} extends CurrentViewModel {
+  // TODO: add Current Properties
+
+  @override
+  Iterable<CurrentProperty> get currentProps => []; // TODO: add Current Properties to this list
+}
+`;
+
+      const isTextFields = widgetType === "Current Widget + CurrentTextFields";
+
+      const widgetContent = `import 'package:current/current.dart';
+${flutterImport}
+
+import '${viewModelFileName}';
+
+class ${widgetClassName} extends CurrentWidget<${viewModelClassName}> {
+  const ${widgetClassName}({
+    required super.viewModel,
+    super.key,
+  });
+
+  @override
+  CurrentState<CurrentWidget<CurrentViewModel>, ${viewModelClassName}> createCurrent() =>
+      _${widgetClassName}State(viewModel);
+}
+
+class _${widgetClassName}State extends CurrentState<${widgetClassName}, ${viewModelClassName}>${isTextFields ? " with CurrentTextControllersLifecycleMixin" : ""} {
+  _${widgetClassName}State(super.viewModel);${
+    isTextFields
+      ? `
+
+  @override
+  void bindCurrentControllers() {}`
+      : ""
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
+  }
+}
+`;
 
       try {
         const widgetExists = await vscode.workspace.fs.stat(widgetUri).then(
