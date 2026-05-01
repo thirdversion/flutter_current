@@ -14,17 +14,38 @@ function toSnakeCase(str: string): string {
 }
 
 function extractBuildMethodBody(text: string): string | undefined {
-  const buildMatch = text.match(
-    /Widget\s+build\s*\(\s*BuildContext\s+context\s*\)\s*\{/,
-  );
+  const range = getBuildMethodRange(text);
+  if (!range) {
+    return undefined;
+  }
 
+  const headerMatch = text
+    .substring(range.start, range.end)
+    .match(/Widget\s+build\s*\(\s*BuildContext\s+context\s*\)\s*\{/);
+  if (!headerMatch) {
+    return undefined;
+  }
+
+  const startIndex = range.start + headerMatch.index! + headerMatch[0].length;
+  // The range.end is the closing brace of the build method
+  return text.substring(startIndex, range.end - 1).trim();
+}
+
+function getBuildMethodRange(
+  text: string,
+): { start: number; end: number } | undefined {
+  // Try to include the @override annotation if present
+  const buildMatch = text.match(
+    /(@override\s+)?Widget\s+build\s*\(\s*BuildContext\s+context\s*\)\s*\{/,
+  );
   if (!buildMatch) {
     return undefined;
   }
 
-  const startIndex = buildMatch.index! + buildMatch[0].length;
+  const startIndex = buildMatch.index!;
+  const bodyStartIndex = startIndex + buildMatch[0].length;
   let openBraces = 1;
-  let i = startIndex;
+  let i = bodyStartIndex;
 
   while (i < text.length && openBraces > 0) {
     if (text[i] === "{") {
@@ -36,10 +57,43 @@ function extractBuildMethodBody(text: string): string | undefined {
   }
 
   if (openBraces === 0) {
-    // Return everything between the braces
-    return text.substring(startIndex, i - 1).trim();
+    return { start: startIndex, end: i };
   }
   return undefined;
+}
+
+function extractOtherMembers(text: string, className: string): string {
+  let result = text;
+
+  // Figure out the range of the class body
+  const firstBrace = result.indexOf("{");
+  const lastBrace = result.lastIndexOf("}");
+  if (firstBrace === -1 || lastBrace === -1) {
+    return "";
+  }
+
+  result = result.substring(firstBrace + 1, lastBrace).trim();
+
+  // tmp remove the build method (will put it back later)
+  const buildRange = getBuildMethodRange(result);
+  if (buildRange) {
+    result =
+      result.substring(0, buildRange.start) + result.substring(buildRange.end);
+  }
+
+  // remove the constructor (handles both named and unnamed constructors, with or without 'const')
+  const constructorRegex = new RegExp(
+    `(const\\s+)?${className}\\s*\\([\\s\\S]*?\\)\\s*(\\{[\\s\\S]*?\\}|;)?`,
+    "g",
+  );
+  result = result.replace(constructorRegex, "");
+
+  // for StatefulWidgets, also remove the createState method. Current has it's own special way of handling state creation.
+  const createStateRegex =
+    /(@override\s+)?State<.*>\s+createState\(\)\s*=>\s*.*;/g;
+  result = result.replace(createStateRegex, "");
+
+  return result.trim();
 }
 
 // Since the new Current Text Fields and validation features are only in 3.0.0+
@@ -126,9 +180,35 @@ export function activate(context: vscode.ExtensionContext) {
           widgetType === "Current Widget + CurrentTextFields";
 
         const originalText = document.getText(range);
-        const existingBuildBody = extractBuildMethodBody(originalText);
-        const buildMethodContent = existingBuildBody
-          ? `\n    ${existingBuildBody}`
+        let widgetClassMembers = "";
+        let stateClassMembers = "";
+        let buildMethodBody = "";
+
+        if (isStateful) {
+          // Split into the two classes
+          const secondClassStart = originalText.indexOf(
+            "class",
+            originalText.indexOf("{"),
+          );
+          if (secondClassStart !== -1) {
+            const firstClassText = originalText.substring(0, secondClassStart);
+            const secondClassText = originalText.substring(secondClassStart);
+
+            widgetClassMembers = extractOtherMembers(firstClassText, className);
+            stateClassMembers = extractOtherMembers(
+              secondClassText,
+              `_${className}State`,
+            );
+            buildMethodBody = extractBuildMethodBody(secondClassText) || "";
+          }
+        } else {
+          widgetClassMembers = ""; // Usually nothing stays in the Stateless part except constructor
+          stateClassMembers = extractOtherMembers(originalText, className);
+          buildMethodBody = extractBuildMethodBody(originalText) || "";
+        }
+
+        const buildMethodContent = buildMethodBody
+          ? `\n    ${buildMethodBody}`
           : "\n    return const Placeholder();";
 
         const viewModelClassName = `${toPascalCase(featureName)}ViewModel`;
@@ -157,6 +237,7 @@ class ${viewModelClassName} extends CurrentViewModel {
     required super.viewModel,
     super.key,
   });
+  ${widgetClassMembers}
 
   @override
   CurrentState<CurrentWidget<CurrentViewModel>, ${viewModelClassName}> createCurrent() =>
@@ -166,7 +247,8 @@ class ${viewModelClassName} extends CurrentViewModel {
 class _${widgetClassName}State extends CurrentState<${widgetClassName}, ${viewModelClassName}>${
           isTextFields ? " with CurrentTextControllersLifecycleMixin" : ""
         } {
-  _${widgetClassName}State(super.viewModel);${
+  _${widgetClassName}State(super.viewModel);
+  ${stateClassMembers}${
     isTextFields
       ? `
 
@@ -183,13 +265,12 @@ class _${widgetClassName}State extends CurrentState<${widgetClassName}, ${viewMo
 
         const edit = new vscode.WorkspaceEdit();
 
-        // 1. Create ViewModel File
         edit.createFile(viewModelUri, { ignoreIfExists: true });
 
-        // 2. Add imports to widget file in specific order
         const fileText = document.getText();
 
-        // Determine which design system is currently being used
+        // Ask the user Material or Cupertino. We used to not import anything
+        // and had the user import manually, but that grew to be really annoying in practice.
         const usesCupertino = fileText.includes(
           "package:flutter/cupertino.dart",
         );
@@ -198,7 +279,8 @@ class _${widgetClassName}State extends CurrentState<${widgetClassName}, ${viewMo
           : "import 'package:flutter/material.dart';";
 
         // We'll remove any existing instances of these specific imports to make sure they appear
-        // at the top in the correct order without duplicates.
+        // at the top in the correct order without duplicates. Prevents an problem
+        // showing up in the users vs code environment if they have alphabetical import ordering lints
         const currentImport = "import 'package:current/current.dart';";
         const viewModelImport = `import '${viewModelFileName}';`;
 
