@@ -87,7 +87,7 @@ export class CurrentCodeActionProvider implements vscode.CodeActionProvider {
       }
     }
 
-    // 3. Detect currentProps
+    // Find currentProps
     const isCurrentPropsLine = line.text.match(/currentProps/);
     if (isCurrentPropsLine) {
       const fullText = document.getText();
@@ -97,15 +97,18 @@ export class CurrentCodeActionProvider implements vscode.CodeActionProvider {
 
       if (currentPropsMatch) {
         const currentPropsText = currentPropsMatch[1];
-        
+
         // Find all CurrentProperty definitions in the file
-        const propertyRegex = /(?:final|var|late)?\s+(\w+)\s*(?::\s*[^=]+)?\s*=\s*(?:const\s+)?(?:Current(?:Nullable)?(?:Int|Double|String|Bool|DateTime|List|Map)?Property(?:\.\w+)?|create(?:Null)?Property)\s*[<(]/g;
-        
+        const propertyRegex =
+          /(?:final|var|late)?\s+(\w+)\s*(?::\s*[^=]+)?\s*=\s*(?:const\s+)?(?:Current(?:Nullable)?(?:Int|Double|String|Bool|DateTime|List|Map)?Property(?:\.\w+)?|create(?:Null)?Property)\s*[<(]/g;
+
         const missingProperties: string[] = [];
         let match;
         while ((match = propertyRegex.exec(fullText)) !== null) {
           const propertyNameMatch = match[1];
-          const isAlreadyAdded = new RegExp(`\\b${propertyNameMatch}\\b`).test(currentPropsText);
+          const isAlreadyAdded = new RegExp(`\\b${propertyNameMatch}\\b`).test(
+            currentPropsText,
+          );
           if (!isAlreadyAdded) {
             missingProperties.push(propertyNameMatch);
           }
@@ -123,6 +126,32 @@ export class CurrentCodeActionProvider implements vscode.CodeActionProvider {
           };
           actions.push(action);
         }
+      }
+    }
+
+    // Find CurrentTextController
+    const controllerMatch = line.text.match(
+      /(?:final|var|late)?\s+(\w+)\s*(?::\s*[^=]+)?\s*=\s*Current(?:[A-Za-z]+)?TextController(?:\.\w+)?(?:\s*<[^>]+>)?\s*\(/,
+    );
+
+    if (controllerMatch) {
+      const controllerName = controllerMatch[1];
+      const fullText = document.getText();
+      const isAlreadyBound = new RegExp(`\\b${controllerName}\\.bind\\b`).test(
+        fullText,
+      );
+
+      if (!isAlreadyBound) {
+        const action = new vscode.CodeAction(
+          `Bind '${controllerName}' to a property`,
+          vscode.CodeActionKind.RefactorRewrite,
+        );
+        action.command = {
+          command: "current-flutter-snippets.bindCurrentController",
+          title: "Bind Controller",
+          arguments: [document, controllerName],
+        };
+        actions.push(action);
       }
     }
 

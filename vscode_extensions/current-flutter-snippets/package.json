@@ -43,6 +43,10 @@
       {
         "command": "current-flutter-snippets.addAllMissingToCurrentProps",
         "title": "Add all missing properties to currentProps"
+      },
+      {
+        "command": "current-flutter-snippets.bindCurrentController",
+        "title": "Bind Controller"
       }
     ],
 
