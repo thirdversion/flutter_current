@@ -99,7 +99,7 @@ function extractOtherMembers(text: string, className: string): string {
 // Since the new Current Text Fields and validation features are only in 3.0.0+
 // Don't want to give devs the option to generate code that won't even work for them.
 // If this returns false, it will just generate the regular Current Widget and no option to select with Text Fields.
-async function isCurrentV3Plus(workspaceUri: vscode.Uri): Promise<boolean> {
+export async function isCurrentV3Plus(workspaceUri: vscode.Uri): Promise<boolean> {
   try {
     const pubspecUri = vscode.Uri.joinPath(workspaceUri, "pubspec.yaml");
     const fileData = await vscode.workspace.fs.readFile(pubspecUri);

@@ -1,14 +1,15 @@
 import * as vscode from "vscode";
+import { isCurrentV3Plus } from "./extension";
 
 export class CurrentCodeActionProvider implements vscode.CodeActionProvider {
   public static readonly providedCodeActionKinds = [
     vscode.CodeActionKind.RefactorRewrite,
   ];
 
-  public provideCodeActions(
+  public async provideCodeActions(
     document: vscode.TextDocument,
     range: vscode.Range | vscode.Selection,
-  ): vscode.CodeAction[] | undefined {
+  ): Promise<vscode.CodeAction[] | undefined> {
     const line = document.lineAt(range.start.line);
     const actions: vscode.CodeAction[] = [];
 
@@ -175,16 +176,21 @@ export class CurrentCodeActionProvider implements vscode.CodeActionProvider {
       );
 
       if (!hasMixin) {
-        const action = new vscode.CodeAction(
-          `Add CurrentTextController support to '${stateClassName}'`,
-          vscode.CodeActionKind.RefactorRewrite,
-        );
-        action.command = {
-          command: "current-flutter-snippets.addTextControllerSupport",
-          title: "Add TextController Support",
-          arguments: [document, stateClassName, range.start.line],
-        };
-        actions.push(action);
+        const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
+        const isV3 = workspaceFolder ? await isCurrentV3Plus(workspaceFolder.uri) : false;
+
+        if (isV3) {
+          const action = new vscode.CodeAction(
+            `Add CurrentTextController support to '${stateClassName}'`,
+            vscode.CodeActionKind.RefactorRewrite,
+          );
+          action.command = {
+            command: "current-flutter-snippets.addTextControllerSupport",
+            title: "Add TextController Support",
+            arguments: [document, stateClassName, range.start.line],
+          };
+          actions.push(action);
+        }
       }
     }
 
