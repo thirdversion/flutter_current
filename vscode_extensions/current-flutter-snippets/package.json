@@ -35,6 +35,14 @@
       {
         "command": "current-flutter-snippets.executeConvert",
         "title": "Convert to CurrentWidget"
+      },
+      {
+        "command": "current-flutter-snippets.addToCurrentProps",
+        "title": "Add to currentProps"
+      },
+      {
+        "command": "current-flutter-snippets.addAllMissingToCurrentProps",
+        "title": "Add all missing properties to currentProps"
       }
     ],
 

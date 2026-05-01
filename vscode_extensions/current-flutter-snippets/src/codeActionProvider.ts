@@ -87,6 +87,45 @@ export class CurrentCodeActionProvider implements vscode.CodeActionProvider {
       }
     }
 
+    // 3. Detect currentProps
+    const isCurrentPropsLine = line.text.match(/currentProps/);
+    if (isCurrentPropsLine) {
+      const fullText = document.getText();
+      const currentPropsMatch = fullText.match(
+        /get\s+currentProps\s*=>\s*\[([\s\S]*?)\]/,
+      );
+
+      if (currentPropsMatch) {
+        const currentPropsText = currentPropsMatch[1];
+        
+        // Find all CurrentProperty definitions in the file
+        const propertyRegex = /(?:final|var|late)?\s+(\w+)\s*(?::\s*[^=]+)?\s*=\s*(?:const\s+)?(?:Current(?:Nullable)?(?:Int|Double|String|Bool|DateTime|List|Map)?Property(?:\.\w+)?|create(?:Null)?Property)\s*[<(]/g;
+        
+        const missingProperties: string[] = [];
+        let match;
+        while ((match = propertyRegex.exec(fullText)) !== null) {
+          const propertyNameMatch = match[1];
+          const isAlreadyAdded = new RegExp(`\\b${propertyNameMatch}\\b`).test(currentPropsText);
+          if (!isAlreadyAdded) {
+            missingProperties.push(propertyNameMatch);
+          }
+        }
+
+        if (missingProperties.length > 0) {
+          const action = new vscode.CodeAction(
+            `Add all missing properties to currentProps`,
+            vscode.CodeActionKind.RefactorRewrite,
+          );
+          action.command = {
+            command: "current-flutter-snippets.addAllMissingToCurrentProps",
+            title: "Add all missing properties to currentProps",
+            arguments: [document, missingProperties],
+          };
+          actions.push(action);
+        }
+      }
+    }
+
     return actions.length > 0 ? actions : undefined;
   }
 

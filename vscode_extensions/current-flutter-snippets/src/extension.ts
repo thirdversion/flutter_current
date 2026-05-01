@@ -316,7 +316,7 @@ class _${widgetClassName}State extends CurrentState<${widgetClassName}, ${viewMo
           );
 
           vscode.window.showInformationMessage(
-            `Successfully converted ${className} to CurrentWidget!`,
+            `Current: Successfully converted ${className} to CurrentWidget!`,
           );
         } catch (error) {
           vscode.window.showErrorMessage(`Failed to convert: ${error}`);
@@ -361,15 +361,81 @@ class _${widgetClassName}State extends CurrentState<${widgetClassName}, ${viewMo
         const endPos = document.positionAt(closeBracketIndex);
 
         const edit = new vscode.WorkspaceEdit();
-        edit.replace(document.uri, new vscode.Range(startPos, endPos), newListContent);
+        edit.replace(
+          document.uri,
+          new vscode.Range(startPos, endPos),
+          newListContent,
+        );
 
         try {
           await vscode.workspace.applyEdit(edit);
           vscode.window.showInformationMessage(
-            `Added '${propertyName}' to currentProps.`,
+            `Current: Added '${propertyName}' to currentProps.`,
           );
         } catch (error) {
-          vscode.window.showErrorMessage(`Failed to add property: ${error}`);
+          vscode.window.showErrorMessage(
+            `Current: Failed to add property: ${error}`,
+          );
+        }
+      },
+    ),
+  );
+
+  // Register the Add all missing properties to currentProps Command
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "current-flutter-snippets.addAllMissingToCurrentProps",
+      async (document: vscode.TextDocument, propertyNames: string[]) => {
+        const fullText = document.getText();
+        const currentPropsMatch = fullText.match(
+          /get\s+currentProps\s*=>\s*\[([\s\S]*?)\]/,
+        );
+
+        if (!currentPropsMatch) {
+          vscode.window.showErrorMessage(
+            "Current: Could not find currentProps list.",
+          );
+          return;
+        }
+
+        const listContent = currentPropsMatch[1];
+        const trimmedContent = listContent.trimEnd();
+        let newListContent = "";
+
+        const namesString = propertyNames.join(", ");
+
+        if (listContent.trim() === "") {
+          newListContent = namesString;
+        } else if (trimmedContent.endsWith(",")) {
+          newListContent = `${trimmedContent} ${namesString}`;
+        } else {
+          newListContent = `${trimmedContent}, ${namesString}`;
+        }
+
+        // Find the index of the opening bracket '['
+        const openBracketIndex = fullText.indexOf("[", currentPropsMatch.index);
+        const startPos = document.positionAt(openBracketIndex + 1);
+
+        // The end position is just before the closing bracket ']'
+        const closeBracketIndex = fullText.indexOf("]", openBracketIndex);
+        const endPos = document.positionAt(closeBracketIndex);
+
+        const edit = new vscode.WorkspaceEdit();
+        edit.replace(
+          document.uri,
+          new vscode.Range(startPos, endPos),
+          newListContent,
+        );
+
+        try {
+          await vscode.workspace.applyEdit(edit);
+          vscode.window.showInformationMessage(
+            `Current: Added ${propertyNames.length} properties to currentProps.`,
+          );
+        } catch (error) {
+          vscode.window.showErrorMessage(
+            `Current: Failed to add properties: ${error}`,
+          );
         }
       },
     ),
@@ -514,7 +580,7 @@ class _${widgetClassName}State extends CurrentState<${widgetClassName}, ${viewMo
 
         if (widgetExists || viewModelExists) {
           vscode.window.showErrorMessage(
-            `Files for '${featureName}' already exist in this directory!`,
+            `Current: Files for '${featureName}' already exist in this directory!`,
           );
           return;
         }
@@ -530,14 +596,14 @@ class _${widgetClassName}State extends CurrentState<${widgetClassName}, ${viewMo
         );
 
         vscode.window.showInformationMessage(
-          `Successfully generated ${widgetFileName} and ${viewModelFileName}!`,
+          `Current: Successfully generated ${widgetFileName} and ${viewModelFileName}!`,
         );
 
         const doc = await vscode.workspace.openTextDocument(viewModelUri);
         await vscode.window.showTextDocument(doc);
       } catch (error) {
         vscode.window.showErrorMessage(
-          `Failed to create or open files: ${error}`,
+          `Current: Failed to create or open files: ${error}`,
         );
       }
     },
