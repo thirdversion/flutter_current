@@ -11,9 +11,7 @@ function toPascalCase(str: string): string {
 }
 
 function toSnakeCase(str: string): string {
-  return str
-    .replace(/([a-z])([A-Z])/g, "$1_$2")
-    .toLowerCase();
+  return str.replace(/([a-z])([A-Z])/g, "$1_$2").toLowerCase();
 }
 
 // --- 2. Pubspec Detective ---
@@ -79,8 +77,13 @@ export function activate(context: vscode.ExtensionContext) {
 
         const viewModelClassName = `${toPascalCase(featureName)}ViewModel`;
         const viewModelFileName = `${featureName}_view_model.dart`;
-        const targetDirectory = vscode.Uri.file(path.dirname(document.uri.fsPath));
-        const viewModelUri = vscode.Uri.joinPath(targetDirectory, viewModelFileName);
+        const targetDirectory = vscode.Uri.file(
+          path.dirname(document.uri.fsPath),
+        );
+        const viewModelUri = vscode.Uri.joinPath(
+          targetDirectory,
+          viewModelFileName,
+        );
 
         const viewModelContent = `import 'package:current/current.dart';
 
@@ -121,35 +124,37 @@ class _${widgetClassName}State extends CurrentState<${widgetClassName}, ${viewMo
 
         // 2. Add imports to widget file in specific order
         const fileText = document.getText();
-        
-        // Determine which design system is currently being used
-        const usesCupertino = fileText.includes("package:flutter/cupertino.dart");
-        const flutterImport = usesCupertino 
-            ? "import 'package:flutter/cupertino.dart';" 
-            : "import 'package:flutter/material.dart';";
 
-        // We'll remove any existing instances of these specific imports to ensure they appear 
+        // Determine which design system is currently being used
+        const usesCupertino = fileText.includes(
+          "package:flutter/cupertino.dart",
+        );
+        const flutterImport = usesCupertino
+          ? "import 'package:flutter/cupertino.dart';"
+          : "import 'package:flutter/material.dart';";
+
+        // We'll remove any existing instances of these specific imports to ensure they appear
         // at the top in the correct order without duplicates.
         const currentImport = "import 'package:current/current.dart';";
         const viewModelImport = `import '${viewModelFileName}';`;
 
         // Regex to find and remove the imports if they exist (handling both single and double quotes)
         const importsToRemove = [
-            /import\s+['"]package:current\/current\.dart['"];\s*\n?/g,
-            /import\s+['"]package:flutter\/(material|cupertino)\.dart['"];\s*\n?/g,
-            new RegExp(`import\\s+['"]${viewModelFileName}['"];\\s*\\n?`, "g")
+          /import\s+['"]package:current\/current\.dart['"];\s*\n?/g,
+          /import\s+['"]package:flutter\/(material|cupertino)\.dart['"];\s*\n?/g,
+          new RegExp(`import\\s+['"]${viewModelFileName}['"];\\s*\\n?`, "g"),
         ];
 
         for (const regex of importsToRemove) {
-            let match;
-            while ((match = regex.exec(fileText)) !== null) {
-                const startPos = document.positionAt(match.index);
-                const endPos = document.positionAt(match.index + match[0].length);
-                edit.delete(document.uri, new vscode.Range(startPos, endPos));
-            }
+          let match;
+          while ((match = regex.exec(fileText)) !== null) {
+            const startPos = document.positionAt(match.index);
+            const endPos = document.positionAt(match.index + match[0].length);
+            edit.delete(document.uri, new vscode.Range(startPos, endPos));
+          }
         }
 
-        const newImportsBlock = `${currentImport}\n${flutterImport}\n${viewModelImport}\n`;
+        const newImportsBlock = `${currentImport}\n${flutterImport}\n${viewModelImport}\n\n`;
         edit.insert(document.uri, new vscode.Position(0, 0), newImportsBlock);
 
         // 3. Replace the Widget class(es)
@@ -159,9 +164,14 @@ class _${widgetClassName}State extends CurrentState<${widgetClassName}, ${viewMo
           await vscode.workspace.applyEdit(edit);
 
           const encoder = new TextEncoder();
-          await vscode.workspace.fs.writeFile(viewModelUri, encoder.encode(viewModelContent));
+          await vscode.workspace.fs.writeFile(
+            viewModelUri,
+            encoder.encode(viewModelContent),
+          );
 
-          vscode.window.showInformationMessage(`Successfully converted ${className} to CurrentWidget!`);
+          vscode.window.showInformationMessage(
+            `Successfully converted ${className} to CurrentWidget!`,
+          );
         } catch (error) {
           vscode.window.showErrorMessage(`Failed to convert: ${error}`);
         }
@@ -279,13 +289,13 @@ class _${widgetClassName}State extends CurrentState<${widgetClassName}, ${viewMo
         isTextFields ? " with CurrentTextControllersLifecycleMixin" : ""
       } {
   _${widgetClassName}State(super.viewModel);${
-        isTextFields
-          ? `
+    isTextFields
+      ? `
 
   @override
   void bindCurrentControllers() {}`
-          : ""
-      }
+      : ""
+  }
 
   @override
   Widget build(BuildContext context) {
