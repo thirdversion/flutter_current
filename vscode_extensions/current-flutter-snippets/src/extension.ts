@@ -2,7 +2,6 @@ import * as vscode from "vscode";
 import * as path from "path";
 import { CurrentCodeActionProvider } from "./codeActionProvider";
 
-// --- 1. String Formatter ---
 function toPascalCase(str: string): string {
   return str
     .split("_")
@@ -14,7 +13,38 @@ function toSnakeCase(str: string): string {
   return str.replace(/([a-z])([A-Z])/g, "$1_$2").toLowerCase();
 }
 
-// --- 2. Pubspec Detective ---
+function extractBuildMethodBody(text: string): string | undefined {
+  const buildMatch = text.match(
+    /Widget\s+build\s*\(\s*BuildContext\s+context\s*\)\s*\{/,
+  );
+
+  if (!buildMatch) {
+    return undefined;
+  }
+
+  const startIndex = buildMatch.index! + buildMatch[0].length;
+  let openBraces = 1;
+  let i = startIndex;
+
+  while (i < text.length && openBraces > 0) {
+    if (text[i] === "{") {
+      openBraces++;
+    } else if (text[i] === "}") {
+      openBraces--;
+    }
+    i++;
+  }
+
+  if (openBraces === 0) {
+    // Return everything between the braces
+    return text.substring(startIndex, i - 1).trim();
+  }
+  return undefined;
+}
+
+// Since the new Current Text Fields and validation features are only in 3.0.0+
+// Don't want to give devs the option to generate code that won't even work for them.
+// If this returns false, it will just generate the regular Current Widget and no option to select with Text Fields.
 async function isCurrentV3Plus(workspaceUri: vscode.Uri): Promise<boolean> {
   try {
     const pubspecUri = vscode.Uri.joinPath(workspaceUri, "pubspec.yaml");
@@ -42,7 +72,6 @@ async function isCurrentV3Plus(workspaceUri: vscode.Uri): Promise<boolean> {
   }
 }
 
-// --- 3. Main Command Extension ---
 export function activate(context: vscode.ExtensionContext) {
   // Register Code Action Provider
   context.subscriptions.push(
@@ -56,7 +85,6 @@ export function activate(context: vscode.ExtensionContext) {
     ),
   );
 
-  // Register the Conversion Command
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "current-flutter-snippets.executeConvert",
@@ -94,7 +122,14 @@ export function activate(context: vscode.ExtensionContext) {
           }
         }
 
-        const isTextFields = widgetType === "Current Widget + CurrentTextFields";
+        const isTextFields =
+          widgetType === "Current Widget + CurrentTextFields";
+
+        const originalText = document.getText(range);
+        const existingBuildBody = extractBuildMethodBody(originalText);
+        const buildMethodContent = existingBuildBody
+          ? `\n    ${existingBuildBody}`
+          : "\n    return const Placeholder();";
 
         const viewModelClassName = `${toPascalCase(featureName)}ViewModel`;
         const viewModelFileName = `${featureName}_view_model.dart`;
@@ -132,17 +167,16 @@ class _${widgetClassName}State extends CurrentState<${widgetClassName}, ${viewMo
           isTextFields ? " with CurrentTextControllersLifecycleMixin" : ""
         } {
   _${widgetClassName}State(super.viewModel);${
-          isTextFields
-            ? `
+    isTextFields
+      ? `
 
   @override
   void bindCurrentControllers() {}`
-            : ""
-        }
+      : ""
+  }
 
   @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
+  Widget build(BuildContext context) {${buildMethodContent}
   }
 }
 `;
@@ -163,7 +197,7 @@ class _${widgetClassName}State extends CurrentState<${widgetClassName}, ${viewMo
           ? "import 'package:flutter/cupertino.dart';"
           : "import 'package:flutter/material.dart';";
 
-        // We'll remove any existing instances of these specific imports to ensure they appear
+        // We'll remove any existing instances of these specific imports to make sure they appear
         // at the top in the correct order without duplicates.
         const currentImport = "import 'package:current/current.dart';";
         const viewModelImport = `import '${viewModelFileName}';`;
