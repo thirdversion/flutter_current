@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { isCurrentV3Plus } from "./extension";
+import { isCurrentV3Plus } from "./utils/workspace";
 
 export class CurrentCodeActionProvider implements vscode.CodeActionProvider {
   public static readonly providedCodeActionKinds = [
