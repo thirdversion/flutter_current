@@ -211,6 +211,38 @@ void main() {
       expect(find.text(expectedValueTwo), findsOneWidget);
     });
 
+    testWidgets('removeWhere - removes matching items - widget updates',
+        (tester) async {
+      const String keyOne = 'firstName';
+      const String valueOne = 'Bob';
+      const String keyTwo = 'lastName';
+      const String valueTwo = 'Smith';
+
+      final Map<String, String> data = {
+        keyOne: valueOne,
+        keyTwo: valueTwo,
+      };
+
+      viewModel.data.addAll(data);
+
+      await tester.pumpWidget(testWidget);
+
+      expect(find.text(keyOne), findsOneWidget);
+      expect(find.text(valueOne), findsOneWidget);
+      expect(find.text(keyTwo), findsOneWidget);
+      expect(find.text(valueTwo), findsOneWidget);
+
+      viewModel.data.removeWhere((key, value) => key == keyOne);
+
+      await tester.pumpAndSettle();
+
+      expect(find.text(keyOne), findsNothing);
+      expect(find.text(valueOne), findsNothing);
+      expect(find.text(keyTwo), findsOneWidget);
+      expect(find.text(valueTwo), findsOneWidget);
+      expect(viewModel.data.length, 1);
+    });
+
     testWidgets('remove - key is present - item removed - widget updates',
         (tester) async {
       const String keyOne = 'firstName';

@@ -212,23 +212,18 @@ class CurrentMapProperty<K, V> extends CurrentProperty<Map<K, V>> {
   /// ```
   void updateAll(V Function(K key, V value) update,
       {bool notifyChanges = true}) {
-    final stateChangedEvents = <CurrentStateChanged<V>>[];
-
-    _value.updateAll((key, value) {
-      final previousValue = value;
-      final updatedValue = update(key, value);
-      stateChangedEvents.add(CurrentStateChanged.updateMapEntry(
-        key,
-        previousValue,
-        updatedValue,
-        propertyName: propertyName,
-        sourceHashCode: sourceHashCode,
-      ));
-      return updatedValue;
-    });
+    _value.updateAll(update);
 
     if (notifyChanges) {
-      viewModel.notifyChanges(stateChangedEvents);
+      viewModel.notifyChanges([
+        CurrentStateChanged(
+          _value,
+          null,
+          propertyName: propertyName,
+          description: 'Map updated all entries',
+          sourceHashCode: sourceHashCode,
+        )
+      ]);
     }
   }
 
@@ -269,25 +264,18 @@ class CurrentMapProperty<K, V> extends CurrentProperty<Map<K, V>> {
   /// ```
   void removeWhere(bool Function(K key, V value) test,
       {bool notifyChanges = true}) {
-    final stateChangedEvents = <CurrentStateChanged<V>>[];
-
-    _value.removeWhere((key, value) {
-      final shouldRemove = test(key, value);
-
-      if (shouldRemove) {
-        stateChangedEvents.add(CurrentStateChanged.removedFromMap(
-          key,
-          value,
-          propertyName: propertyName,
-          sourceHashCode: sourceHashCode,
-        ));
-      }
-
-      return shouldRemove;
-    });
+    _value.removeWhere(test);
 
     if (notifyChanges) {
-      viewModel.notifyChanges(stateChangedEvents);
+      viewModel.notifyChanges([
+        CurrentStateChanged(
+          _value,
+          null,
+          propertyName: propertyName,
+          description: 'Removed items from map based on condition',
+          sourceHashCode: sourceHashCode,
+        )
+      ]);
     }
   }
 
