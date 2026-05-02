@@ -1,6 +1,20 @@
+## 3.0.0-beta-5
+
+**BREAKING CHANGES**
+
+- To eliminate excessive _O(N)_ memory allocations during bulk collection operations (`clear`, `addAll`, `insertAll`, `addEntries`), `CurrentStateChanged` events no longer contain deep clones of the collection by default. The `previousValue` payload will now be `null`. If you need the previous state (e.g., for your own fine-grained Undo feature for example), you must now explicitly opt-in by passing `capturePrevious: true` to these methods.
+  - I recognize this could be a real pain for those of you who were relying on the old behavior, but this is a massive improvement for performance and memory efficiency for 99% of use cases, and the opt-in approach doesn't leave you hanging without a path forward if you do need the previous state.
+- `CurrentListProperty.where()` and `CurrentListProperty.reversed` now return a lazy `Iterable<T>` instead of eagerly allocating a new `List<T>`. This avoids unnecessary memory allocations and aligns with standard Dart iterable semantics. If you strictly need a `List`, simply append `.toList()` to the call.
+  - I also recognize this could be a real pain. Same deal as above, this can result in significant performance and memory improvements for large lists. Plus as mentioned above, it's how standard Dart collections work so it should be more intuitive and less surprising in the long run.
+
+### Performance Improvements
+
+- Fixed a double evaluation performance issue in `CurrentListProperty.firstWhereOrNull`.
+- Fixed excessively sending events in `CurrentMapProperty.updateAll` and `CurrentMapProperty.removeWhere`. These methods now emit a single bulk change event instead of spamming the state stream with one event per map entry.
+
 ## 3.0.0-beta-4
 
-- Update README to reflect the VS Code extenion name change and to highlight the new features of the extension such as Quick Fix actions and Command Palette commands.
+- Update README to reflect the VS Code extension name change and to highlight the new features of the extension such as Quick Fix actions and Command Palette commands.
 
 ## 3.0.0-beta-3
 

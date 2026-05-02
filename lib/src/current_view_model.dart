@@ -501,8 +501,8 @@ class CurrentStateChanged<T> {
   ///A factory method which creates a single [CurrentStateChanged] object with a description
   ///describing all the values that were added to the list
   static CurrentStateChanged addedAllToList<V>(Iterable<V> newValues,
-          {String? propertyName, int? sourceHashCode}) =>
-      CurrentStateChanged(newValues, null,
+          {Iterable<V>? previousValue, String? propertyName, int? sourceHashCode}) =>
+      CurrentStateChanged(newValues, previousValue,
           propertyName: propertyName,
           description: 'Added All To List: $newValues',
           sourceHashCode: sourceHashCode);
@@ -522,8 +522,8 @@ class CurrentStateChanged<T> {
   ///A factory method which creates a single [CurrentStateChanged] object with a description
   ///describing all the values that were inserted into the list at the specified index
   static CurrentStateChanged insertAllIntoList<V>(int index, Iterable<V> values,
-          {String? propertyName, int? sourceHashCode}) =>
-      CurrentStateChanged(values, null,
+          {Iterable<V>? previousValue, String? propertyName, int? sourceHashCode}) =>
+      CurrentStateChanged(values, previousValue,
           propertyName: propertyName,
           description: 'Inserted All $values into List as index $index',
           sourceHashCode: sourceHashCode);
@@ -538,10 +538,14 @@ class CurrentStateChanged<T> {
           sourceHashCode: sourceHashCode);
 
   ///A factory method which creates a single [CurrentStateChanged] object with a description
-  ///stating that the entire list was cleared
-  static CurrentStateChanged<Iterable<V>> clearedList<V>(Iterable<V> iterable,
-          {String? propertyName, int? sourceHashCode}) =>
-      CurrentStateChanged(<V>[], iterable,
+  ///stating that the entire list was cleared.
+  ///
+  ///Note: To avoid O(N) memory allocations, this event does not contain a snapshot
+  ///of the list's items prior to being cleared. If you need the previous value, you
+  ///must explicitly request it using `capturePrevious: true` or cache it yourself.
+  static CurrentStateChanged<Iterable<V>> clearedList<V>(
+          {Iterable<V>? previousItems, String? propertyName, int? sourceHashCode}) =>
+      CurrentStateChanged(<V>[], previousItems,
           propertyName: propertyName,
           description: 'Iterable Cleared',
           sourceHashCode: sourceHashCode);
@@ -549,8 +553,8 @@ class CurrentStateChanged<T> {
   ///A factory method which creates a single [CurrentStateChanged] object with a description
   ///describing what new map values were added to another map
   static CurrentStateChanged addedMapToMap<K, V>(Map<K, V> addedMap,
-      {String? propertyName, int? sourceHashCode}) {
-    return CurrentStateChanged(addedMap, null,
+      {Map<K, V>? previousValue, String? propertyName, int? sourceHashCode}) {
+    return CurrentStateChanged(addedMap, previousValue,
         propertyName: propertyName,
         description: 'Added Map To Map: $addedMap',
         sourceHashCode: sourceHashCode);
@@ -571,9 +575,9 @@ class CurrentStateChanged<T> {
   ///describing what [MapEntry] objects were added to the map
   static CurrentStateChanged addedEntriesToMap<K, V>(
       Iterable<MapEntry<K, V>> entries,
-      {String? propertyName,
+      {Iterable<MapEntry<K, V>>? previousValue, String? propertyName,
       int? sourceHashCode}) {
-    return CurrentStateChanged(entries, null,
+    return CurrentStateChanged(entries, previousValue,
         propertyName: propertyName,
         description: 'Added Entries To Map: $entries',
         sourceHashCode: sourceHashCode);

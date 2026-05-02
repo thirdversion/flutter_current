@@ -211,6 +211,38 @@ void main() {
       expect(find.text(expectedValueTwo), findsOneWidget);
     });
 
+    testWidgets('removeWhere - removes matching items - widget updates',
+        (tester) async {
+      const String keyOne = 'firstName';
+      const String valueOne = 'Bob';
+      const String keyTwo = 'lastName';
+      const String valueTwo = 'Smith';
+
+      final Map<String, String> data = {
+        keyOne: valueOne,
+        keyTwo: valueTwo,
+      };
+
+      viewModel.data.addAll(data);
+
+      await tester.pumpWidget(testWidget);
+
+      expect(find.text(keyOne), findsOneWidget);
+      expect(find.text(valueOne), findsOneWidget);
+      expect(find.text(keyTwo), findsOneWidget);
+      expect(find.text(valueTwo), findsOneWidget);
+
+      viewModel.data.removeWhere((key, value) => key == keyOne);
+
+      await tester.pumpAndSettle();
+
+      expect(find.text(keyOne), findsNothing);
+      expect(find.text(valueOne), findsNothing);
+      expect(find.text(keyTwo), findsOneWidget);
+      expect(find.text(valueTwo), findsOneWidget);
+      expect(viewModel.data.length, 1);
+    });
+
     testWidgets('remove - key is present - item removed - widget updates',
         (tester) async {
       const String keyOne = 'firstName';
@@ -400,6 +432,32 @@ void main() {
       await subscription.cancel();
     });
 
+    test('addAll - capturePrevious captures previous map state', () async {
+      CurrentStateChanged? receivedEvent;
+      final subscription = viewModel.addAnyStateChangedListener((event) => receivedEvent = event);
+
+      viewModel.data.addAll({'name': 'Bob'}, notifyChanges: false);
+      viewModel.data.addAll({'planet': 'Earth'}, capturePrevious: true);
+      await Future<void>.microtask(() {});
+
+      expect(receivedEvent?.previousValue, equals({'name': 'Bob'}));
+      await subscription.cancel();
+    });
+
+    test('addEntries - capturePrevious captures previous map state', () async {
+      CurrentStateChanged? receivedEvent;
+      final subscription = viewModel.addAnyStateChangedListener((event) => receivedEvent = event);
+
+      viewModel.data.addAll({'name': 'Bob'}, notifyChanges: false);
+      viewModel.data.addEntries([const MapEntry('planet', 'Earth')], capturePrevious: true);
+      await Future<void>.microtask(() {});
+
+      final previousEntries = receivedEvent?.previousValue as Iterable<MapEntry<String, String>>?;
+      expect(previousEntries?.first.key, equals('name'));
+      expect(previousEntries?.first.value, equals('Bob'));
+      await subscription.cancel();
+    });
+
     test('clear - emits a concrete snapshot of previous items', () async {
       CurrentStateChanged? receivedEvent;
 
@@ -412,11 +470,22 @@ void main() {
       await Future<void>.microtask(() {});
 
       expect(receivedEvent, isNotNull);
-      expect(receivedEvent?.previousValue,
-          equals({'name': 'Bob', 'planet': 'Earth'}));
+      expect(receivedEvent?.previousValue, isNull);
       expect(receivedEvent?.nextValue, equals(<String, String>{}));
       expect(receivedEvent?.propertyName, equals('data'));
 
+      await subscription.cancel();
+    });
+
+    test('clear - capturePrevious captures previous map state', () async {
+      CurrentStateChanged? receivedEvent;
+      final subscription = viewModel.addAnyStateChangedListener((event) => receivedEvent = event);
+
+      viewModel.data.addAll({'name': 'Bob'}, notifyChanges: false);
+      viewModel.data.clear(capturePrevious: true);
+      await Future<void>.microtask(() {});
+
+      expect(receivedEvent?.previousValue, equals({'name': 'Bob'}));
       await subscription.cancel();
     });
 

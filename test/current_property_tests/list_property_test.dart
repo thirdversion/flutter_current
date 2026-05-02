@@ -245,6 +245,18 @@ void main() {
       await subscription.cancel();
     });
 
+    test('addAll - capturePrevious captures previous list state', () async {
+      CurrentStateChanged? receivedEvent;
+      final subscription = viewModel.addAnyStateChangedListener((event) => receivedEvent = event);
+
+      viewModel.planets.addAll(['Earth'], notifyChanges: false);
+      viewModel.planets.addAll(['Mars', 'Venus'], capturePrevious: true);
+      await Future<void>.microtask(() {});
+
+      expect(receivedEvent?.previousValue, equals(['Earth']));
+      await subscription.cancel();
+    });
+
     test('insert - emits inserted value instead of entire list', () async {
       CurrentStateChanged? receivedEvent;
 
@@ -263,6 +275,18 @@ void main() {
       );
       expect(receivedEvent?.propertyName, equals('planets'));
 
+      await subscription.cancel();
+    });
+
+    test('insertAll - capturePrevious captures previous list state', () async {
+      CurrentStateChanged? receivedEvent;
+      final subscription = viewModel.addAnyStateChangedListener((event) => receivedEvent = event);
+
+      viewModel.planets.addAll(['Earth'], notifyChanges: false);
+      viewModel.planets.insertAll(0, ['Mars', 'Venus'], capturePrevious: true);
+      await Future<void>.microtask(() {});
+
+      expect(receivedEvent?.previousValue, equals(['Earth']));
       await subscription.cancel();
     });
 
@@ -286,6 +310,18 @@ void main() {
       await subscription.cancel();
     });
 
+    test('insertAllAtEnd - capturePrevious captures previous list state', () async {
+      CurrentStateChanged? receivedEvent;
+      final subscription = viewModel.addAnyStateChangedListener((event) => receivedEvent = event);
+
+      viewModel.planets.addAll(['Earth'], notifyChanges: false);
+      viewModel.planets.insertAllAtEnd(['Mars', 'Venus'], capturePrevious: true);
+      await Future<void>.microtask(() {});
+
+      expect(receivedEvent?.previousValue, equals(['Earth']));
+      await subscription.cancel();
+    });
+
     test('clear - emits a stable snapshot of previous items', () async {
       CurrentStateChanged? receivedEvent;
 
@@ -297,10 +333,22 @@ void main() {
       await Future<void>.microtask(() {});
 
       expect(receivedEvent, isNotNull);
-      expect(receivedEvent?.previousValue, equals(['Earth', 'Mars']));
+      expect(receivedEvent?.previousValue, isNull);
       expect(receivedEvent?.nextValue, equals(<String>[]));
       expect(receivedEvent?.propertyName, equals('planets'));
 
+      await subscription.cancel();
+    });
+
+    test('clear - capturePrevious captures previous list state', () async {
+      CurrentStateChanged? receivedEvent;
+      final subscription = viewModel.addAnyStateChangedListener((event) => receivedEvent = event);
+
+      viewModel.planets.addAll(['Earth', 'Mars'], notifyChanges: false);
+      viewModel.planets.clear(capturePrevious: true);
+      await Future<void>.microtask(() {});
+
+      expect(receivedEvent?.previousValue, equals(['Earth', 'Mars']));
       await subscription.cancel();
     });
 
@@ -351,7 +399,7 @@ void main() {
         final result = numbers.where((x) => x > 2);
 
         expect(result.length, equals(expectedLength));
-        expect(result, equals(expectedItems));
+        expect(result.toList(), equals(expectedItems));
       },
     );
 
@@ -430,7 +478,7 @@ void main() {
       final expected = [3, 2, 1];
       final numbers = CurrentListProperty([1, 2, 3]);
       final reversed = numbers.reversed;
-      expect(reversed, equals(expected));
+      expect(reversed.toList(), equals(expected));
     });
 
     test('first - list is not empty - returns first item', () {

@@ -95,7 +95,7 @@ class CurrentListProperty<T> extends CurrentProperty<List<T>> {
   /// ```
   bool get isNotEmpty => _value.isNotEmpty;
 
-  /// Returns a new [List] with all elements that satisfy the
+  /// Returns a new lazy [Iterable] with all elements that satisfy the
   /// predicate [test].
   ///
   /// Example:
@@ -105,8 +105,8 @@ class CurrentListProperty<T> extends CurrentProperty<List<T>> {
   /// result = numbers.where((x) => x > 5); // (6, 7)
   /// result = numbers.where((x) => x.isEven); // (2, 6)
   /// ```
-  List<T> where(bool Function(T element) test) {
-    return _value.where(test).toList();
+  Iterable<T> where(bool Function(T element) test) {
+    return _value.where(test);
   }
 
   /// Returns the first element that satisfies the given predicate [test].
@@ -144,13 +144,12 @@ class CurrentListProperty<T> extends CurrentProperty<List<T>> {
   ///
   /// If no element satisfies [test], null is returned
   T? firstWhereOrNull(bool Function(T element) test) {
-    final results = value.where(test);
-
-    if (results.isEmpty) {
-      return null;
-    } else {
-      return results.first;
+    for (final element in _value) {
+      if (test(element)) {
+        return element;
+      }
     }
+    return null;
   }
 
   /// Adds [value] to the end of this list,
@@ -181,20 +180,24 @@ class CurrentListProperty<T> extends CurrentProperty<List<T>> {
   ///
   /// Extends the length of the list by the number of objects in [values].
   /// The list must be growable.
+  /// 
+  /// Set [capturePrevious] to true if you need the [CurrentStateChanged] event to
+  /// contain a snapshot of the list prior to the items being added.
   ///
   /// ```dart
   /// final numbers = CurrentListProperty<int>([1, 2, 3]);
   /// numbers.addAll([4, 5, 6]);
   /// print(numbers); // [1, 2, 3, 4, 5, 6]
   /// ```
-  void addAll(Iterable<T> values, {bool notifyChanges = true}) {
-    final addedValues = List<T>.from(values);
-    _value.addAll(addedValues);
+  void addAll(Iterable<T> values, {bool notifyChanges = true, bool capturePrevious = false}) {
+    final previousValue = capturePrevious ? List<T>.from(_value) : null;
+    _value.addAll(values);
 
     if (notifyChanges) {
       viewModel.notifyChanges([
         CurrentStateChanged.addedAllToList(
-          addedValues,
+          values,
+          previousValue: previousValue,
           propertyName: propertyName,
           sourceHashCode: sourceHashCode,
         )
@@ -236,21 +239,26 @@ class CurrentListProperty<T> extends CurrentProperty<List<T>> {
   /// and shifts all later objects towards the end of the list.
   /// The list must be growable.
   /// The [index] must be a valid index in the list or [length].
+  /// 
+  /// Set [capturePrevious] to true if you need the [CurrentStateChanged] event to
+  /// contain a snapshot of the list prior to the items being inserted.
+  /// 
   /// ```dart
   /// final numbers = CurrentListProperty<int>([1, 2, 3, 4]);
   /// const index = 2;
   /// numbers.insertAll(index, [10, 11, 12]);
   /// print(numbers); // [1, 2, 10, 11, 12, 3, 4]
   /// ```
-  void insertAll(int index, Iterable<T> values, {bool notifyChanges = true}) {
-    final insertedValues = List<T>.from(values);
-    _value.insertAll(index, insertedValues);
+  void insertAll(int index, Iterable<T> values, {bool notifyChanges = true, bool capturePrevious = false}) {
+    final previousValue = capturePrevious ? List<T>.from(_value) : null;
+    _value.insertAll(index, values);
 
     if (notifyChanges) {
       viewModel.notifyChanges([
         CurrentStateChanged.insertAllIntoList(
           index,
-          insertedValues,
+          values,
+          previousValue: previousValue,
           propertyName: propertyName,
           sourceHashCode: sourceHashCode,
         )
@@ -262,21 +270,26 @@ class CurrentListProperty<T> extends CurrentProperty<List<T>> {
   /// This increases the length of the list by the length of [values]
   ///
   /// The list must be growable.
+  /// 
+  /// Set [capturePrevious] to true if you need the [CurrentStateChanged] event to
+  /// contain a snapshot of the list prior to the items being inserted.
+  /// 
   /// ```dart
   /// final numbers = CurrentListProperty<int>([1, 2, 3, 4]);
   /// numbers.insertAllAtEnd([10, 11, 12]);
   /// print(numbers); // [1, 2, 3, 4, 10, 11, 12]
   /// ```
-  void insertAllAtEnd(Iterable<T> values, {bool notifyChanges = true}) {
+  void insertAllAtEnd(Iterable<T> values, {bool notifyChanges = true, bool capturePrevious = false}) {
     final insertIndex = _value.length;
-    final insertedValues = List<T>.from(values);
-    _value.insertAll(insertIndex, insertedValues);
+    final previousValue = capturePrevious ? List<T>.from(_value) : null;
+    _value.insertAll(insertIndex, values);
 
     if (notifyChanges) {
       viewModel.notifyChanges([
         CurrentStateChanged.insertAllIntoList(
           insertIndex,
-          insertedValues,
+          values,
+          previousValue: previousValue,
           propertyName: propertyName,
           sourceHashCode: sourceHashCode,
         )
@@ -376,16 +389,21 @@ class CurrentListProperty<T> extends CurrentProperty<List<T>> {
   ///
   /// The list must be growable.
   ///
+  /// Note: To avoid O(N) memory allocations, the generated [CurrentStateChanged] event
+  /// does not contain a snapshot of the list's items prior to being cleared. If you
+  /// need to preserve the previous items, you must explicitly pass `capturePrevious: true`
+  /// or cache them yourself.
+  ///
   /// ```dart
   /// final numbers = CurrentListProperty<int>([1, 2, 3]);
   /// numbers.clear();
   /// print(numbers.length); // 0
   /// print(numbers); // []
   /// ```
-  void clear({bool notifyChanges = true}) {
-    final previousItems = List<T>.from(_value);
+  void clear({bool notifyChanges = true, bool capturePrevious = false}) {
+    final previousItems = capturePrevious ? List<T>.from(_value) : null;
     final stateChangedEvent = CurrentStateChanged.clearedList(
-      previousItems,
+      previousItems: previousItems,
       propertyName: propertyName,
       sourceHashCode: sourceHashCode,
     );
