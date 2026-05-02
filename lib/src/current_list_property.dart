@@ -95,7 +95,7 @@ class CurrentListProperty<T> extends CurrentProperty<List<T>> {
   /// ```
   bool get isNotEmpty => _value.isNotEmpty;
 
-  /// Returns a new [List] with all elements that satisfy the
+  /// Returns a new lazy [Iterable] with all elements that satisfy the
   /// predicate [test].
   ///
   /// Example:
@@ -105,8 +105,8 @@ class CurrentListProperty<T> extends CurrentProperty<List<T>> {
   /// result = numbers.where((x) => x > 5); // (6, 7)
   /// result = numbers.where((x) => x.isEven); // (2, 6)
   /// ```
-  List<T> where(bool Function(T element) test) {
-    return _value.where(test).toList();
+  Iterable<T> where(bool Function(T element) test) {
+    return _value.where(test);
   }
 
   /// Returns the first element that satisfies the given predicate [test].

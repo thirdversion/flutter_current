@@ -351,7 +351,7 @@ void main() {
         final result = numbers.where((x) => x > 2);
 
         expect(result.length, equals(expectedLength));
-        expect(result, equals(expectedItems));
+        expect(result.toList(), equals(expectedItems));
       },
     );
 
@@ -430,7 +430,7 @@ void main() {
       final expected = [3, 2, 1];
       final numbers = CurrentListProperty([1, 2, 3]);
       final reversed = numbers.reversed;
-      expect(reversed, equals(expected));
+      expect(reversed.toList(), equals(expected));
     });
 
     test('first - list is not empty - returns first item', () {
