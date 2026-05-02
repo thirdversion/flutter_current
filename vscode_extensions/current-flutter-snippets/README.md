@@ -41,6 +41,10 @@ If you discover any issues with this extension please file an issue on the [Curr
 
 ## Release Notes
 
+### 2.0.1
+
+- Move the context menu command to the bottom of the menu to avoid conflicts with other commonly used context menu options like "New File" and "New Folder".
+
 ### 2.0.0
 
 - Updated extension name and description to better reflect available features
