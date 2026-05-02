@@ -81,14 +81,18 @@ class CurrentMapProperty<K, V> extends CurrentProperty<Map<K, V>> {
   /// Adds all key/value pairs of [other] to this map.
   ///
   /// If a key of [other] is already in this map, its value is overwritten.
-  void addAll(Map<K, V> other, {bool notifyChanges = true}) {
-    final addedMap = Map<K, V>.from(other);
-    _value.addAll(addedMap);
+  /// 
+  /// Set [capturePrevious] to true if you need the [CurrentStateChanged] event to
+  /// contain a snapshot of the map prior to the items being added.
+  void addAll(Map<K, V> other, {bool notifyChanges = true, bool capturePrevious = false}) {
+    final previousValue = capturePrevious ? Map<K, V>.from(_value) : null;
+    _value.addAll(other);
 
     if (notifyChanges) {
       viewModel.notifyChanges([
         CurrentStateChanged.addedMapToMap(
-          addedMap,
+          other,
+          previousValue: previousValue,
           propertyName: propertyName,
           sourceHashCode: sourceHashCode,
         )
@@ -118,6 +122,10 @@ class CurrentMapProperty<K, V> extends CurrentProperty<Map<K, V>> {
   ///
   /// The operation is equivalent to doing `this[entry.key] = entry.value`
   /// for each [MapEntry] of the iterable.
+  /// 
+  /// Set [capturePrevious] to true if you need the [CurrentStateChanged] event to
+  /// contain a snapshot of the map prior to the items being added.
+  ///
   /// ```dart
   /// final planets = CurrentMapProperty<int, String>{1: 'Mercury', 2: 'Venus',
   ///   3: 'Earth', 4: 'Mars'};
@@ -130,13 +138,14 @@ class CurrentMapProperty<K, V> extends CurrentProperty<Map<K, V>> {
   /// //  7: Uranus, 8: Neptune}
   /// ```
   void addEntries(Iterable<MapEntry<K, V>> entries,
-      {bool notifyChanges = true}) {
-    final addedEntries = List<MapEntry<K, V>>.from(entries);
-    _value.addEntries(addedEntries);
+      {bool notifyChanges = true, bool capturePrevious = false}) {
+    final previousValue = capturePrevious ? _value.entries.toList() : null;
+    _value.addEntries(entries);
 
     if (notifyChanges) {
       viewModel.notifyChanges([
-        CurrentStateChanged.addedEntriesToMap(addedEntries,
+        CurrentStateChanged.addedEntriesToMap(entries,
+            previousValue: previousValue,
             propertyName: propertyName, sourceHashCode: sourceHashCode)
       ]);
     }
@@ -282,15 +291,21 @@ class CurrentMapProperty<K, V> extends CurrentProperty<Map<K, V>> {
   /// Removes all entries from the map.
   ///
   /// After this, the map is empty.
+  ///
+  /// Note: To avoid O(N) memory allocations, the generated [CurrentStateChanged] event
+  /// does not contain a snapshot of the map's items prior to being cleared. If you
+  /// need to preserve the previous items, you must explicitly pass `capturePrevious: true`
+  /// or cache them yourself.
+  ///
   /// ```dart
   /// final planets = CurrentMapProperty<int, String>{1: 'Mercury', 2: 'Venus', 3: 'Earth'};
   /// planets.clear(); // {}
   /// ```
-  void clear({bool notifyChanges = true}) {
-    final previousItems = Map<K, V>.from(_value);
+  void clear({bool notifyChanges = true, bool capturePrevious = false}) {
+    final previousValue = capturePrevious ? Map<K, V>.from(_value) : null;
     final stateChangedEvent = CurrentStateChanged(
       <K, V>{},
-      previousItems,
+      previousValue,
       propertyName: propertyName,
       sourceHashCode: sourceHashCode,
     );
