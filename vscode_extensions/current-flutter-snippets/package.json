@@ -3,7 +3,7 @@
   "displayName": "Flutter Current",
   "description": "Code snippets, commands, and code actions to speed up development workflow when using the Current state management package for Flutter.",
   "publisher": "ThirdVersionTechnologyLtd",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/thirdversion/flutter_current"
@@ -61,7 +61,7 @@
       "explorer/context": [
         {
           "command": "current-flutter-snippets.generateCurrentFiles",
-          "group": "navigation",
+          "group": "z_commands",
           "when": "explorerResourceIsFolder"
         }
       ]
