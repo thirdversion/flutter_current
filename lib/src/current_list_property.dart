@@ -144,13 +144,12 @@ class CurrentListProperty<T> extends CurrentProperty<List<T>> {
   ///
   /// If no element satisfies [test], null is returned
   T? firstWhereOrNull(bool Function(T element) test) {
-    final results = value.where(test);
-
-    if (results.isEmpty) {
-      return null;
-    } else {
-      return results.first;
+    for (final element in _value) {
+      if (test(element)) {
+        return element;
+      }
     }
+    return null;
   }
 
   /// Adds [value] to the end of this list,
