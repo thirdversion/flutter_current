@@ -699,6 +699,7 @@ class CurrentTextController<T> extends TextEditingController {
     _hasDefaultValue = !_isNullable && defaultValue != null;
     _treatTextAsStringValue = treatTextAsStringValue;
     _lifecycleProvider = lifecycleProvider;
+    lifecycleProvider._registerController(this);
     _validation = resolvedValidation;
     _validationIssues = validationIssues;
 
@@ -1001,8 +1002,17 @@ class CurrentTextController<T> extends TextEditingController {
     _validation!.setIssue(issue, markTouched: true);
   }
 
+  bool _isDisposed = false;
+
   @override
+  @mustCallSuper
   void dispose() {
+    if (_isDisposed) {
+      return;
+    }
+
+    _isDisposed = true;
+
     _subscription?.cancel();
     _subscription = null;
     _validation = null;
@@ -1426,6 +1436,11 @@ class _CurrentTextFieldState<T> extends State<CurrentTextField<T>> {
 mixin CurrentTextControllersLifecycleMixin<TWidget extends CurrentWidget,
     TViewModel extends CurrentViewModel> on CurrentState<TWidget, TViewModel> {
   bool _initializedControllers = false;
+  final Set<CurrentTextController<dynamic>> _managedControllers = {};
+
+  void _registerController(CurrentTextController<dynamic> controller) {
+    _managedControllers.add(controller);
+  }
 
   /// Whether the CurrentTextControllers have been initialized. This is used to ensure that the controllers are only initialized once.
   bool get controllersInitialized => _initializedControllers;
@@ -1450,5 +1465,14 @@ mixin CurrentTextControllersLifecycleMixin<TWidget extends CurrentWidget,
   void didUpdateWidget(covariant TWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     _bindOrRebindControllers();
+  }
+
+  @override
+  void dispose() {
+    for (final controller in _managedControllers) {
+      controller.dispose();
+    }
+    _managedControllers.clear();
+    super.dispose();
   }
 }
