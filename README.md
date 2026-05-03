@@ -26,7 +26,7 @@ In your Flutter project, add the dependency to your `pubspec.yaml`.
 
 ```yaml
 dependencies:
-  current: ^3.0.0-beta-5
+  current: ^3.0.0-beta-6
 ```
 
 **Tip:** It is highly recommended to install the [Flutter Current](https://marketplace.visualstudio.com/items?itemName=ThirdVersionTechnologyLtd.current-flutter-snippets) extension in Visual Studio Code. It provides super helpful code snippets, commands, and Quick Fix actions to speed up your development workflow when using Flutter Current.

@@ -1256,6 +1256,33 @@ void main() {
       expect(find.text('Name is required.'), findsOneWidget);
       expect(requiredViewModel.nameValidation.isTouched, isTrue);
     });
+
+    test('dispose is idempotent', () {
+      final controller = CurrentTextController.string();
+      expect(() => controller.dispose(), returnsNormally);
+      expect(() => controller.dispose(), returnsNormally);
+    });
+
+    testWidgets('CurrentTextControllersLifecycleMixin automatically disposes registered controllers', (tester) async {
+      final viewModel = _ControllerValidationViewModel();
+      final controller = CurrentTextController.integer();
+
+      await tester.pumpWidget(
+        _ControllerValidationWidget(
+          viewModel: viewModel,
+          ageController: controller,
+        ),
+      );
+
+      // Verify the controller is not disposed yet (adding listener doesn't throw)
+      expect(() => controller.addListener(() {}), returnsNormally);
+
+      // Unmount the widget to trigger disposal
+      await tester.pumpWidget(const SizedBox());
+
+      // Verify the controller is disposed (adding listener throws)
+      expect(() => controller.addListener(() {}), throwsFlutterError);
+    });
   });
 }
 
