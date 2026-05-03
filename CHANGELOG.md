@@ -1,3 +1,8 @@
+## 3.0.0-beta-6
+
+- `CurrentTextControllersLifecycleMixin` now automatically tracks and disposes `CurrentTextController` instances when the `dispose` method is called. This eliminates the need to manually call `dispose()` on controllers, reducing boilerplate and the risk of memory leaks.
+  - To support backwards compatibility or some case where manual disposal is still desired, `dispose()` on `CurrentTextController` is idempotent, meaning it is safe if you still have manual `dispose()` calls in your existing code.
+
 ## 3.0.0-beta-5
 
 **BREAKING CHANGES**
