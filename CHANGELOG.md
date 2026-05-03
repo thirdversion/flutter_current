@@ -1,3 +1,63 @@
+## 3.0.0
+
+- Updated the minimum Flutter SDK constraint to >=3.38.0
+- Added a new `CurrentTextController` API for two-way text/property binding, including `CurrentTextFormField`, `CurrentTextField`, `formValidator(...)`, and controller-managed validation visibility.
+- Added a new issue-based validation framework built around `CurrentValidationIssue`, `CurrentValidationState`, `CurrentFieldValidation`, `CurrentValidationGroup`, and property-owned validation registration.
+- Added `CurrentProperty` factory constructors, a direct `value` setter, improved busy/event helpers, content-aware dirty tracking for list and map properties, and a full mission-control example app that demonstrates the new APIs end-to-end.
+- `CurrentTextControllersLifecycleMixin` now automatically tracks and disposes `CurrentTextController` instances when the `dispose` method is called. This eliminates the need to manually call `dispose()` on controllers, reducing boilerplate and the risk of memory leaks.
+  - To support backwards compatibility or some case where manual disposal is still desired, `dispose()` on `CurrentTextController` is idempotent, meaning it is safe if you still have manual `dispose()` calls in your existing code.
+
+- Added typed `CurrentProperty` factory constructors for primitive, nullable, list, and map properties.
+- Added `CurrentViewModel.isDirty`, `CurrentProperty.isDirty`, `addBusyStatusChangedListener(...)`, `addAnyStateChangedListener(...)`, `addAnyErrorEventListener(...)`, and `notifyChange(...)` helpers.
+- Added source tracking metadata to `CurrentStateChanged` events and convenience event types such as `BusyStatusChanged`.
+- Added type-safe numeric helper methods such as `addNumber`, `subtractNumber`, `multiplyNumber`, and `modNumber` for int properties.
+- Added helper binding infrastructure so property-owned integrations such as validation can attach automatically when a property is assigned to a view model. This opens the door for future property-owned integrations such as analytics, logging, or some other genius idea you have that we haven't even thought of yet (CONTRIBUTORS WELCOME!).
+
+- Fixed a double evaluation performance issue in `CurrentListProperty.firstWhereOrNull`.
+- Fixed excessively sending events in `CurrentMapProperty.updateAll` and `CurrentMapProperty.removeWhere`. These methods now emit a single bulk change event instead of spamming the state stream with one event per map entry.
+
+**BREAKING CHANGES**
+
+- State change subscriptions now use typed single-event listeners instead of list-based callbacks. Migrate from `addOnStateChangedListener((List<CurrentStateChanged> events) { ... })` to `addStateChangedListener<T>((T event) { ... })`, or use `addAnyStateChangedListener(...)` when you want the untyped stream.
+- `CurrentProperty` equality and `hashCode` are now identity-based. Use `equals(...)` when you want value comparison semantics.
+- `CurrentListProperty` and `CurrentMapProperty` dirty tracking now compares collection contents instead of reference identity, which can change `isDirty` behavior for existing apps.
+- `CurrentWidget` and `CurrentViewModel` lifecycle semantics changed. View model assignment is now tracked per `CurrentState`, `CurrentWidget` can optionally preserve externally owned view models with `disposeViewModel: false`. A couple years ago we opted to throw and exception if a view model was reassigned to a different widget (whether intentionally or by accident). This was to prevent very difficult to diagnose issues. However we are smarter now 🤯. We've now handed you the keys while still putting guardrails rails up to prevent self inflicted drop kicks. See the updated documentation for details on how to use the new lifecycle features and best practices around view model ownership.
+- To eliminate excessive _O(N)_ memory allocations during bulk collection operations (`clear`, `addAll`, `insertAll`, `addEntries`), `CurrentStateChanged` events no longer contain deep clones of the collection by default. The `previousValue` payload will now be `null`. If you need the previous state (e.g., for your own fine-grained Undo feature for example), you must now explicitly opt-in by passing `capturePrevious: true` to these methods.
+  - I recognize this could be a real pain for those of you who were relying on the old behavior, but this is a massive improvement for performance and memory efficiency for 99% of use cases, and the opt-in approach doesn't leave you hanging without a path forward if you do need the previous state.
+- `CurrentListProperty.where()` and `CurrentListProperty.reversed` now return a lazy `Iterable<T>` instead of eagerly allocating a new `List<T>`. This avoids unnecessary memory allocations and aligns with standard Dart iterable semantics. If you strictly need a `List`, simply append `.toList()` to the call.
+  - I also recognize this could be a real pain. Same deal as above, this can result in significant performance and memory improvements for large lists. Plus as mentioned above, it's how standard Dart collections work so it should be more intuitive and less surprising in the long run.
+
+### Example And Docs
+
+- Replaced the simple counter example with a multi-page mission-control showcase covering typed properties, validation, controller binding, collections, busy state, custom events, and code examples.
+- Updated the README with forms-and-validation guidance, including when to use `CurrentTextFormField`, native `TextFormField` plus `controller.formValidator(...)`, or `CurrentTextField`.
+- Expanded package and example test coverage around controller binding, validation flows, widget lifecycle behavior, collection semantics, and the redesigned example app.
+- Update the example app name to reflect the new mission control theme.
+- Updated all the platforms in the example app to reflect the new mission control name change
+- Updated the example app to better support mobile layouts
+- Add topics to pubspec.yaml for better discoverability on pub.dev.
+- Update README to reflect the VS Code extension name change and to highlight the new features of the extension such as Quick Fix actions and Command Palette commands.
+
+### VS Code Flutter Current Extension
+
+### 2.0.1
+
+- Move the context menu command to the bottom of the menu to avoid conflicts with other commonly used context menu options like "New File" and "New Folder".
+
+### 2.0.0
+
+- Updated extension name and description to better reflect available features
+- Minor updates to existing snippets so the cursor ends up in a more intuitive place after insertion
+- Added new Command Palette command to create a new CurrentWidget and View Model. Will prompt you for a file name and design language (material or cupertino). If you are using Current 3.0.0 or greater, will also be presented with an option to create a CurrentWidget with CurrentTextController support.
+- Added a Context Menu option when right-clicking on a folder in the VS Explorer pane to create new CurrentWidget and ViewModel files in that folder.
+- Added several VS Quick Code Actions have been added. These can be activated using your Quick Fix keyboard shortcut and your cursor is:
+  1. On an empty .dart file, scaffold a new CurrentWidget and CurrentViewModel with the necessary boilerplate to get started.
+  1. On a CurrentProperty, add the property to the CurrentViewModel's `currentProps` list.
+  1. On the `currentProps` list in a CurrentViewModel, add any missing CurrentProperty fields to the list.
+  1. On a regular StatefulWidget or StatelessWidget, convert it to a CurrentWidget.
+  1. On a CurrentState class declaration, add the `CurrentTextControllersLifecycleMixin` to the class declaration and add the necessary lifecycle method overrides. (Requires Current 3.0.0 or greater)
+  1. On a CurrentTextController, bind the controller to a property and add to the bindCurrentControllers method automatically. (Requires Current 3.0.0 or greater)
+
 ## 3.0.0-beta-6
 
 - `CurrentTextControllersLifecycleMixin` now automatically tracks and disposes `CurrentTextController` instances when the `dispose` method is called. This eliminates the need to manually call `dispose()` on controllers, reducing boilerplate and the risk of memory leaks.
