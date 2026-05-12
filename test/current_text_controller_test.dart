@@ -1263,7 +1263,9 @@ void main() {
       expect(() => controller.dispose(), returnsNormally);
     });
 
-    testWidgets('CurrentTextControllersLifecycleMixin automatically disposes registered controllers', (tester) async {
+    testWidgets(
+        'CurrentTextControllersLifecycleMixin automatically disposes registered controllers',
+        (tester) async {
       final viewModel = _ControllerValidationViewModel();
       final controller = CurrentTextController.integer();
 

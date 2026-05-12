@@ -1,5 +1,4 @@
 import 'package:current/current.dart';
-import 'package:current/src/current_exceptions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
