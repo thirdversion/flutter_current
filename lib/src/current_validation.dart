@@ -1,8 +1,8 @@
 import 'dart:async';
 
+import 'package:current_core/current_core.dart';
 import 'package:flutter/widgets.dart';
 
-import 'current_property.dart';
 import 'current_view_model.dart';
 
 /// Signature for a synchronous validation rule used by [CurrentFieldValidation].
@@ -580,7 +580,7 @@ class CurrentFieldValidation<T> implements CurrentViewModelBinding {
     );
   }
 
-  CurrentViewModel? _tryGetViewModel() {
+  CurrentStateViewModel? _tryGetViewModel() {
     try {
       return property.viewModel;
     } catch (_) {
