@@ -1,3 +1,9 @@
+## 3.1.0
+
+- Integrated the `current_core` package to extract the non-Flutter-specific logic from the library. This separation of concerns allows for better maintainability and opens the door for other Dart-based UI frameworks to implement their own version of Current without needing to rewrite the core logic. (Jaspr is on the horizon 👀)
+
+_Note this is a non-breaking change as the `current_core` package is being exported via the `current` package. You will not have to change any imports, and navigating through the API documentation is seamless._
+
 ## 3.0.0
 
 - Updated the minimum Flutter SDK constraint to >=3.38.0
