@@ -10,7 +10,7 @@ environment:
   flutter: ">=3.38.0"
 
 dependencies:
-  current_core: 1.0.0
+  current_core: ^1.0.0
   flutter:
     sdk: flutter
 
