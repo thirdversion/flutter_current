@@ -65,9 +65,9 @@
 <h2 id="getting-started">Getting Started</h2>
 <p>In your Flutter project, add the dependency to your <code>pubspec.yaml</code>.</p>
 <pre class="language-yaml"><code class="language-yaml">dependencies:
-  current: ^3.0.0-beta-1
+  current: ^3.1.0
 </code></pre>
-<p><strong>Tip:</strong> Consider installing the <a href="https://marketplace.visualstudio.com/items?itemName=ThirdVersionTechnologyLtd.current-flutter-snippets">Current Flutter Snippets</a> extension in Visual Studio Code to make creating Current classes easier.</p>
+<p><strong>Tip:</strong> It is highly recommended to install the <a href="https://marketplace.visualstudio.com/items?itemName=ThirdVersionTechnologyLtd.current-flutter-snippets">Flutter Current</a> extension in Visual Studio Code. It provides super helpful code snippets, commands, and Quick Fix actions to speed up your development workflow when using Flutter Current.</p>
 <h2 id="quick-start">Quick Start</h2>
 <p>A small counter is still the fastest way to see the core pattern: keep state in a <code>CurrentViewModel</code>, list reactive properties in <code>currentProps</code>, and render that view model through a <code>CurrentWidget</code>.</p>
 <h3 id="counter_view_modeldart">counter_view_model.dart</h3>
@@ -156,10 +156,12 @@ class ProfileViewModel extends CurrentViewModel {
         ? CurrentValidationIssue.message(intl.displayNameRequired)
         : null;
   }
-  
+
   CurrentFieldValidation&lt;int&gt; ageValidation(CurrentIntegerProperty age) {
     return age.createValidation(rules: [_userIsAdult()]);
-CurrentValidationRule&lt;int&gt; _userIsAdult() {
+  }
+
+  CurrentValidationRule&lt;int&gt; _userIsAdult() {
     return (value) =&gt; value &lt; 18
         ? const CurrentValidationIssue(
             'profile.age.minimum', // error code if localization is based on codes
@@ -188,7 +190,7 @@ class ProfilePage extends CurrentWidget&lt;ProfileViewModel&gt; {
 
 class _ProfilePageState extends CurrentState&lt;ProfilePage, ProfileViewModel&gt;
     with CurrentTextControllersLifecycleMixin {
-      
+
   _ProfilePageState(super.viewModel);
 
   final _formKey = GlobalKey&lt;FormState&gt;();
@@ -198,13 +200,13 @@ class _ProfilePageState extends CurrentState&lt;ProfilePage, ProfileViewModel&gt
   @override
   void bindCurrentControllers() {
     // Bind each controller to its property, with an optional validation builder.
-    // Once the controller is bound and assigned to a CurrentTextFormField, 
+    // Once the controller is bound and assigned to a CurrentTextFormField,
     // value parsing, validation, state updates, and error visibility are automatically handled for you.
 
     displayNameController.bind(
       property: viewModel.displayName,
       lifecycleProvider: this,
-      validationBuilder: (property, context) =&gt; 
+      validationBuilder: (property, context) =&gt;
         viewModel.displayNameValidation(property, AppLocalizations.of(context)),
     );
 
@@ -373,7 +375,7 @@ class MyApp extends StatelessWidget {
 <li>Keep docstrings and README guidance up to date when public APIs change.</li>
 </ol>
 <h2 id="additional-information">Additional information</h2>
-<p>This package has <strong>ZERO</strong> third-party package dependencies.</p>
+<p>This package has <strong>ZERO</strong> third-party package dependencies. The <a href="https://pub.dev/packages/current_core">current_core</a> package dependency is the dart-only (No Flutter) core of the library also maintained by <a href="https://github.com/jshep23">Shep</a>. This pattern opens the door for other dart-based UI frameworks such as Jaspr to have their own version of Current without rewriting the brains.</p>
 <p>You can find the full API documentation <a href="https://pub.dev/documentation/current/latest/">here</a>.</p>
 <br>
 <p align="center">
@@ -422,7 +424,7 @@ class MyApp extends StatelessWidget {
 <footer>
   <span class="no-break">
     current
-      3.0.0-beta-1
+      3.1.0
   </span>
   
 </footer>
