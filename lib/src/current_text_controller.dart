@@ -1,9 +1,13 @@
 import 'dart:async';
 
-import 'package:current/current.dart';
-import 'package:current/src/current_exceptions.dart';
+import 'package:current_core/current_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import 'current_exceptions.dart';
+import 'current_validation.dart';
+import 'current_view_model.dart';
+import 'current_widget.dart';
 
 /// A TextEditingController that is bound to a CurrentProperty.
 ///

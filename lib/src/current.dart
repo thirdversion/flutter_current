@@ -1,4 +1,4 @@
-import 'package:current/current.dart';
+import 'current_view_model.dart';
 import 'package:flutter/widgets.dart';
 
 ///This widget is not intended to be created manually and is used by the [Current] widget.

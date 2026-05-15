@@ -374,7 +374,7 @@ If submitting a pull request, please ensure the following standards are met:
 
 ## Additional information
 
-This package has **ZERO** third-party package dependencies.
+This package has **ZERO** third-party package dependencies. The [current_core](https://pub.dev/packages/current_core) package dependency is the dart-only (No Flutter) core of the library also maintained by [Shep](https://github.com/jshep23). This pattern opens the door for other dart-based UI frameworks such as Jaspr to have their own version of Current without rewriting the brains.
 
 You can find the full API documentation [here](https://pub.dev/documentation/current/latest/).
 
