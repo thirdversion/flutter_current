@@ -1,4 +1,6 @@
-import 'package:current/current.dart';
+import 'package:current_core/current_core.dart';
+
+import 'current_text_controller.dart';
 
 /// Base class for exceptions thrown by CurrentTextController when there is an issue with the CurrentProperty it is trying to control.
 ///
