@@ -57,6 +57,7 @@
   <div>
     <ol class="annotation-list">
         <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+        <li>@<a href="https://api.flutter.dev/flutter/widgets/mustCallSuper-constant.html">mustCallSuper</a></li>
     </ol>
   </div>
 <span class="returntype">void</span>
@@ -81,7 +82,14 @@ listeners or not immediately before disposal.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
+@mustCallSuper
 void dispose() {
+  if (_isDisposed) {
+    return;
+  }
+
+  _isDisposed = true;
+
   _subscription?.cancel();
   _subscription = null;
   _validation = null;
@@ -116,7 +124,7 @@ void dispose() {
 <footer>
   <span class="no-break">
     current
-      3.0.0-beta-1
+      3.1.0
   </span>
   
 </footer>
