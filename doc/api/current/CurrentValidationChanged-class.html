@@ -55,11 +55,11 @@
     
 <section class="desc markdown">
   <p>Event sent when the validation metadata for a field changes.</p>
-<p>This extends <a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateChanged-class.html">CurrentStateChanged</a> so validation state changes flow through
+<p>This extends <a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateChanged-class.html">CurrentStateChanged</a> so validation state changes flow through
 the same event pipeline used by the rest of Current. This means that
 <a href="../current/CurrentWidget-class.html">CurrentWidget</a> and <a href="../current/CurrentState-class.html">CurrentState</a> rebuild automatically when validation
 state changes.</p>
-<p>The <a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateChanged/sourceHashCode.html">sourceHashCode</a> inherited from <a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateChanged-class.html">CurrentStateChanged</a> refers to the
+<p>The <a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateChanged/sourceHashCode.html">sourceHashCode</a> inherited from <a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateChanged-class.html">CurrentStateChanged</a> refers to the
 underlying <code>property</code>. The <a href="../current/CurrentValidationChanged/validationSourceHashCode.html">validationSourceHashCode</a> identifies the
 specific <a href="../current/CurrentFieldValidation-class.html">CurrentFieldValidation</a> instance that emitted the event.</p>
 </section>
@@ -72,7 +72,7 @@ specific <a href="../current/CurrentFieldValidation-class.html">CurrentFieldVali
   <dd>
     <ul class="gt-separated dark clazz-relationships">
       <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
-        <li><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateChanged-class.html">CurrentStateChanged</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../current/CurrentValidationState-class.html">CurrentValidationState</a></span>&gt;</span></li>
+        <li><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateChanged-class.html">CurrentStateChanged</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../current/CurrentValidationState-class.html">CurrentValidationState</a></span>&gt;</span></li>
       <li>CurrentValidationChanged</li>
     </ul>
   </dd>
@@ -93,7 +93,7 @@ specific <a href="../current/CurrentFieldValidation-class.html">CurrentFieldVali
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="CurrentValidationChanged.new" class="callable">
-          <span class="name"><a href="../current/CurrentValidationChanged/CurrentValidationChanged.html">CurrentValidationChanged</a></span><span class="signature">({<span class="parameter" id="-param-property"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentProperty-class.html">CurrentProperty</a></span> <span class="parameter-name">property</span>, </span><span class="parameter" id="-param-nextState"><span>required</span> <span class="type-annotation"><a href="../current/CurrentValidationState-class.html">CurrentValidationState</a></span> <span class="parameter-name">nextState</span>, </span><span class="parameter" id="-param-previousState"><span>required</span> <span class="type-annotation"><a href="../current/CurrentValidationState-class.html">CurrentValidationState</a></span> <span class="parameter-name">previousState</span>, </span><span class="parameter" id="-param-validationSourceHashCode"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">validationSourceHashCode</span></span>})</span>
+          <span class="name"><a href="../current/CurrentValidationChanged/CurrentValidationChanged.html">CurrentValidationChanged</a></span><span class="signature">({<span class="parameter" id="-param-property"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentProperty-class.html">CurrentProperty</a></span> <span class="parameter-name">property</span>, </span><span class="parameter" id="-param-nextState"><span>required</span> <span class="type-annotation"><a href="../current/CurrentValidationState-class.html">CurrentValidationState</a></span> <span class="parameter-name">nextState</span>, </span><span class="parameter" id="-param-previousState"><span>required</span> <span class="type-annotation"><a href="../current/CurrentValidationState-class.html">CurrentValidationState</a></span> <span class="parameter-name">previousState</span>, </span><span class="parameter" id="-param-validationSourceHashCode"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">validationSourceHashCode</span></span>})</span>
         </dt>
         <dd>
           Creates a validation change event for the provided <code>property</code>.
@@ -107,7 +107,7 @@ specific <a href="../current/CurrentFieldValidation-class.html">CurrentFieldVali
     <h2>Properties</h2>
     <dl class="properties">
         <dt id="description" class="property inherited">
-  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateChanged/description.html">description</a></span>
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateChanged/description.html">description</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
   
 
@@ -131,7 +131,7 @@ specific <a href="../current/CurrentFieldValidation-class.html">CurrentFieldVali
 </dd>
 
         <dt id="nextValue" class="property inherited">
-  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateChanged/nextValue.html">nextValue</a></span>
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateChanged/nextValue.html">nextValue</a></span>
   <span class="signature">&#8594; <a href="../current/CurrentValidationState-class.html">CurrentValidationState</a>?</span>
   
 
@@ -143,7 +143,7 @@ specific <a href="../current/CurrentFieldValidation-class.html">CurrentFieldVali
 </dd>
 
         <dt id="previousValue" class="property inherited">
-  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateChanged/previousValue.html">previousValue</a></span>
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateChanged/previousValue.html">previousValue</a></span>
   <span class="signature">&#8594; <a href="../current/CurrentValidationState-class.html">CurrentValidationState</a>?</span>
   
 
@@ -155,7 +155,7 @@ specific <a href="../current/CurrentFieldValidation-class.html">CurrentFieldVali
 </dd>
 
         <dt id="propertyName" class="property inherited">
-  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateChanged/propertyName.html">propertyName</a></span>
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateChanged/propertyName.html">propertyName</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
   
 
@@ -179,7 +179,7 @@ specific <a href="../current/CurrentFieldValidation-class.html">CurrentFieldVali
 </dd>
 
         <dt id="sourceHashCode" class="property inherited">
-  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateChanged/sourceHashCode.html">sourceHashCode</a></span>
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateChanged/sourceHashCode.html">sourceHashCode</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span>
   
 
@@ -225,7 +225,7 @@ specific <a href="../current/CurrentFieldValidation-class.html">CurrentFieldVali
 </dd>
 
         <dt id="toString" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateChanged/toString.html">toString</a></span><span class="signature">(<wbr>)
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateChanged/toString.html">toString</a></span><span class="signature">(<wbr>)
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
   </span>
   
@@ -287,7 +287,7 @@ specific <a href="../current/CurrentFieldValidation-class.html">CurrentFieldVali
 <footer>
   <span class="no-break">
     current
-      3.1.0
+      3.1.1
   </span>
   
 </footer>

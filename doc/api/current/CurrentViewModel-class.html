@@ -59,8 +59,8 @@
 the data in your model.</p>
 <p>This is where any logic that manipulates your model should be. An <a href="../current/CurrentWidget-class.html">CurrentWidget</a> and it's
 accompanying state always has access to it's view model via the viewModel property.</p>
-<p>Update events are automatically emitted whenever the value of an <a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentProperty-class.html">CurrentProperty</a> is changed.
-The <a href="../current/CurrentState-class.html">CurrentState</a> the ViewModel is bound to will update itself each time an <a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentProperty-class.html">CurrentProperty</a> value
+<p>Update events are automatically emitted whenever the value of an <a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentProperty-class.html">CurrentProperty</a> is changed.
+The <a href="../current/CurrentState-class.html">CurrentState</a> the ViewModel is bound to will update itself each time an <a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentProperty-class.html">CurrentProperty</a> value
 is changed and call the states build function, updating the UI.</p>
 </section>
 
@@ -72,7 +72,7 @@ is changed and call the states build function, updating the UI.</p>
   <dd>
     <ul class="gt-separated dark clazz-relationships">
       <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
-        <li><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateViewModel-class.html">CurrentStateViewModel</a></li>
+        <li><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel-class.html">CurrentStateViewModel</a></li>
       <li>CurrentViewModel</li>
     </ul>
   </dd>
@@ -113,7 +113,7 @@ is changed and call the states build function, updating the UI.</p>
     <h2>Properties</h2>
     <dl class="properties">
         <dt id="activeTasks" class="property inherited">
-  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateViewModel/activeTasks.html">activeTasks</a></span>
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/activeTasks.html">activeTasks</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a></span>
   
 
@@ -125,7 +125,7 @@ is changed and call the states build function, updating the UI.</p>
 </dd>
 
         <dt id="assignedTo" class="property inherited">
-  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateViewModel/assignedTo.html">assignedTo</a></span>
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/assignedTo.html">assignedTo</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span>
   
 
@@ -137,7 +137,7 @@ is changed and call the states build function, updating the UI.</p>
 </dd>
 
         <dt id="assignedToState" class="property inherited">
-  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateViewModel/assignedToState.html">assignedToState</a></span>
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/assignedToState.html">assignedToState</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
   
 
@@ -149,7 +149,7 @@ is changed and call the states build function, updating the UI.</p>
 </dd>
 
         <dt id="busy" class="property inherited">
-  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateViewModel/busy.html">busy</a></span>
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/busy.html">busy</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
   
 
@@ -161,26 +161,38 @@ is changed and call the states build function, updating the UI.</p>
 </dd>
 
         <dt id="currentBindings" class="property inherited">
-  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateViewModel/currentBindings.html">currentBindings</a></span>
-  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentViewModelBinding-class.html">CurrentViewModelBinding</a></span>&gt;</span></span>
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/currentBindings.html">currentBindings</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentViewModelBinding-class.html">CurrentViewModelBinding</a></span>&gt;</span></span>
   
 
 </dt>
 <dd class="inherited">
   Provides a list of helper bindings that should attach after the view model
-has assigned itself to all <a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateViewModel/currentProps.html">currentProps</a>.
+has assigned itself to all <a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/currentProps.html">currentProps</a>.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="currentProps" class="property inherited">
-  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateViewModel/currentProps.html">currentProps</a></span>
-  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentProperty-class.html">CurrentProperty</a></span>&gt;</span></span>
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/currentProps.html">currentProps</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentProperty-class.html">CurrentProperty</a></span>&gt;</span></span>
   
 
 </dt>
 <dd class="inherited">
-  Provides a list of <a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentProperty-class.html">CurrentProperty</a> fields in the <a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateViewModel-class.html">CurrentStateViewModel</a>.
+  Provides a list of <a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentProperty-class.html">CurrentProperty</a> fields in the <a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel-class.html">CurrentStateViewModel</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="disposed" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/disposed.html">disposed</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -210,13 +222,13 @@ has assigned itself to all <a href="https://pub.dev/documentation/current_core/1
 </dd>
 
         <dt id="isDirty" class="property inherited">
-  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateViewModel/isDirty.html">isDirty</a></span>
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/isDirty.html">isDirty</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
   
 
 </dt>
 <dd class="inherited">
-  Whether any of the properties defined in <a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateViewModel/currentProps.html">currentProps</a> have a value that is different from their original value.
+  Whether any of the properties defined in <a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/currentProps.html">currentProps</a> have a value that is different from their original value.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -238,38 +250,38 @@ has assigned itself to all <a href="https://pub.dev/documentation/current_core/1
 
     
   <section
-      class="summary offset-anchor inherited"
+      class="summary offset-anchor"
       id="instance-methods">
     <h2>Methods</h2>
     <dl class="callables">
         <dt id="addAnyErrorEventListener" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateViewModel/addAnyErrorEventListener.html">addAnyErrorEventListener</a></span><span class="signature">(<wbr><span class="parameter" id="addAnyErrorEventListener-param-onError"><span class="type-annotation">void</span> <span class="parameter-name">onError</span>(<span class="parameter" id="param-event"><span class="type-annotation"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/ErrorEvent-class.html">ErrorEvent</a></span> <span class="parameter-name">event</span></span>), {</span><span class="parameter" id="addAnyErrorEventListener-param-onInternalError"><span class="type-annotation">void</span> <span class="parameter-name">onInternalError</span>(<span class="parameter" id="param-error"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">error</span>, </span><span class="parameter" id="param-stackTrace"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/StackTrace-class.html">StackTrace</a></span> <span class="parameter-name">stackTrace</span></span>)?</span>})
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/StreamSubscription-class.html">StreamSubscription</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/ErrorEvent-class.html">ErrorEvent</a></span>&gt;</span></span>
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/addAnyErrorEventListener.html">addAnyErrorEventListener</a></span><span class="signature">(<wbr><span class="parameter" id="addAnyErrorEventListener-param-onError"><span class="type-annotation">void</span> <span class="parameter-name">onError</span>(<span class="parameter" id="param-event"><span class="type-annotation"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/ErrorEvent-class.html">ErrorEvent</a></span> <span class="parameter-name">event</span></span>), {</span><span class="parameter" id="addAnyErrorEventListener-param-onInternalError"><span class="type-annotation">void</span> <span class="parameter-name">onInternalError</span>(<span class="parameter" id="param-error"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">error</span>, </span><span class="parameter" id="param-stackTrace"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/StackTrace-class.html">StackTrace</a></span> <span class="parameter-name">stackTrace</span></span>)?</span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/StreamSubscription-class.html">StreamSubscription</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/ErrorEvent-class.html">ErrorEvent</a></span>&gt;</span></span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Adds an event handler for all <a href="https://pub.dev/documentation/current_core/1.0.0/current_core/ErrorEvent-class.html">ErrorEvent</a> values
+  Adds an event handler for all <a href="https://pub.dev/documentation/current_core/1.0.2/current_core/ErrorEvent-class.html">ErrorEvent</a> values
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="addAnyStateChangedListener" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateViewModel/addAnyStateChangedListener.html">addAnyStateChangedListener</a></span><span class="signature">(<wbr><span class="parameter" id="addAnyStateChangedListener-param-onStateChanged"><span class="type-annotation">void</span> <span class="parameter-name">onStateChanged</span>(<span class="parameter" id="param-event"><span class="type-annotation"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateChanged-class.html">CurrentStateChanged</a></span> <span class="parameter-name">event</span></span>), {</span><span class="parameter" id="addAnyStateChangedListener-param-filter"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">filter</span>(<span class="parameter" id="param-event"><span class="type-annotation"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateChanged-class.html">CurrentStateChanged</a></span> <span class="parameter-name">event</span></span>)?, </span><span class="parameter" id="addAnyStateChangedListener-param-propertyName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">propertyName</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/StreamSubscription-class.html">StreamSubscription</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateChanged-class.html">CurrentStateChanged</a></span>&gt;</span></span>
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/addAnyStateChangedListener.html">addAnyStateChangedListener</a></span><span class="signature">(<wbr><span class="parameter" id="addAnyStateChangedListener-param-onStateChanged"><span class="type-annotation">void</span> <span class="parameter-name">onStateChanged</span>(<span class="parameter" id="param-event"><span class="type-annotation"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateChanged-class.html">CurrentStateChanged</a></span> <span class="parameter-name">event</span></span>), {</span><span class="parameter" id="addAnyStateChangedListener-param-filter"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">filter</span>(<span class="parameter" id="param-event"><span class="type-annotation"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateChanged-class.html">CurrentStateChanged</a></span> <span class="parameter-name">event</span></span>)?, </span><span class="parameter" id="addAnyStateChangedListener-param-propertyName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">propertyName</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/StreamSubscription-class.html">StreamSubscription</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateChanged-class.html">CurrentStateChanged</a></span>&gt;</span></span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Adds an event handler for all <a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateChanged-class.html">CurrentStateChanged</a> events.
+  Adds an event handler for all <a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateChanged-class.html">CurrentStateChanged</a> events.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="addBusyStatusChangedListener" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateViewModel/addBusyStatusChangedListener.html">addBusyStatusChangedListener</a></span><span class="signature">(<wbr><span class="parameter" id="addBusyStatusChangedListener-param-onChanged"><span class="type-annotation">void</span> <span class="parameter-name">onChanged</span>(<span class="parameter" id="param-event"><span class="type-annotation"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/BusyStatusChanged-class.html">BusyStatusChanged</a></span> <span class="parameter-name">event</span></span>), {</span><span class="parameter" id="addBusyStatusChangedListener-param-busyTaskKey"><span class="type-annotation">dynamic</span> <span class="parameter-name">busyTaskKey</span></span>})
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/addBusyStatusChangedListener.html">addBusyStatusChangedListener</a></span><span class="signature">(<wbr><span class="parameter" id="addBusyStatusChangedListener-param-onChanged"><span class="type-annotation">void</span> <span class="parameter-name">onChanged</span>(<span class="parameter" id="param-event"><span class="type-annotation"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/BusyStatusChanged-class.html">BusyStatusChanged</a></span> <span class="parameter-name">event</span></span>), {</span><span class="parameter" id="addBusyStatusChangedListener-param-busyTaskKey"><span class="type-annotation">dynamic</span> <span class="parameter-name">busyTaskKey</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/StreamSubscription-class.html">StreamSubscription</a></span>
   </span>
   
@@ -295,20 +307,20 @@ has assigned itself to all <a href="https://pub.dev/documentation/current_core/1
 </dd>
 
         <dt id="addOnErrorEventListener" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateViewModel/addOnErrorEventListener.html">addOnErrorEventListener</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/current_core/1.0.0/current_core/ErrorEvent-class.html">ErrorEvent</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="addOnErrorEventListener-param-onError"><span class="type-annotation">void</span> <span class="parameter-name">onError</span>(<span class="parameter" id="param-event"><span class="type-annotation">T</span> <span class="parameter-name">event</span></span>), {</span><span class="parameter" id="addOnErrorEventListener-param-onInternalError"><span class="type-annotation">void</span> <span class="parameter-name">onInternalError</span>(<span class="parameter" id="param-error"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">error</span>, </span><span class="parameter" id="param-stackTrace"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/StackTrace-class.html">StackTrace</a></span> <span class="parameter-name">stackTrace</span></span>)?</span>})
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/addOnErrorEventListener.html">addOnErrorEventListener</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/current_core/1.0.2/current_core/ErrorEvent-class.html">ErrorEvent</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="addOnErrorEventListener-param-onError"><span class="type-annotation">void</span> <span class="parameter-name">onError</span>(<span class="parameter" id="param-event"><span class="type-annotation">T</span> <span class="parameter-name">event</span></span>), {</span><span class="parameter" id="addOnErrorEventListener-param-onInternalError"><span class="type-annotation">void</span> <span class="parameter-name">onInternalError</span>(<span class="parameter" id="param-error"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">error</span>, </span><span class="parameter" id="param-stackTrace"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/StackTrace-class.html">StackTrace</a></span> <span class="parameter-name">stackTrace</span></span>)?</span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/StreamSubscription-class.html">StreamSubscription</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Adds an event handler which gets executed each time <a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateViewModel/notifyError.html">notifyError</a> is called.
+  Adds an event handler which gets executed each time <a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/notifyError.html">notifyError</a> is called.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="addStateChangedListener" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateViewModel/addStateChangedListener.html">addStateChangedListener</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateChanged-class.html">CurrentStateChanged</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="addStateChangedListener-param-onStateChanged"><span class="type-annotation">void</span> <span class="parameter-name">onStateChanged</span>(<span class="parameter" id="param-event"><span class="type-annotation">T</span> <span class="parameter-name">event</span></span>), {</span><span class="parameter" id="addStateChangedListener-param-filter"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">filter</span>(<span class="parameter" id="param-event"><span class="type-annotation">T</span> <span class="parameter-name">event</span></span>)?, </span><span class="parameter" id="addStateChangedListener-param-propertyName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">propertyName</span></span>})
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/addStateChangedListener.html">addStateChangedListener</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateChanged-class.html">CurrentStateChanged</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="addStateChangedListener-param-onStateChanged"><span class="type-annotation">void</span> <span class="parameter-name">onStateChanged</span>(<span class="parameter" id="param-event"><span class="type-annotation">T</span> <span class="parameter-name">event</span></span>), {</span><span class="parameter" id="addStateChangedListener-param-filter"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">filter</span>(<span class="parameter" id="param-event"><span class="type-annotation">T</span> <span class="parameter-name">event</span></span>)?, </span><span class="parameter" id="addStateChangedListener-param-propertyName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">propertyName</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/StreamSubscription-class.html">StreamSubscription</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
   </span>
   
@@ -321,7 +333,7 @@ has assigned itself to all <a href="https://pub.dev/documentation/current_core/1
 </dd>
 
         <dt id="assignTo" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateViewModel/assignTo.html">assignTo</a></span><span class="signature">(<wbr><span class="parameter" id="assignTo-param-widgetHash"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">widgetHash</span></span>)
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/assignTo.html">assignTo</a></span><span class="signature">(<wbr><span class="parameter" id="assignTo-param-widgetHash"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">widgetHash</span></span>)
     <span class="returntype parameter">&#8594; void</span>
   </span>
   
@@ -334,7 +346,7 @@ has assigned itself to all <a href="https://pub.dev/documentation/current_core/1
 </dd>
 
         <dt id="cancelSubscription" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateViewModel/cancelSubscription.html">cancelSubscription</a></span><span class="signature">(<wbr><span class="parameter" id="cancelSubscription-param-subscription"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/StreamSubscription-class.html">StreamSubscription</a>?</span> <span class="parameter-name">subscription</span></span>)
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/cancelSubscription.html">cancelSubscription</a></span><span class="signature">(<wbr><span class="parameter" id="cancelSubscription-param-subscription"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/StreamSubscription-class.html">StreamSubscription</a>?</span> <span class="parameter-name">subscription</span></span>)
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
   </span>
   
@@ -346,23 +358,34 @@ has assigned itself to all <a href="https://pub.dev/documentation/current_core/1
 
 </dd>
 
-        <dt id="dispose" class="callable inherited">
-  <span class="name"><a href="https://api.flutter.dev/flutter/foundation/ChangeNotifier/dispose.html">dispose</a></span><span class="signature">(<wbr>)
+        <dt id="dispose" class="callable">
+  <span class="name"><a href="../current/CurrentViewModel/dispose.html">dispose</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  See <a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/disposeViewModel.html">disposeViewModel</a>.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="disposeViewModel" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/disposeViewModel.html">disposeViewModel</a></span><span class="signature">(<wbr>)
     <span class="returntype parameter">&#8594; void</span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Discards any resources used by the object. After this is called, the
-object is not in a usable state and should be discarded (calls to
-<a href="https://api.flutter.dev/flutter/foundation/ChangeNotifier/addListener.html">addListener</a> will throw after the object is disposed).
+  Closes the state and error streams and removes any listeners associated with those streams.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="doAsync" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateViewModel/doAsync.html">doAsync</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="doAsync-param-work"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">work</span>(), {</span><span class="parameter" id="doAsync-param-busyTaskKey"><span class="type-annotation">dynamic</span> <span class="parameter-name">busyTaskKey</span></span>})
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/doAsync.html">doAsync</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="doAsync-param-work"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">work</span>(), {</span><span class="parameter" id="doAsync-param-busyTaskKey"><span class="type-annotation">dynamic</span> <span class="parameter-name">busyTaskKey</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
   </span>
   
@@ -375,7 +398,7 @@ object is not in a usable state and should be discarded (calls to
 </dd>
 
         <dt id="isTaskInProgress" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateViewModel/isTaskInProgress.html">isTaskInProgress</a></span><span class="signature">(<wbr><span class="parameter" id="isTaskInProgress-param-busyTaskKey"><span class="type-annotation">dynamic</span> <span class="parameter-name">busyTaskKey</span></span>)
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/isTaskInProgress.html">isTaskInProgress</a></span><span class="signature">(<wbr><span class="parameter" id="isTaskInProgress-param-busyTaskKey"><span class="type-annotation">dynamic</span> <span class="parameter-name">busyTaskKey</span></span>)
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
   </span>
   
@@ -401,7 +424,7 @@ object is not in a usable state and should be discarded (calls to
 </dd>
 
         <dt id="notifyChange" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateViewModel/notifyChange.html">notifyChange</a></span><span class="signature">(<wbr><span class="parameter" id="notifyChange-param-event"><span class="type-annotation"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateChanged-class.html">CurrentStateChanged</a></span> <span class="parameter-name">event</span></span>)
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/notifyChange.html">notifyChange</a></span><span class="signature">(<wbr><span class="parameter" id="notifyChange-param-event"><span class="type-annotation"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateChanged-class.html">CurrentStateChanged</a></span> <span class="parameter-name">event</span></span>)
     <span class="returntype parameter">&#8594; void</span>
   </span>
   
@@ -414,7 +437,7 @@ object is not in a usable state and should be discarded (calls to
 </dd>
 
         <dt id="notifyChanges" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateViewModel/notifyChanges.html">notifyChanges</a></span><span class="signature">(<wbr><span class="parameter" id="notifyChanges-param-events"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateChanged-class.html">CurrentStateChanged</a></span>&gt;</span></span> <span class="parameter-name">events</span></span>)
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/notifyChanges.html">notifyChanges</a></span><span class="signature">(<wbr><span class="parameter" id="notifyChanges-param-events"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateChanged-class.html">CurrentStateChanged</a></span>&gt;</span></span> <span class="parameter-name">events</span></span>)
     <span class="returntype parameter">&#8594; void</span>
   </span>
   
@@ -427,7 +450,7 @@ object is not in a usable state and should be discarded (calls to
 </dd>
 
         <dt id="notifyError" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateViewModel/notifyError.html">notifyError</a></span><span class="signature">(<wbr><span class="parameter" id="notifyError-param-event"><span class="type-annotation"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/ErrorEvent-class.html">ErrorEvent</a></span> <span class="parameter-name">event</span></span>)
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/notifyError.html">notifyError</a></span><span class="signature">(<wbr><span class="parameter" id="notifyError-param-event"><span class="type-annotation"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/ErrorEvent-class.html">ErrorEvent</a></span> <span class="parameter-name">event</span></span>)
     <span class="returntype parameter">&#8594; void</span>
   </span>
   
@@ -453,7 +476,7 @@ object is not in a usable state and should be discarded (calls to
 </dd>
 
         <dt id="releaseFrom" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateViewModel/releaseFrom.html">releaseFrom</a></span><span class="signature">(<wbr><span class="parameter" id="releaseFrom-param-widgetHash"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">widgetHash</span></span>)
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/releaseFrom.html">releaseFrom</a></span><span class="signature">(<wbr><span class="parameter" id="releaseFrom-param-widgetHash"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">widgetHash</span></span>)
     <span class="returntype parameter">&#8594; void</span>
   </span>
   
@@ -481,21 +504,21 @@ notified when the object changes.
 </dd>
 
         <dt id="resetAll" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateViewModel/resetAll.html">resetAll</a></span><span class="signature">(<wbr>)
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/resetAll.html">resetAll</a></span><span class="signature">(<wbr>)
     <span class="returntype parameter">&#8594; void</span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Resets the value of all properties defined in the <a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateViewModel/currentProps.html">currentProps</a> list
+  Resets the value of all properties defined in the <a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/currentProps.html">currentProps</a> list
 to their original value.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="setBusy" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateViewModel/setBusy.html">setBusy</a></span><span class="signature">(<wbr>{<span class="parameter" id="setBusy-param-busyTaskKey"><span class="type-annotation">dynamic</span> <span class="parameter-name">busyTaskKey</span></span>})
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/setBusy.html">setBusy</a></span><span class="signature">(<wbr>{<span class="parameter" id="setBusy-param-busyTaskKey"><span class="type-annotation">dynamic</span> <span class="parameter-name">busyTaskKey</span></span>})
     <span class="returntype parameter">&#8594; void</span>
   </span>
   
@@ -508,7 +531,7 @@ to their original value.
 </dd>
 
         <dt id="setBusyStatus" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateViewModel/setBusyStatus.html">setBusyStatus</a></span><span class="signature">(<wbr>{<span class="parameter" id="setBusyStatus-param-isBusy"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">isBusy</span>, </span><span class="parameter" id="setBusyStatus-param-busyTaskKey"><span class="type-annotation">dynamic</span> <span class="parameter-name">busyTaskKey</span></span>})
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/setBusyStatus.html">setBusyStatus</a></span><span class="signature">(<wbr>{<span class="parameter" id="setBusyStatus-param-isBusy"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">isBusy</span>, </span><span class="parameter" id="setBusyStatus-param-busyTaskKey"><span class="type-annotation">dynamic</span> <span class="parameter-name">busyTaskKey</span></span>})
     <span class="returntype parameter">&#8594; void</span>
   </span>
   
@@ -521,20 +544,20 @@ to their original value.
 </dd>
 
         <dt id="setMultiple" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateViewModel/setMultiple.html">setMultiple</a></span><span class="signature">(<wbr><span class="parameter" id="setMultiple-param-setters"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentProperty-class.html">CurrentProperty</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">setters</span></span>)
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/setMultiple.html">setMultiple</a></span><span class="signature">(<wbr><span class="parameter" id="setMultiple-param-setters"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentProperty-class.html">CurrentProperty</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">setters</span></span>)
     <span class="returntype parameter">&#8594; void</span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Set multiple <a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentProperty-class.html">CurrentProperty</a> values, but only trigger a single state change
+  Set multiple <a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentProperty-class.html">CurrentProperty</a> values, but only trigger a single state change
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="setNotBusy" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.0/current_core/CurrentStateViewModel/setNotBusy.html">setNotBusy</a></span><span class="signature">(<wbr>{<span class="parameter" id="setNotBusy-param-busyTaskKey"><span class="type-annotation">dynamic</span> <span class="parameter-name">busyTaskKey</span></span>})
+  <span class="name"><a href="https://pub.dev/documentation/current_core/1.0.2/current_core/CurrentStateViewModel/setNotBusy.html">setNotBusy</a></span><span class="signature">(<wbr>{<span class="parameter" id="setNotBusy-param-busyTaskKey"><span class="type-annotation">dynamic</span> <span class="parameter-name">busyTaskKey</span></span>})
     <span class="returntype parameter">&#8594; void</span>
   </span>
   
@@ -609,7 +632,7 @@ to their original value.
 <footer>
   <span class="no-break">
     current
-      3.1.0
+      3.1.1
   </span>
   
 </footer>
