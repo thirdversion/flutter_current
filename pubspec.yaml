@@ -1,12 +1,12 @@
 name: current
 description: A simple yet powerful state management library for Flutter. Keeps your widget build methods clean, with ZERO dependencies on 3rd-Party packages.
-version: 3.1.0
+version: 3.1.1
 homepage: https://github.com/thirdversion/flutter_current
 topics: [state-management, validation]
 issue_tracker: https://github.com/thirdversion/flutter_current/issues
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: ">=3.0.0 <4.0.0"
   flutter: ">=3.38.0"
 
 dependencies:
