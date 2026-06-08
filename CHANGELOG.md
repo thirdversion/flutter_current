@@ -1,3 +1,8 @@
+## 3.1.1
+
+- Update `current_core` to latest version.
+- Explicitly call `disposeViewModel` function from within `CurrentViewModel.dispose()`. This resolves an issue where the dispose method on a ViewModel was being overrided by the ChangeNotifier mixin.
+
 ## 3.1.0
 
 - Integrated the `current_core` package to extract the non-Flutter-specific logic from the library. This separation of concerns allows for better maintainability and opens the door for other Dart-based UI frameworks to implement their own version of Current without needing to rewrite the core logic. (Jaspr is on the horizon 👀)
