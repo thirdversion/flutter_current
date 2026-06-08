@@ -11,4 +11,11 @@ import 'package:flutter/foundation.dart';
 ///The [CurrentState] the ViewModel is bound to will update itself each time an [CurrentProperty] value
 ///is changed and call the states build function, updating the UI.
 abstract class CurrentViewModel extends CurrentStateViewModel
-    with ChangeNotifier {}
+    with ChangeNotifier {
+  @override
+  @mustCallSuper
+  void dispose() {
+    super.dispose();
+    disposeViewModel();
+  }
+}
